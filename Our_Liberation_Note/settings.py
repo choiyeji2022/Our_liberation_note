@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-import mysettings
+# import mysettings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -174,3 +174,5 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 
 }
+
+AUTH_USER_MODEL = 'user.User'
