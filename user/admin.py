@@ -1,25 +1,23 @@
 from django import forms
 from django.contrib import admin
-from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from user.models import User
+from user.models import User, UserGroup
 
 
 class UserCreationForm(forms.ModelForm):
     """
     새 유저를 생성하기 위한 폼. 비밀번호 재입력 및 모든 요청 필드를 포함한다.
     """
+
     password1 = forms.CharField(label="비밀번호", widget=forms.PasswordInput)
-    password2 = forms.CharField(
-        label="비밀번호 확인", widget=forms.PasswordInput
-    )
+    password2 = forms.CharField(label="비밀번호 확인", widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ["nickname", "email", "username"]     
+        fields = ["nickname", "email", "username"]
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -73,15 +71,25 @@ class UserAdmin(BaseUserAdmin):
     search_fields = ["nickname", "email"]
     ordering = ["id"]
     filter_horizontal = []
-    
+
     # 닉네임과 가입날짜는 어드민 페이지에서 수정할 수 없도록 설정
     def get_readonly_fields(self, request, obj=None):
         if obj:
-            return ('nickname', 'join_date', )
+            return (
+                "nickname",
+                "join_date",
+            )
         else:
-            return ('join_date', )
+            return ("join_date",)
 
+
+class UserGroupAdmin(admin.ModelAdmin):
+    list_display = ("id", "master", "name", "status", "created_at", "updated_at")
+    list_display_links = ("name",)
+    search_fields = ("name",)
+    ordering = ("id",)
+    filter_horizontal = ("members",)
 
 
 admin.site.register(User, UserAdmin)
-# admin.site.unregister(Group)
+admin.site.register(UserGroup, UserGroupAdmin)

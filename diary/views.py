@@ -29,8 +29,3 @@ class Trash(APIView):
 
 class Stamp(APIView):
     pass
-
-
-
-
-
