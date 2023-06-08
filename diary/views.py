@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_object
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -18,38 +18,36 @@ class PageView(APIView):
 
 
 class PhotoPageView(APIView):
-    
-    def photo_list(request):
-        if request.method == 'GET':
-            photos = PhotoPage.objects.all()
-            serializer = PhotoPageSerializer(photos, many=True)
-            return Response(serializer.data)
+    def get(self, request):
+        photos = PhotoPage.objects.all()
+        serializer = PhotoPageSerializer(photos, many=True)
+        return Response(serializer.data)
         
-        elif request.method == 'POST':
-            serializer = PhotoPageSerializer(data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status = status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        serializer = PhotoPageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status = status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DetailPhotoPageView(APIView):
-    def photo_detail(request, pk):
-        photo = get_object_or_404(PhotoPage, pk=pk)
+    def get(self, request, photo_id):
+        photo = get_object_or_404(PhotoPage, id=photo_id)
+        serializer = DetailPhotoPageSerializer(photo)
+        return Response(serializer.data)
 
-        if request.method == 'GET':
-            serializer = DetailPhotoPageSerializer(photo)
+    def put(self, request, photo_id):
+        photo = get_object(PhotoPage, id=photo_id)
+        serializer = DetailPhotoPageSerializer(photo, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
             return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        elif request.method == 'PUT':
-            serializer = DetailPhotoPageSerializer(photo, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        elif request.method == 'DELETE':
-            photo.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, photo_id):
+        photo = get_object(request, id=photo_id)
+        photo.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CommentView(APIView):
