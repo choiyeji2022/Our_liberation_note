@@ -9,6 +9,13 @@ status_choice = (
 )
 
 
+class CheckEmail(models.Model):
+    email = models.EmailField("인증용 이메일", max_length=100, unique=True)
+    code = models.CharField("확인용 코드", max_length=6, unique=True)
+    try_num = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 # custom user model 사용 시 UserManager 클래스와 create_user, create_superuser 함수가 정의되어 있어야 함
 class UserManager(BaseUserManager):
     def create_user(self, nickname, email, password=None):

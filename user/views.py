@@ -5,21 +5,56 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from user.models import User, UserGroup
+from user.models import User, UserGroup, CheckEmail
 from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
                               UserUpdateSerializer, UserViewSerializer)
 
+from django.core.mail import EmailMessage
+import random
+import string
+from django.core.exceptions import ObjectDoesNotExist
+
+
+class SendEmail(APIView):
+    def post(self, request):
+        subject="인증 번호를 확인해주세요."
+        email=request.data.get("email")
+        random_code = "".join(random.choices(string.ascii_uppercase + string.digits, k=6)) # 6자리 랜덤 문자열 생성
+        body= f"이메일 확인 코드: {random_code}"  # 랜덤 코드 본문에 추가
+        email = EmailMessage(subject,body,to=[email],)
+        email.send()
+        
+        # 인증 코드 DB에 저장
+        code = CheckEmail.objects.create(code=random_code, email=email)
+
+        return Response({"message":"이메일을 전송했습니다. 메일함을 확인하세요.", "code": code.id },status=status.HTTP_200_OK)
 
 # 회원 가입
 class SignupView(APIView):
     def post(self, request):
+        email = request.data.get("email")
+        code = request.data.get("code")
+        
+        # 이메일 중복 확인
+        try:
+            user = User.objects.get(email=email)
+            return Response({"message": "아이디가 이미 존재합니다."}, status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist:
+            pass
+        # 이메일과 코드 일치하는지 확인
+        try:
+            code_obj = CheckEmail.objects.get(code=code)
+        except CheckEmail.DoesNotExist:
+            return Response({"message": "이메일 확인 코드가 유효하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
         serializer = SignUpSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "해방일지 합류 완료!"}, status=status.HTTP_201_CREATED)
+            code_obj.delete()  # 이메일 확인 코드 삭제
+            return Response({"message": "가입완료!"}, status=status.HTTP_201_CREATED)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": f"{serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # 로그인
@@ -30,6 +65,7 @@ class LoginView(TokenObtainPairView):
 
 # 유저 정보
 class UserView(APIView):
+    # 권한 설정은 나중에 멤버들만 접근하게 수정하겠습니다
     permission_classes = [permissions.IsAuthenticated]
 
     # 회원 정보 보기
@@ -38,13 +74,29 @@ class UserView(APIView):
 
     # 회원 정보 수정
     def patch(self, request):
+        check_password = request.data.get("check_password")
         user = User.objects.get(nickname=request.user)
-        serializer = UserUpdateSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response({"message": "수정 완료!"}, status=status.HTTP_200_OK)
+        
+        # 이메일 중복 체크
+        email = request.data.get("email")
+        if User.objects.filter(email=email):
+            return Response({"message":"이미 존재하는 이메일입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 닉네임 중복 체크
+        nickname = request.data.get("nickname")
+        if User.objects.filter(nickname=nickname):
+            return Response({"message":"이미 존재하는 닉네임입니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 비밀번호와 비밀번호 체크가 일치할 경우 수정 진행
+        if user.check_password(check_password):
+            serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response({"message": "수정 완료!"}, status=status.HTTP_200_OK)
+            else:
+                return Response({serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message":"비밀번호가 일치하지 않습니다"}, status=status.HTTP_400_BAD_REQUEST)
 
     # 회원 삭제
     def delete(self, request):
@@ -55,11 +107,18 @@ class UserView(APIView):
 
 
 class GroupView(APIView):
+    # 권한 설정은 나중에 멤버들만 접근하게 수정하겠습니다
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # 활성화된 그룹만 불러오기
-        groups = UserGroup.objects.filter(status="0").order_by("-created_at")
+        # 그룹장 여부 확인
+        master = UserGroup.objects.filter(master=request.user).exists()
+        # 그룹장이라면 활성화, 비활성화 상태 다 불러오기
+        if master:
+            groups = groups = UserGroup.objects.filter(status__in=["0", "1"]).order_by("-created_at")
+        # 아니라면 활성화 상태만 불러오기
+        else:
+            groups = UserGroup.objects.filter(status="0").order_by("-created_at")
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -79,8 +138,14 @@ class GroupView(APIView):
 class GroupDetailView(APIView):
     # 그룹 상세보기
     def get(self, request, group_id):
-        # 활성, 비활성 다 불러오기
-        group = get_object_or_404(UserGroup, Q(id=group_id) & Q(status__in=["0", "1"]))
+        # 그룹장 여부 확인
+        master = UserGroup.objects.filter(master=request.user).exists()
+        # 그룹장이라면 활성화, 비활성화 상태 다 불러오기
+        if master:
+            group = get_object_or_404(UserGroup, Q(id=group_id) & Q(status__in=["0", "1"]))
+        # 멤버라면 활성화 상태만 불러오기
+        else:
+            group = get_object_or_404(UserGroup, Q(id=group_id) & Q(status__in=["0"]))
         serializer = GroupSerializer(group)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
