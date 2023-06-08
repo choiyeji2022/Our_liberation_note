@@ -4,7 +4,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.core.exceptions import ValidationError
 
-from user.models import User, UserGroup, CheckEmail
+from user.models import CheckEmail, User, UserGroup
 
 
 class UserCreationForm(forms.ModelForm):
@@ -55,7 +55,14 @@ class UserAdmin(BaseUserAdmin):
     list_display_links = ["nickname", "email"]
     list_filter = ["is_admin", "is_active"]
     fieldsets = [
-        (None, {"fields": ["nickname", "password"]}),
+        (
+            None,
+            {
+                "fields": [
+                    "nickname",
+                ]
+            },
+        ),
         ("Personal info", {"fields": ["username", "email", "is_active"]}),
         ("Permissions", {"fields": ["is_admin"]}),
     ]

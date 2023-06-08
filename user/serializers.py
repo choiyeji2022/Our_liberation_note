@@ -47,14 +47,19 @@ class UserViewSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("nickname", "email", "password")
+        fields = ("nickname", "password", "email")
 
     def update(self, instance, validated_data):
-        user = super().update(instance, validated_data)
-        password = user.password
-        user.set_password(password)
-        user.save()
-        return user
+        instance.nickname = validated_data.get(
+            "nickname", instance.nickname
+        )  # 닉네임 값 설정
+
+        password = validated_data.get("new_password")
+        if password:
+            instance.set_password(password)  # 새로운 비밀번호로 설정
+
+        instance.save()
+        return instance
 
 
 class GroupSerializer(serializers.ModelSerializer):

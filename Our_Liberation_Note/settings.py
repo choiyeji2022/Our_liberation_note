@@ -174,11 +174,11 @@ AUTH_USER_MODEL = "user.User"
 
 
 # Email
-EMAIL_BACKEND = my_settings.EMAIL['EMAIL_BACKEND']
-EMAIL_HOST = my_settings.EMAIL['EMAIL_HOST'] # 메일 호스트 서버
-EMAIL_PORT = my_settings.EMAIL['EMAIL_PORT'] # gmail과 통신하는 포트
-EMAIL_HOST_USER = my_settings.EMAIL['EMAIL_HOST_USER'] # 발신할 이메일
-EMAIL_HOST_PASSWORD = my_settings.EMAIL['EMAIL_HOST_PASSWORD'] # 발신할 메일의 비밀번호
-EMAIL_USE_TLS = my_settings.EMAIL['EMAIL_USE_TLS'] # TLS 보안 방법
+EMAIL_BACKEND = my_settings.EMAIL["EMAIL_BACKEND"]
+EMAIL_HOST = my_settings.EMAIL["EMAIL_HOST"]  # 메일 호스트 서버
+EMAIL_PORT = my_settings.EMAIL["EMAIL_PORT"]  # gmail과 통신하는 포트
+EMAIL_HOST_USER = my_settings.EMAIL["EMAIL_HOST_USER"]  # 발신할 이메일
+EMAIL_HOST_PASSWORD = my_settings.EMAIL["EMAIL_HOST_PASSWORD"]  # 발신할 메일의 비밀번호
+EMAIL_USE_TLS = my_settings.EMAIL["EMAIL_USE_TLS"]  # TLS 보안 방법
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-ACCOUNT_EMAIL_REQUIRED = True # 이메일 필드가 회원가입 시 필수 필드로 지정
+ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필드가 회원가입 시 필수 필드로 지정
