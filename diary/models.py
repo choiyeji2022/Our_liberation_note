@@ -31,15 +31,29 @@ class PlanPage(models.Model):
 
 # 제건
 class PhotoPage(models.Model):
-    pass
+    photo_diary = models.IntegerField()
+    category = models.CharField(max_length=100)
+    image = models.ImageField()
+    location = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    memo = models.CharField(null= True, max_length=100)
+    status = models.CharField(max_length=100)
+    
 
-
-class Photo(models.Model):
-    pass
+    def __str__(self):
+        return self.name
 
 
 class Comment(models.Model):
-    pass
+    photo = models.ForeignKey(PhotoPage, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=256)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.name
 
 
 # 예린
