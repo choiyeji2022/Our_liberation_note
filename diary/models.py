@@ -32,36 +32,35 @@ class Note(models.Model):
     )
 
     group = models.ForeignKey(UserGroup, on_delete=models.CASCADE)
+    group = models.ForeignKey(UserGroup, on_delete=models.CASCADE)
     name = models.CharField("노트이름", max_length=30)
-    cateogry = models.CharField("노트표지", choices=note_covers, max_length=10, default=1)
+    category = models.CharField("노트표지", choices=note_covers, max_length=10, default=1)
     created_at = models.DateTimeField("생성일", auto_now_add=True)
     status = models.CharField("상태", choices=status_choice, max_length=10, default=0)
 
 
 # 미영
 class PlanPage(models.Model):
-    note = models.ForeignKey("Note", on_delete=models.CASCADE)
-    category = models.CharField(max_length=100)
+    diary = models.ForeignKey("Note", on_delete=models.CASCADE)
     start = models.DateField()
     title = models.CharField(max_length=100)
-    location = models.CharField(max_length=255)
-    time = models.CharField(max_length=255)
-    memo = models.CharField(max_length=100)
-    status = models.CharField(choices=status_choice, max_length=100)
+    location = models.CharField(max_length=255, null=True, blank=True)
+    time = models.CharField(max_length=255, null=True, blank=True)
+    memo = models.CharField(max_length=100, null=True, blank=True)
+    status = models.CharField(choices=status_choice, max_length=100, default=0)
 
 
 # 제건
 class PhotoPage(models.Model):
-    photo_diary = models.IntegerField()
-    category = models.CharField(max_length=100)
-    image = models.ImageField()
+    diary = models.ForeignKey("Note", on_delete=models.CASCADE)
+    image = models.ImageField(null=True, blank=True)  # 배포 후엔 null X
     location = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     memo = models.CharField(null=True, max_length=100)
-    status = models.CharField(max_length=100)
+    status = models.CharField(choices=status_choice, max_length=100, default=0)
 
     def __str__(self):
-        return self.name
+        return self.location
 
 
 class Comment(models.Model):
@@ -70,7 +69,7 @@ class Comment(models.Model):
     comment = models.CharField(max_length=256)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=100)
+    status = models.CharField(choices=status_choice, max_length=100, default=0)
 
     def __str__(self):
         return self.name
@@ -78,9 +77,8 @@ class Comment(models.Model):
 
 # 예린
 class Stamp(models.Model):
-    user = models.ForeignKey("user.User", on_delete=models.CASCADE)
-    photo = models.ForeignKey("diary.PhotoPage", on_delete=models.CASCADE)
-    status = models.CharField(choices=status_choice, max_length=100)
+    pass
+
 
 
 class Todo(models.Model):
