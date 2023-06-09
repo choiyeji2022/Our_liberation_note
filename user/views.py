@@ -12,14 +12,14 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (GroupCreateSerializer, GroupSerializer,
-                              LoginSerializer, SignUpSerializer,
-                              SocialLoginSerializer, UserUpdateSerializer,
-                              UserViewSerializer)
-
-# from allauth.socialaccount.providers.naver.views import NaverOAuth2Adapter
-# from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-# from rest_auth.registration.views import SocialLoginView
+from user.serializers import (
+    GroupCreateSerializer,
+    GroupSerializer,
+    LoginSerializer,
+    SignUpSerializer,
+    UserUpdateSerializer,
+    UserViewSerializer,
+)
 
 
 # 이메일 전송

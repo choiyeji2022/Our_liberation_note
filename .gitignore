@@ -142,6 +142,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+<<<<<<< HEAD
+=======
+
+>>>>>>> e34a93ed8f673321ab083375c16126ccc293edcd
 
 # Spyder project settings
 .spyderproject
@@ -426,11 +430,19 @@ pip-selfcheck.json
 
 ### VisualStudioCode ###
 .vscode/*
+<<<<<<< HEAD
 # !.vscode/settings.json
 # !.vscode/tasks.json
 # !.vscode/launch.json
 # !.vscode/extensions.json
 # !.vscode/*.code-snippets
+=======
+#!.vscode/settings.json
+#!.vscode/tasks.json
+#!.vscode/launch.json
+#!.vscode/extensions.json
+#!.vscode/*.code-snippets
+>>>>>>> e34a93ed8f673321ab083375c16126ccc293edcd
 
 # Local History for Visual Studio Code
 .history/
