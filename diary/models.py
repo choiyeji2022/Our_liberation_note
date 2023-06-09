@@ -1,7 +1,15 @@
 from django.db import models
 from django.urls import reverse
-
 from user.models import Group, User
+
+
+#status 종류
+status_choice = (
+        ('0', '활성화'),
+        ('1', '비활성화'),
+        ('2', '강제중지'),
+        ('3', '삭제'),
+    )
 
 
 # 예지
@@ -13,12 +21,12 @@ class Note(models.Model):
 class PlanPage(models.Model):
     note = models.ForeignKey("Note", on_delete=models.CASCADE)
     category = models.CharField(max_length=100)
-    date = models.DateField(auto_now_add=True)
-    place = models.CharField(max_length=100)
+    start = models.DateField()
+    title = models.CharField(max_length=100)
     location = models.CharField(max_length=255)
     time = models.CharField(max_length=255)
     memo = models.CharField(max_length=100)
-    is_active = models.BooleanField(default=True)
+    status = models.CharField(choices=status_choice, max_length=100)
 
 
 # 제건
