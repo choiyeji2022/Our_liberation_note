@@ -37,6 +37,10 @@ class Note(models.Model):
     category = models.CharField("노트표지", choices=note_covers, max_length=10, default=1)
     created_at = models.DateTimeField("생성일", auto_now_add=True)
     status = models.CharField("상태", choices=status_choice, max_length=10, default=0)
+    
+    def __str__(self):
+        return self.name
+
 
 
 # 미영
@@ -77,8 +81,10 @@ class Comment(models.Model):
 
 # 예린
 class Stamp(models.Model):
-    pass
-
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    photo = models.ForeignKey(PhotoPage, on_delete=models.CASCADE)
+    status = models.CharField(choices=status_choice, max_length=100, default=0)
+    
 
 
 class Todo(models.Model):

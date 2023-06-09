@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from user.models import User, UserGroup
+from diary.models import Stamp
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -103,3 +104,8 @@ class GroupCreateSerializer(serializers.ModelSerializer):
         model = UserGroup
         fields = ("name", "members", "master", "status")
         read_only_fields = ("master",)
+
+# class MapSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Stamp
+#         fields = "__all__"

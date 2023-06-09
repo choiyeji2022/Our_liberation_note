@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
-from .models import Comment, Note, PhotoPage, PhotoPage, PlanPage, Stamp
+
+from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 
 
 # 노트 일반 CRUD
@@ -27,7 +28,12 @@ class DetailNoteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Note
-        fields = ['id', 'name', 'plan_set', 'photo_set',]
+        fields = [
+            "id",
+            "name",
+            "plan_set",
+            "photo_set",
+        ]
 
 
 class PhotoPageSerializer(serializers.ModelSerializer):
@@ -73,7 +79,13 @@ class PlanSerializer(serializers.ModelSerializer):
             "diary": {"required": False},
         }
 
+
 class StampSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stamp
         fields = "__all__"
+        extra_kwargs = {
+            "photo": {"required": False},
+            "user": {"required": False},
+        }
+       
