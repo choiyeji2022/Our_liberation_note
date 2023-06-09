@@ -1,7 +1,7 @@
-from rest_framework.serializers import ValidationError
 from rest_framework import serializers
-from .models import Comment, Note, Photo, PhotoPage, PlanPage, Stamp 
-from diary.models import Note
+from rest_framework.serializers import ValidationError
+
+from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 
 
 class NoteSerializer(serializers.ModelSerializer):
@@ -25,23 +25,27 @@ class NoteCreateSerializer(serializers.ModelSerializer):
 
 
 class PhotoPageSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = PhotoPage
-        fields = '__all__'
-        
+        fields = "__all__"
+        extra_kwargs = {
+            "diary": {"required": False},
+        }
+
 
 class DetailPhotoPageSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = PhotoPage
-        fields = '__all__'
-    
+        fields = "__all__"
+
+
 class CommentSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = "__all__"
+        extra_kwargs = {
+            "photo": {"required": False},
+        }
 
 
 class PlanSerializer(serializers.ModelSerializer):
@@ -51,4 +55,3 @@ class PlanSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "note": {"required": False},
         }
-
