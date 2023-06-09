@@ -1,6 +1,7 @@
+
 from rest_framework.serializers import ValidationError
 from rest_framework import serializers
-from .models import PhotoPage, Comment 
+from .models import Comment, Note, Photo, PhotoPage, PlanPage, Stamp 
 
 class PhotoPageSerializer(serializers.ModelSerializer):
     
@@ -20,3 +21,13 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+
+
+class PlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlanPage
+        fields = "__all__"
+        extra_kwargs = {
+            "note": {"required": False},
+        }
+
