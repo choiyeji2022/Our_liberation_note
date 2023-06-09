@@ -103,3 +103,8 @@ class GroupCreateSerializer(serializers.ModelSerializer):
         model = UserGroup
         fields = ("name", "members", "master", "status")
         read_only_fields = ("master",)
+
+
+class SocialLoginSerializer(serializers.Serializer):
+    # "nickname" 필드로 "회원이름"을 받아옴
+    username = serializers.CharField(source="nickname")

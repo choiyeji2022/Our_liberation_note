@@ -14,4 +14,8 @@ urlpatterns = [
     path("group/<int:group_id>/", views.GroupDetailView.as_view(), name="group"),
     path("my-page/", views.MyPageView.as_view(), name="my_page"),
     path("map/", views.MapView.as_view(), name="map"),
+    # 소셜 로그인 url
+    # path('rest-auth/kakao/', views.KakaoLogin.as_view(), name='kakao'),
+    # path('rest-auth/naver/', views.NaverLogin.as_view(), name='naver'),
+    # path('rest-auth/google/', views.GoogleLogin.as_view(), name='google'),
 ]

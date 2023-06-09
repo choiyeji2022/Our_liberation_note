@@ -1,13 +1,13 @@
-from rest_framework.generics import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework import permissions, status
-from .models import Comment, Note, Photo, PhotoPage, PlanPage, Stamp
-from .serializers import PhotoPageSerializer, DetailPhotoPageSerializer, CommentSerializer, PlanSerializer
+from rest_framework.decorators import api_view
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from diary.models import Note
-from diary.serializers import NoteCreateSerializer, NoteSerializer
+from .models import Comment, Note, PhotoPage, PlanPage, Stamp
+from .serializers import (CommentSerializer, DetailPhotoPageSerializer,
+                          NoteCreateSerializer, NoteSerializer,
+                          PhotoPageSerializer, PlanSerializer)
 
 
 # 노트 조회 및 생성
@@ -42,17 +42,15 @@ class NoteView(APIView):
         note = get_object_or_404(Note, id=note_id)
         note.delete()
         return Response({"message": "노트가 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
-        
 
 
 # 노트 조회 및 생성
 
 # 페이지 전체 조회 및 생성 -> 생성시 카테 고리를 보고 나눠 주세요~
 
-class PageView(APIView):
-    
-    pass
 
+class PageView(APIView):
+    pass
 
 
 class PhotoPageView(APIView):
@@ -60,12 +58,12 @@ class PhotoPageView(APIView):
         photos = PhotoPage.objects.all()
         serializer = PhotoPageSerializer(photos, many=True)
         return Response(serializer.data)
-        
+
     def post(self, request):
         serializer = PhotoPageSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status = status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -93,17 +91,18 @@ class DetailPhotoPageView(APIView):
 # 댓글
 class CommentView(APIView):
     def get(self, request, comment_id):
-        comment = get_object_or_404(Comment, user=request.user, id = comment_id)
+        comment = get_object_or_404(Comment, user=request.user, id=comment_id)
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, comment_id):
-        comment = get_object_or_404(Comment, user=request.user, id = comment_id)
+        comment = get_object_or_404(Comment, user=request.user, id=comment_id)
         serializer = CommentSerializer(comment)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def delete(self, request, review_id):
         # permission_classes = [permissions.IsAuthenticated]
         comment = get_object_or_404(Comment, user=request.user, id=review_id)

@@ -14,7 +14,12 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from user.models import CheckEmail, User, UserGroup
 from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
-                              UserUpdateSerializer, UserViewSerializer)
+                              SocialLoginSerializer, UserUpdateSerializer,
+                              UserViewSerializer)
+
+# from allauth.socialaccount.providers.naver.views import NaverOAuth2Adapter
+# from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+# from rest_auth.registration.views import SocialLoginView
 
 
 # 이메일 전송
@@ -241,3 +246,36 @@ class MyPageView(APIView):
 
 class MapView(APIView):
     pass
+
+
+# 소셜 로그인
+BASE_URL = "http://localhost:8000/api/v1/accounts/rest-auth/"
+KAKAO_CALLBACK_URI = BASE_URL + "kakao/callback/"
+NAVER_CALLBACK_URI = BASE_URL + "naver/callback/"
+GOOGLE_CALLBACK_URI = BASE_URL + "google/callback/"
+
+
+# class KakaoLogin(SocialLoginView):
+#     adapter_class = KakaoOAuth2Adapter
+#     callbakc_url = KAKAO_CALLBACK_URI
+#     client_class = OAuth2Client
+#     serializer_class = SocialLoginSerializer
+
+
+# class NaverLogin(SocialLoginView):
+#     adapter_class = NaverOAuth2Adapter
+#     callback_url = NAVER_CALLBACK_URI
+#     client_class = OAuth2Client
+#     serializer_class = SocialLoginSerializer
+
+#     def get_callback_url(self, request, app):
+#         # 네이버 API에서 "회원이름" 필드를 "nickname"으로 제공하는 경우
+#         self.adapter_class.provider_id = 'naver'
+#         return super().get_callback_url(request, app)
+
+
+# class GoogleLogin(SocialLoginView):
+#     adapter_class = GoogleOAuth2Adapter
+#     callback_url = GOOGLE_CALLBACK_URI
+#     client_class = OAuth2Client
+#     serializer_class = SocialLoginSerializer
