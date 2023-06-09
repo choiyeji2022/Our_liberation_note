@@ -6,7 +6,7 @@ urlpatterns = [
     path("", views.NoteView.as_view(), name="note_post"),
     path("<int:group_id>", views.NoteView.as_view(), name="note_detail"),
     path("photo/<int:note_id>", views.PhotoPageView.as_view(), name="photo_page"),
-    path("plan/<int:note_id>", views.PlanPageView.as_view(), name="photo_page"),
+    path("plan/<int:note_id>", views.PlanPageView.as_view(), name="plan_page"),
     path(
         "note-detail/<int:note_id>",
         views.DetailNoteView.as_view(),
@@ -26,4 +26,3 @@ urlpatterns = [
     path("trash", views.Trash.as_view(), name="trash"),
     path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
 ]
-# 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)

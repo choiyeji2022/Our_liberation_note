@@ -1,16 +1,12 @@
-from rest_framework.generics import get_object_or_404
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import permissions, status
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (
-    PhotoPageSerializer,
-    DetailPhotoPageSerializer,
-    CommentSerializer,
-    PlanSerializer,
-    NoteSerializer,
-    DetailNoteSerializer,
-)
+from .serializers import (CommentSerializer, DetailNoteSerializer,
+                          DetailPhotoPageSerializer, NoteSerializer,
+                          PhotoPageSerializer, PlanSerializer)
 
 
 # 노트 조회 및 생성
@@ -22,7 +18,7 @@ class NoteView(APIView):
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, pk=None):
+    def post(self, request, group_id=None):
         serializer = NoteSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -46,7 +42,6 @@ class DetailNoteView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # pk = note_id
     def delete(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
         note.delete()
