@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from user.models import User, Group
+from user.models import User
 
 
 # 예지
@@ -32,5 +32,6 @@ class Comment(models.Model):
 
 # 예린
 class Stamp(models.Model):
-    pass
+    user = models.ForeignKey('user.User', on_delete=models.CASCADE)
+    photo = models.ForeignKey('diary.PhotoPage', on_delete=models.CASCADE)
 

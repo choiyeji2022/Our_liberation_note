@@ -1,4 +1,9 @@
 from rest_framework.views import APIView
+from rest_framework import permissions
+from rest_framework.generics import get_object_or_404
+from rest_framework.response import Response
+from rest_framework import status
+# from .serializers import StampSerializer
 
 
 # 노트 조회 및 생성
@@ -28,8 +33,8 @@ class Trash(APIView):
 
 
 class Stamp(APIView):
-    pass
 
+    pass
 
 
 
