@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from user.models import Group, User
+from user.models import User, UserGroup
 
 status_choice = (
     ("0", "활성화"),
@@ -81,6 +81,7 @@ class Comment(models.Model):
 # 예린
 class Stamp(models.Model):
     pass
+
 
 
 class Todo(models.Model):
