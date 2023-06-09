@@ -50,13 +50,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         fields = ("nickname", "password", "email")
 
     def update(self, instance, validated_data):
-        instance.nickname = validated_data.get(
-            "nickname", instance.nickname
-        )  # 닉네임 값 설정
+        # 닉네임 값 설정
+        instance.nickname = validated_data.get("nickname", instance.nickname)
 
+        # 새로운 비밀번호로 설정
         password = validated_data.get("new_password")
         if password:
-            instance.set_password(password)  # 새로운 비밀번호로 설정
+            instance.set_password(password)
 
         instance.save()
         return instance

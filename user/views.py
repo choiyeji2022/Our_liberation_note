@@ -17,6 +17,7 @@ from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               UserUpdateSerializer, UserViewSerializer)
 
 
+# 이메일 전송
 class SendEmail(APIView):
     def post(self, request):
         subject = "인증 번호를 확인해주세요."
@@ -81,7 +82,6 @@ class LoginView(TokenObtainPairView):
 
 # 유저 정보
 class UserView(APIView):
-    # 권한 설정은 나중에 멤버들만 접근하게 수정하겠습니다
     permission_classes = [permissions.IsAuthenticated]
 
     # 회원 정보 보기
@@ -89,33 +89,13 @@ class UserView(APIView):
         return Response(UserViewSerializer(request.user).data)
 
     # 회원 정보 수정
-    # def patch(self, request):
-    #     check_password = request.data.get("check_password")
-    #     user = User.objects.get(nickname=request.user)
-
-    #     # 닉네임 중복 체크
-    #     nickname = request.data.get("nickname")
-    #     if User.objects.filter(nickname=nickname):
-    #         return Response({"message":"이미 존재하는 닉네임입니다."}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     # 비밀번호와 비밀번호 확인이 일치할 경우 수정 진행
-    #     if user.check_password(check_password):
-    #         serializer = UserUpdateSerializer(user, data=request.data, partial=True)
-    #         if serializer.is_valid(raise_exception=True):
-    #             serializer.save(nickname=nickname)
-    #             return Response({"message": "수정 완료!"}, status=status.HTTP_200_OK)
-    #         else:
-    #             return Response({serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    #     else:
-    #         return Response({"message":"비밀번호가 일치하지 않습니다"}, status=status.HTTP_400_BAD_REQUEST)
-
     def patch(self, request):
         check_password = request.data.get("check_password")
         user = User.objects.get(nickname=request.user)
         new_password = request.data.get("new_password")
         new_nickname = request.data.get("nickname")
 
-        # 기존 비밀번호와 check_password가 일치할 경우 new_password로 비밀번호 수정
+        # 기존 비밀번호와 check_password가 일치할 경우 회원정보(닉네임, 비밀번호) 수정
         if user.check_password(check_password):
             serializer = UserUpdateSerializer(user, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
@@ -133,15 +113,6 @@ class UserView(APIView):
             return Response(
                 {"message": "비밀번호가 일치하지 않습니다"}, status=status.HTTP_400_BAD_REQUEST
             )
-
-    # def patch(self, request):
-    #     user = User.objects.get(nickname=request.user)
-    #     serializer = UserUpdateSerializer(user, data=request.data, partial=True)
-    #     if serializer.is_valid(raise_exception=True):
-    #         serializer.save()
-    #         return Response({'message': '수정완료!'}, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # 회원 삭제
     def delete(self, request):
@@ -184,15 +155,7 @@ class ChangePassword(APIView):
         return Response({"message": "비밀번호 변경 완료!"}, status=status.HTTP_200_OK)
 
 
-# 로그아웃
-class LogoutView(APIView):
-    def post(self, request):
-        Token.objects.filter(user=request.user).delete()
-        return Response({"message": "로그아웃 되었습니다."}, status=status.HTTP_200_OK)
-
-
 class GroupView(APIView):
-    # 권한 설정은 나중에 멤버들만 접근하게 수정하겠습니다
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
@@ -223,6 +186,8 @@ class GroupView(APIView):
 
 
 class GroupDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     # 그룹 상세보기
     def get(self, request, group_id):
         # 그룹장 여부 확인
