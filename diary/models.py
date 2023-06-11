@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse
+
 from user.models import User, UserGroup
 
 status_choice = (
@@ -77,6 +78,3 @@ class Comment(models.Model):
 class Stamp(models.Model):
     pass
 
-
-class Todo(models.Model):
-    pass
