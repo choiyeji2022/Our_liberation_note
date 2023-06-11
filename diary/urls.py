@@ -26,3 +26,4 @@ urlpatterns = [
     path("trash", views.Trash.as_view(), name="trash"),
     path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
 ]
+
