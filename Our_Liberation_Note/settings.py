@@ -1,8 +1,8 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-
 import mysettings
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +39,12 @@ INSTALLED_APPS = [
     "pay",
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    )
+}
+
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -74,8 +80,21 @@ WSGI_APPLICATION = "Our_Liberation_Note.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = mysettings.DATABASES
 
+# DATABASES = mysettings.DATABASES
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -156,3 +175,16 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
 }
+
+AUTH_USER_MODEL = "user.User"
+
+
+# Email
+EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
+EMAIL_HOST = os.environ.get("EMAIL_HOST")  # 메일 호스트 서버
+EMAIL_PORT = os.environ.get("EMAIL_PORT")  # gmail과 통신하는 포트
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")  # 발신할 이메일
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")  # 발신할 메일의 비밀번호
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")  # TLS 보안 방법
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필드가 회원가입 시 필수 필드로 지정
