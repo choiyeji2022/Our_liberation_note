@@ -169,11 +169,6 @@ class Trash(APIView):
 
 # 스탬프
 class StampView(APIView):
-    def get(self, request, photo_id):
-        stamp = get_object_or_404(Stamp, user=request.user, id=photo_id)
-        serializer = StampSerializer(stamp)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
     def post(self, request, photo_id):
         try:
             stamp = Stamp.objects.get(id=photo_id)
@@ -186,8 +181,7 @@ class StampView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        print(stamp.status)    
+  
         if serializer.is_valid():
             if stamp.status == '0':
                 stamp.status = '1'
@@ -202,12 +196,4 @@ class StampView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        
-    # def patch(self, request, photo_id):
-    #     stamp = get_object_or_404(Stamp, id=photo_id)
-    #     serializer = StampSerializer(stamp, data=request.data, partial=True)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_200_OK)
-    #     else:
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    

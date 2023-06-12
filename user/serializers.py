@@ -104,8 +104,3 @@ class GroupCreateSerializer(serializers.ModelSerializer):
         model = UserGroup
         fields = ("name", "members", "master", "status")
         read_only_fields = ("master",)
-
-# class MapSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Stamp
-#         fields = "__all__"

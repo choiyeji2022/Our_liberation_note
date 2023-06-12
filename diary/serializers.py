@@ -81,11 +81,9 @@ class PlanSerializer(serializers.ModelSerializer):
 
 
 class StampSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Stamp
         fields = "__all__"
-        extra_kwargs = {
-            "photo": {"required": False},
-            "user": {"required": False},
-        }
+        
        

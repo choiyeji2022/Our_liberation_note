@@ -15,7 +15,8 @@ from user.models import CheckEmail, User, UserGroup
 from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
                               UserUpdateSerializer, UserViewSerializer)
-
+from diary.models import Stamp
+from diary.serializers import StampSerializer
 
 # 이메일 전송
 class SendEmail(APIView):
@@ -236,4 +237,16 @@ class GroupDetailView(APIView):
 
 
 class MyPageView(APIView):
-    pass
+     def get(self, request, user_id):
+        profile = get_object_or_404(User, id=user_id)
+        stamp = Stamp.objects.filter(user=user_id)
+        group = UserGroup.objects.filter(Q(members=user_id) | Q(master=user_id))
+        profileserializer = UserViewSerializer(profile)
+        stampserializer = StampSerializer(stamp, many=True)
+        groupSerializer = GroupSerializer(group, many=True)
+        data = {
+            'profile' : profileserializer.data,
+            'stamps' : stampserializer.data,
+            'groups' : groupSerializer.data,
+        }
+        return Response(data, status=status.HTTP_200_OK)
