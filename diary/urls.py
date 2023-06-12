@@ -1,11 +1,19 @@
 from django.urls import path
-
 from diary import views
+from Our_Liberation_Note import settings
+from django.conf.urls.static import static
+
 
 urlpatterns = [
-    path("", views.NoteView.as_view(), name="note_view"),
-    path("<int:note_id>", views.NoteView.as_view(), name="note_delete"),
+    path("", views.NoteView.as_view(), name="note_post"),
+    path("<int:group_id>", views.NoteView.as_view(), name="note_detail"),
     path("photo/<int:note_id>", views.PhotoPageView.as_view(), name="photo_page"),
+    path("plan/<int:note_id>", views.PlanPageView.as_view(), name="plan_page"),
+    path(
+        "note-detail/<int:note_id>",
+        views.DetailNoteView.as_view(),
+        name="detail_note",
+    ),
     path(
         "photo-detail/<int:photo_id>",
         views.DetailPhotoPageView.as_view(),
@@ -18,6 +26,8 @@ urlpatterns = [
     ),
     path("comment/<int:comment_id>", views.CommentView.as_view(), name="comment"),
     path("trash", views.Trash.as_view(), name="trash"),
-    path("stamp", views.StampView.as_view(), name="stamp"),
+    path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
 ]
 # 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

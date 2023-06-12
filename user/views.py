@@ -12,9 +12,14 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (GroupCreateSerializer, GroupSerializer,
-                              LoginSerializer, SignUpSerializer,
-                              UserUpdateSerializer, UserViewSerializer)
+from user.serializers import (
+    GroupCreateSerializer,
+    GroupSerializer,
+    LoginSerializer,
+    SignUpSerializer,
+    UserUpdateSerializer,
+    UserViewSerializer,
+)
 
 
 # 이메일 전송
