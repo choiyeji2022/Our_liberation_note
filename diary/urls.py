@@ -28,6 +28,6 @@ urlpatterns = [
     path("trash", views.Trash.as_view(), name="trash"),
     path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
 ]
-# 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)
 
+# 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

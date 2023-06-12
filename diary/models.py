@@ -78,6 +78,3 @@ class Comment(models.Model):
 class Stamp(models.Model):
     pass
 
-
-class Todo(models.Model):
-    pass
