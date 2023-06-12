@@ -1,5 +1,10 @@
 import random
 import string
+from django.shortcuts import redirect
+from json import JSONDecodeError
+from django.http import HttpResponseRedirect, JsonResponse
+import requests
+import os
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
@@ -7,11 +12,13 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.permissions import AllowAny
 
-from user.models import CheckEmail, User, UserGroup
+from user.models import CheckEmail, User, UserGroup, OauthId
 from user.serializers import (
     GroupCreateSerializer,
     GroupSerializer,
@@ -19,7 +26,14 @@ from user.serializers import (
     SignUpSerializer,
     UserUpdateSerializer,
     UserViewSerializer,
+    TokenObtainPairSerializer,
 )
+
+from allauth.socialaccount.models import SocialAccount
+from dj_rest_auth.registration.views import SocialLoginView
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from allauth.socialaccount.providers.google import views as google_view
+from allauth.socialaccount.providers.kakao import views as kakao_view
 
 
 # 이메일 전송
@@ -249,33 +263,207 @@ class MapView(APIView):
 
 
 # 소셜 로그인
-BASE_URL = "http://localhost:8000/api/v1/accounts/rest-auth/"
-KAKAO_CALLBACK_URI = BASE_URL + "kakao/callback/"
-NAVER_CALLBACK_URI = BASE_URL + "naver/callback/"
-GOOGLE_CALLBACK_URI = BASE_URL + "google/callback/"
+BASE_URL = "http://127.0.0.1:8000/"
 
 
-# class KakaoLogin(SocialLoginView):
-#     adapter_class = KakaoOAuth2Adapter
-#     callbakc_url = KAKAO_CALLBACK_URI
-#     client_class = OAuth2Client
-#     serializer_class = SocialLoginSerializer
+# 일반 소셜 로그인==============================
+
+KAKAO_HOST= "https://kauth.kakao.com/"
+class SocialUrlView(APIView):
+    def post(self,request):
+        social = request.data.get('social',None)
+        if social is None:
+            return Response({'error':'소셜로그인이 아닙니다'},status=status.HTTP_400_BAD_REQUEST)
+        elif social == 'kakao':
+            url = KAKAO_HOST + 'oauth/authorize?client_id=' + os.environ.get('KAKAO_REST_API_KEY') + '&redirect_uri=' + BASE_URL + '&response_type=code&prompt=login'
+            return Response({'url':url},status=status.HTTP_200_OK)
+        elif social == 'naver':
+            # url = 'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=' + os.environ.get('SOCIAL_AUTH_NAVER_CLIENT_ID') + '&redirect_uri=' + BASE_URL + '&state=' + os.environ.get("STATE")
+            url = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id="+ os.environ.get('SOCIAL_AUTH_NAVER_CLIENT_ID') + "&redirect_uri=" + BASE_URL + "&state=" + os.environ.get("STATE")
+            return Response({'url':url},status=status.HTTP_200_OK)   
+        elif social == 'google':
+            # return Response({'key':os.environ.get('SOCIAL_AUTH_GOOGLE_CLIENT_ID'),'redirecturi':BASE_URL},status=status.HTTP_200_OK)
+            client_id = os.environ.get('SOCIAL_AUTH_GOOGLE_CLIENT_ID')
+            redirect_uri = BASE_URL
+            
+            url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope=email%20profile"
+            
+            return Response({'url': url}, status=status.HTTP_200_OK)
+        
+# ===============================================
+class KakaoLoginView(APIView):
+    def post(self,request):
+        code = request.data.get('code')
+        access_token = requests.post("https://kauth.kakao.com/"+"oauth/token",
+            headers={"Content-Type":"application/x-www-form-urlencoded"},
+            data={
+                "grant_type":"authorization_code",
+                "client_id":os.environ.get('KAKAO_REST_API_KEY'),
+                "redirect_uri":"http://127.0.0.1:8000/",
+                "code":code,
+            },
+        )
+        access_token = access_token.json().get("access_token")
+        user_data_request = requests.get("https://kapi.kakao.com/v2/user/me",
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "Content-type": "application/x-www-form-urlencoded;charset=utf-8",
+            },
+        )
+        user_datajson = user_data_request.json()
+        user_data = user_datajson["kakao_account"]
+        email = user_data["email"]
+        nickname = user_data["profile"]["nickname"]
+        try:
+            user = User.objects.get(email=email)
+            refresh = RefreshToken.for_user(user)
+            refresh["email"] = user.email
+            refresh["nickname"] = user.nickname
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK
+            )
+        except:
+            user = User.objects.create_user(email=email,nickname=nickname)
+            user.set_unusable_password()
+            user.save()
+            refresh = RefreshToken.for_user(user)
+            refresh["email"] = user.email
+            refresh["nickname"] = user.nickname
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK
+            )
+
+# ===============================================
+class NaverLoginView(APIView):
+    def post(self, request):
+        code = request.data.get('code')
+        client_id = os.environ.get('SOCIAL_AUTH_NAVER_CLIENT_ID')
+        client_secret = os.environ.get('SOCIAL_AUTH_NAVER_SECRET')
+        redirect_uri = "http://127.0.0.1:8000/"
+
+        # 네이버 API로 액세스 토큰 요청
+        access_token_request = requests.post("https://nid.naver.com/oauth2.0/token",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            data={
+                "grant_type": "authorization_code",
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": redirect_uri,
+                "code": code,
+            },
+        )
+        
+        access_token_json = access_token_request.json()
+        access_token = access_token_json.get("access_token")
+
+        # 네이버 API로 사용자 정보 요청
+        user_data_request = requests.get("https://openapi.naver.com/v1/nid/me",
+            headers={"Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    },
+        )
+
+        user_data_json = user_data_request.json()
+        print("1111", user_data_json)
+        user_data = user_data_json.get("response")
+        print(user_data)
+        email = user_data.get("email")
+        nickname = user_data.get("name")
+
+        try:
+            user = User.objects.get(email=email)
+            refresh = RefreshToken.for_user(user)
+            refresh["email"] = user.email
+            refresh["name"] = user.nickname
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK
+            )
+        except:
+            user = User.objects.create_user(email=email, nickname=nickname)
+            user.set_unusable_password()
+            user.save()
+            refresh = RefreshToken.for_user(user)
+            refresh["email"] = user.email
+            refresh["name"] = user.nickname
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK
+            )
 
 
-# class NaverLogin(SocialLoginView):
-#     adapter_class = NaverOAuth2Adapter
-#     callback_url = NAVER_CALLBACK_URI
-#     client_class = OAuth2Client
-#     serializer_class = SocialLoginSerializer
+# ===============================================
 
-#     def get_callback_url(self, request, app):
-#         # 네이버 API에서 "회원이름" 필드를 "nickname"으로 제공하는 경우
-#         self.adapter_class.provider_id = 'naver'
-#         return super().get_callback_url(request, app)
+class GoogleLoginView(APIView):
+    def post(self, request):
+        code = request.data.get('code')
+        # nickname = request.data.get('nickname')
+        client_id = os.environ.get('SOCIAL_AUTH_GOOGLE_CLIENT_ID')
+        client_secret = os.environ.get('SOCIAL_AUTH_GOOGLE_SECRET')
+        redirect_uri = "http://127.0.0.1:8000/"
 
+        # 구글 API로 액세스 토큰 요청
+        access_token_request = requests.post("https://oauth2.googleapis.com/token",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            data={
+                "code": code,
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "redirect_uri": redirect_uri,
+                "grant_type": "authorization_code",
+                "scope": "email profile",
+            }
+        )
+        access_token_json = access_token_request.json()
+        access_token = access_token_json.get("access_token")
 
-# class GoogleLogin(SocialLoginView):
-#     adapter_class = GoogleOAuth2Adapter
-#     callback_url = GOOGLE_CALLBACK_URI
-#     client_class = OAuth2Client
-#     serializer_class = SocialLoginSerializer
+        # 구글 API로 사용자 정보 요청
+        user_data_request = requests.get("https://www.googleapis.com/oauth2/v1/userinfo",
+            headers={"Authorization": f"Bearer {access_token}"},
+        )
+        user_data_json = user_data_request.json()
+        print(user_data_json)
+        email = user_data_json.get("email")
+        nickname = user_data_json.get("name")
+
+        try:
+            user = User.objects.get(email=email)
+            refresh = RefreshToken.for_user(user)
+            refresh["email"] = user.email
+            refresh["nickname"] = user.nickname
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK
+            )
+        except:
+            user = User.objects.create_user(email=email, nickname=nickname)
+            user.set_unusable_password()
+            user.save()
+            refresh = RefreshToken.for_user(user)
+            refresh["email"] = user.email
+            refresh["nickname"] = user.nickname
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                },
+                status=status.HTTP_200_OK
+            )

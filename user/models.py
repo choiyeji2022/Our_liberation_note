@@ -26,7 +26,7 @@ class UserManager(BaseUserManager):
 
         user = self.model(
             nickname=nickname,
-            email=email,
+            email=email
         )
         user.set_password(password)
         user.save(using=self._db)
@@ -95,3 +95,14 @@ class UserGroup(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# 소셜 로그인
+class OauthId(models.Model):
+    access_token = models.CharField("토큰", max_length=255)
+    provider = models.CharField("구분자", max_length=255)
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="회원")
+
+    def __str__(self):
+        return f"[아이디]{self.user.username}, [소셜 도메인]{self.provider}"
