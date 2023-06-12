@@ -37,10 +37,9 @@ class Note(models.Model):
     category = models.CharField("노트표지", choices=note_covers, max_length=10, default=1)
     created_at = models.DateTimeField("생성일", auto_now_add=True)
     status = models.CharField("상태", choices=status_choice, max_length=10, default=0)
-    
+
     def __str__(self):
         return self.name
-
 
 
 # 미영
@@ -56,7 +55,7 @@ class PlanPage(models.Model):
 
 # 제건
 class PhotoPage(models.Model):
-    diary = models.ForeignKey("Note", on_delete=models.CASCADE) #소속된 앨범 객체
+    diary = models.ForeignKey("Note", on_delete=models.CASCADE)  # 소속된 앨범 객체
     image = models.ImageField(null=True, blank=True)  # 배포 후엔 null X
     location = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -84,5 +83,3 @@ class Stamp(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     photo = models.ForeignKey(PhotoPage, on_delete=models.CASCADE)
     status = models.CharField(choices=status_choice, max_length=100, default=0)
-    
-

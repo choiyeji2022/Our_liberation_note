@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from rest_framework import serializers
 from rest_framework.serializers import ValidationError
+
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 
 
@@ -81,9 +81,6 @@ class PlanSerializer(serializers.ModelSerializer):
 
 
 class StampSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Stamp
         fields = "__all__"
-        
-       
