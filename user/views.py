@@ -275,14 +275,12 @@ class SocialUrlView(APIView):
         if social is None:
             return Response({'error':'소셜로그인이 아닙니다'},status=status.HTTP_400_BAD_REQUEST)
         elif social == 'kakao':
-            url = KAKAO_HOST + 'oauth/authorize?client_id=' + os.environ.get('KAKAO_REST_API_KEY') + '&redirect_uri=' + BASE_URL + '&response_type=code&prompt=login'
+            url = 'https://kauth.kakao.com/oauth/authorize?client_id=' + os.environ.get('KAKAO_REST_API_KEY') + '&redirect_uri=' + BASE_URL + '&response_type=code&prompt=login'
             return Response({'url':url},status=status.HTTP_200_OK)
         elif social == 'naver':
-            # url = 'https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=' + os.environ.get('SOCIAL_AUTH_NAVER_CLIENT_ID') + '&redirect_uri=' + BASE_URL + '&state=' + os.environ.get("STATE")
             url = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id="+ os.environ.get('SOCIAL_AUTH_NAVER_CLIENT_ID') + "&redirect_uri=" + BASE_URL + "&state=" + os.environ.get("STATE")
             return Response({'url':url},status=status.HTTP_200_OK)   
         elif social == 'google':
-            # return Response({'key':os.environ.get('SOCIAL_AUTH_GOOGLE_CLIENT_ID'),'redirecturi':BASE_URL},status=status.HTTP_200_OK)
             client_id = os.environ.get('SOCIAL_AUTH_GOOGLE_CLIENT_ID')
             redirect_uri = BASE_URL
             
@@ -290,7 +288,7 @@ class SocialUrlView(APIView):
             
             return Response({'url': url}, status=status.HTTP_200_OK)
         
-# ===============================================
+# 카카오 소셜 로그인
 class KakaoLoginView(APIView):
     def post(self,request):
         code = request.data.get('code')
@@ -341,7 +339,7 @@ class KakaoLoginView(APIView):
                 status=status.HTTP_200_OK
             )
 
-# ===============================================
+# 네이버 소 로그인
 class NaverLoginView(APIView):
     def post(self, request):
         code = request.data.get('code')
@@ -406,9 +404,7 @@ class NaverLoginView(APIView):
                 status=status.HTTP_200_OK
             )
 
-
-# ===============================================
-
+# 구글 소셜 로그인
 class GoogleLoginView(APIView):
     def post(self, request):
         code = request.data.get('code')
