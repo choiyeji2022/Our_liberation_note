@@ -1,8 +1,8 @@
+from django.conf.urls.static import static
 from django.urls import path
+
 from diary import views
 from Our_Liberation_Note import settings
-from django.conf.urls.static import static
-
 
 urlpatterns = [
     path("", views.NoteView.as_view(), name="note_post"),
