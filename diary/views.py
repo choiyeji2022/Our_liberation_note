@@ -1,20 +1,13 @@
 from rest_framework import permissions, status
-# from .serializers import StampSerializer
-from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import permissions, status
+from rest_framework.views import APIView
+
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (
-    PhotoPageSerializer,
-    DetailPhotoPageSerializer,
-    CommentSerializer,
-    PlanSerializer,
-    NoteSerializer,
-    DetailNoteSerializer,
-    StampSerializer,
-)
+from .serializers import (CommentSerializer, DetailNoteSerializer,
+                          DetailPhotoPageSerializer, NoteSerializer,
+                          PhotoPageSerializer, PlanSerializer,StampSerializer)
+
 
 
 # 노트 조회 및 생성
@@ -26,7 +19,7 @@ class NoteView(APIView):
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, pk=None):
+    def post(self, request, group_id=None):
         serializer = NoteSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -50,11 +43,19 @@ class DetailNoteView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # pk = note_id
     def delete(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
         note.delete()
         return Response({"message": "노트가 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+
+
+# 노트 조회 및 생성
+
+# 페이지 전체 조회 및 생성 -> 생성시 카테 고리를 보고 나눠 주세요~
+
+
+class PageView(APIView):
+    pass
 
 
 # 사진 페이지
@@ -78,7 +79,7 @@ class DetailPhotoPageView(APIView):
         photo = get_object_or_404(PhotoPage, id=photo_id)
         serializer = DetailPhotoPageSerializer(photo)
         return Response(serializer.data)
-
+    
     # 댓글 저장
     def post(self, request, photo_id):
         serializer = CommentSerializer(data=request.data)
@@ -86,8 +87,9 @@ class DetailPhotoPageView(APIView):
             serializer.save(photo_id=photo_id, user_id=request.user.id)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def put(self, request, photo_id):
+    
+    # 부분 수정이 유리하게 수정
+    def patch(self, request, photo_id):
         photo = get_object_or_404(PhotoPage, id=photo_id)
         serializer = DetailPhotoPageSerializer(photo, data=request.data, partial=True)
         if serializer.is_valid():

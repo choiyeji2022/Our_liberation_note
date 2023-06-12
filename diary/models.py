@@ -56,7 +56,7 @@ class PlanPage(models.Model):
 
 # 제건
 class PhotoPage(models.Model):
-    diary = models.ForeignKey("Note", on_delete=models.CASCADE)
+    diary = models.ForeignKey("Note", on_delete=models.CASCADE) #소속된 앨범 객체
     image = models.ImageField(null=True, blank=True)  # 배포 후엔 null X
     location = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -86,6 +86,3 @@ class Stamp(models.Model):
     status = models.CharField(choices=status_choice, max_length=100, default=0)
     
 
-
-class Todo(models.Model):
-    pass
