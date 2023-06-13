@@ -26,7 +26,6 @@ class LoginSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token["nickname"] = user.nickname
         token["email"] = user.email
         token["is_admin"] = user.is_admin
 
@@ -47,12 +46,9 @@ class UserViewSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("nickname", "password", "email")
+        fields = ("password", "email")
 
     def update(self, instance, validated_data):
-        # 닉네임 값 설정
-        instance.nickname = validated_data.get("nickname", instance.nickname)
-
         # 새로운 비밀번호로 설정
         password = validated_data.get("new_password")
         if password:
@@ -70,11 +66,11 @@ class GroupSerializer(serializers.ModelSerializer):
     updated_at = serializers.SerializerMethodField()
 
     def get_master(self, obj):
-        return obj.master.nickname
+        return obj.master.email
 
     def get_members(self, obj):
         return ", ".join(
-            obj.members.values_list("nickname", flat=True)
+            obj.members.values_list("email", flat=True)
         )  # values_list는 member 필드의 값을 리스트로 반환, flat을 쓰지 않으면 튜플로 반환
 
     def get_status(self, obj):
@@ -103,8 +99,3 @@ class GroupCreateSerializer(serializers.ModelSerializer):
         model = UserGroup
         fields = ("name", "members", "master", "status")
         read_only_fields = ("master",)
-
-
-class SocialLoginSerializer(serializers.Serializer):
-    # "nickname" 필드로 "회원이름"을 받아옴
-    username = serializers.CharField(source="nickname")

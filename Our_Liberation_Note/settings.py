@@ -2,7 +2,6 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -36,17 +35,6 @@ INSTALLED_APPS = [
     "user",
     "diary",
     "pay",
-    # dj-rest-auth
-    "dj_rest_auth",
-    "dj_rest_auth.registration",
-    # django-allauth
-    "django.contrib.sites",  # 사이트관련 정보
-    "allauth",
-    "allauth.account",  # 소셜로그인한 유저 목록 관리
-    "allauth.socialaccount",  # 소셜 account 정보 관리
-    "allauth.socialaccount.providers.naver",
-    "allauth.socialaccount.providers.kakao",
-    "allauth.socialaccount.providers.google",
 ]
 
 REST_FRAMEWORK = {
@@ -98,13 +86,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -198,22 +179,3 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")  # 발신할 메일�
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")  # TLS 보안 방법
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필드가 회원가입 시 필수 필드로 지정
-
-# # 로그인 과정 처리 지정
-# AUTHENTICATION_BACKENDS = [
-#     "django.contrib.auth.backends.ModelBackend",  # 장고에서 사용하는 기본 유저 모델
-#     "allauth.account.auth_backends.AuthenticationBackend",  # 소셜로그인 allauth가 사용하는 인증체계가 들어있음
-# ]
-
-# # 사이트는 1개만 사용할 것이라고 명시
-# SITE_ID = 1
-
-# # LOGIN_REDIRECT_URL = "http://127.0.0.1:8000/"
-
-# # 소셜로그인 id로 사용할 필드 지정
-# ACCOUNT_USER_MODEL_USERNAME_FIELD = "nickname"
-# # 이메일 필드 사용 O
-# ACCOUNT_EMAIL_REQUIRED = True
-# # 사용자 인증 시 이메일 필드 사용
-# ACCOUNT_AUTHENTICATION_METHOD = 'email'
-# ACCOUNT_USERNAME_REQUIRED = False
