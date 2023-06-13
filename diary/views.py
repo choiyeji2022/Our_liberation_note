@@ -3,17 +3,12 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (
-    CommentSerializer,
-    DetailNoteSerializer,
-    DetailPhotoPageSerializer,
-    NoteSerializer,
-    PhotoPageSerializer,
-    PlanSerializer,
-    StampSerializer,
-)
 from diary import destinations as de
+
+from .models import Comment, Note, PhotoPage, PlanPage, Stamp
+from .serializers import (CommentSerializer, DetailNoteSerializer,
+                          DetailPhotoPageSerializer, NoteSerializer,
+                          PhotoPageSerializer, PlanSerializer, StampSerializer)
 
 
 # 노트 조회 및 생성
@@ -205,8 +200,8 @@ class StampView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-          
+
 class SearchDestination(APIView):
     def post(self, request):
-        test = de.search(request.data['destinations'])
+        test = de.search(request.data["destinations"])
         return Response(test, status=status.HTTP_200_OK)
