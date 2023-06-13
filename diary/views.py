@@ -67,9 +67,11 @@ class PhotoPageView(APIView):
         return Response(serializer.data)
 
     def post(self, request, note_id):
+        print(request.data)
         serializer = PhotoPageSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(diary_id=note_id)
+            note = get_object_or_404(Note, id=note_id)
+            serializer.save(diary=note)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
