@@ -78,9 +78,10 @@ class PlanSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "diary": {"required": False},
         }
-
-
+    
 class StampSerializer(serializers.ModelSerializer):
+    # photo = StampLocationSerializer()
+    
     class Meta:
         model = Stamp
         fields = "__all__"
