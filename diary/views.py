@@ -4,10 +4,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (CommentSerializer, DetailNoteSerializer,
-                          DetailPhotoPageSerializer, NoteSerializer,
-                          PhotoPageSerializer, PlanSerializer)
-
+from .serializers import (
+    CommentSerializer,
+    DetailNoteSerializer,
+    DetailPhotoPageSerializer,
+    NoteSerializer,
+    PhotoPageSerializer,
+    PlanSerializer,
+    StampSerializer,
+)
 from diary import destinations as de
 
 
@@ -80,7 +85,7 @@ class DetailPhotoPageView(APIView):
         photo = get_object_or_404(PhotoPage, id=photo_id)
         serializer = DetailPhotoPageSerializer(photo)
         return Response(serializer.data)
-    
+
     # 댓글 저장
     def post(self, request, photo_id):
         serializer = CommentSerializer(data=request.data)
@@ -88,7 +93,7 @@ class DetailPhotoPageView(APIView):
             serializer.save(photo_id=photo_id, user_id=request.user.id)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     # 부분 수정이 유리하게 수정
     def patch(self, request, photo_id):
         photo = get_object_or_404(PhotoPage, id=photo_id)
@@ -171,11 +176,36 @@ class Trash(APIView):
     pass
 
 
-# 스템프
+# 스탬프
 class StampView(APIView):
-    pass
+    def post(self, request, photo_id):
+        try:
+            stamp = Stamp.objects.get(id=photo_id)
+            serializer = StampSerializer(stamp, data=request.data)
 
+        except Stamp.DoesNotExist:
+            serializer = StampSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(photo_id=photo_id, user_id=request.user.id)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        if serializer.is_valid():
+            if stamp.status == "0":
+                stamp.status = "1"
+                serializer.save(photo_id=photo_id, user_id=request.user.id)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            elif stamp.status == "1":
+                stamp.status = "0"
+                serializer.save(photo_id=photo_id, user_id=request.user.id)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+          
 class SearchDestination(APIView):
     def post(self, request):
         test = de.search(request.data['destinations'])

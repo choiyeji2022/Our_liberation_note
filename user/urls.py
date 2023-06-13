@@ -12,6 +12,5 @@ urlpatterns = [
     ),  # 비밀번호 재발급
     path("group/", views.GroupView.as_view(), name="group"),
     path("group/<int:group_id>/", views.GroupDetailView.as_view(), name="group"),
-    path("my-page/", views.MyPageView.as_view(), name="my_page"),
-    path("map/", views.MapView.as_view(), name="map"),
+    path("my-page/<int:user_id>/", views.MyPageView.as_view(), name="my_page"),
 ]

@@ -11,10 +11,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from diary.models import Stamp
+from diary.serializers import StampSerializer
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (GroupCreateSerializer, GroupSerializer,
-                              LoginSerializer, SignUpSerializer,
-                              UserUpdateSerializer, UserViewSerializer)
+from user.serializers import (
+    GroupCreateSerializer,
+    GroupSerializer,
+    LoginSerializer,
+    SignUpSerializer,
+    UserUpdateSerializer,
+    UserViewSerializer,
+)
 
 
 # 이메일 전송
@@ -236,8 +243,16 @@ class GroupDetailView(APIView):
 
 
 class MyPageView(APIView):
-    pass
-
-
-class MapView(APIView):
-    pass
+    def get(self, request, user_id):
+        profile = get_object_or_404(User, id=user_id)
+        stamp = Stamp.objects.filter(user=user_id)
+        group = UserGroup.objects.filter(Q(members=user_id) | Q(master=user_id))
+        profileserializer = UserViewSerializer(profile)
+        stampserializer = StampSerializer(stamp, many=True)
+        groupSerializer = GroupSerializer(group, many=True)
+        data = {
+            "profile": profileserializer.data,
+            "stamps": stampserializer.data,
+            "groups": groupSerializer.data,
+        }
+        return Response(data, status=status.HTTP_200_OK)
