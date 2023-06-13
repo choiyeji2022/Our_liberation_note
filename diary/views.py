@@ -8,6 +8,7 @@ from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, NoteSerializer,
                           PhotoPageSerializer, PlanSerializer)
 
+from diary import destinations as de
 
 
 # 노트 조회 및 생성
@@ -173,3 +174,9 @@ class Trash(APIView):
 # 스템프
 class StampView(APIView):
     pass
+
+
+class SearchDestination(APIView):
+    def post(self, request):
+        test = de.search(request.data['destinations'])
+        return Response(test, status=status.HTTP_200_OK)

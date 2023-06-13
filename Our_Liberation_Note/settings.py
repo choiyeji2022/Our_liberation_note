@@ -19,6 +19,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 
 # Application definition
 
@@ -82,13 +84,6 @@ WSGI_APPLICATION = "Our_Liberation_Note.wsgi.application"
 
 
 DATABASES = mysettings.DATABASES
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 
 # 이미지 삽입
