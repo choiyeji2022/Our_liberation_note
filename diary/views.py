@@ -13,6 +13,7 @@ from .serializers import (
     PlanSerializer,
     StampSerializer,
 )
+from diary import destinations as de
 
 
 # 노트 조회 및 생성
@@ -203,3 +204,9 @@ class StampView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+          
+class SearchDestination(APIView):
+    def post(self, request):
+        test = de.search(request.data['destinations'])
+        return Response(test, status=status.HTTP_200_OK)

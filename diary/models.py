@@ -48,6 +48,7 @@ class PlanPage(models.Model):
     start = models.DateField()
     title = models.CharField(max_length=100)
     location = models.CharField(max_length=255, null=True, blank=True)
+    category = models.CharField(max_length=100, null=True, blank=True)
     time = models.CharField(max_length=255, null=True, blank=True)
     memo = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(choices=status_choice, max_length=100, default=0)
@@ -75,7 +76,7 @@ class Comment(models.Model):
     status = models.CharField(choices=status_choice, max_length=100, default=0)
 
     def __str__(self):
-        return self.name
+        return self.comment
 
 
 # 예린
