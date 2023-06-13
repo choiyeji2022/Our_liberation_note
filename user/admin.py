@@ -17,7 +17,9 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["nickname", "email", "username"]
+        fields = [
+            "email",
+        ]
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -44,26 +46,33 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["nickname", "email", "password", "username", "is_active", "is_admin"]
+        fields = ["email", "password", "is_active", "is_admin"]
 
 
 class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
-    list_display = ["id", "nickname", "username", "email", "is_admin"]
-    list_display_links = ["nickname", "email"]
+    list_display = ["id", "email", "is_admin"]
+    list_display_links = ["email"]
     list_filter = ["is_admin", "is_active"]
     fieldsets = [
         (
             None,
             {
                 "fields": [
-                    "nickname",
+                    "email",
                 ]
             },
         ),
-        ("Personal info", {"fields": ["username", "email", "is_active"]}),
+        (
+            "Personal info",
+            {
+                "fields": [
+                    "is_active",
+                ]
+            },
+        ),
         ("Permissions", {"fields": ["is_admin"]}),
     ]
     add_fieldsets = [
@@ -71,11 +80,11 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ["wide"],
-                "fields": ["nickname", "email", "username", "password1", "password2"],
+                "fields": ["email", "password1", "password2"],
             },
         ),
     ]
-    search_fields = ["nickname", "email"]
+    search_fields = ["email"]
     ordering = ["id"]
     filter_horizontal = []
 
@@ -83,7 +92,7 @@ class UserAdmin(BaseUserAdmin):
     def get_readonly_fields(self, request, obj=None):
         if obj:
             return (
-                "nickname",
+                "email",
                 "join_date",
             )
         else:

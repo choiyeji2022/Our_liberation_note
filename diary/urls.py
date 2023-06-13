@@ -1,8 +1,8 @@
+from django.conf.urls.static import static
 from django.urls import path
+
 from diary import views
 from Our_Liberation_Note import settings
-from django.conf.urls.static import static
-
 
 urlpatterns = [
     path("", views.NoteView.as_view(), name="note_post"),
@@ -27,7 +27,8 @@ urlpatterns = [
     path("comment/<int:comment_id>", views.CommentView.as_view(), name="comment"),
     path("trash", views.Trash.as_view(), name="trash"),
     path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
+    path("search", views.SearchDestination.as_view(), name="search"),
 ]
-# 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)
 
+# 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

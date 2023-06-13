@@ -78,3 +78,9 @@ class PlanSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "diary": {"required": False},
         }
+
+
+class StampSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stamp
+        fields = "__all__"
