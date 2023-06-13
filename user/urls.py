@@ -15,11 +15,10 @@ urlpatterns = [
     # 그룹
     path("group/", views.GroupView.as_view(), name="group"),
     path("group/<int:group_id>/", views.GroupDetailView.as_view(), name="group"),
-    path("my-page/", views.MyPageView.as_view(), name="my_page"),
-    path("map/", views.MapView.as_view(), name="map"),
     # 소셜 로그인
     path("social/", views.SocialUrlView.as_view(), name="social_login"),
     path("kakao/", views.KakaoLoginView.as_view(), name="kakao_login"),
     path("naver/", views.NaverLoginView.as_view(), name="naver_login"),
     path("google/", views.GoogleLoginView.as_view(), name="google_login"),
+    path("my-page/<int:user_id>/", views.MyPageView.as_view(), name="my_page"),
 ]
