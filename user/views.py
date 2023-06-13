@@ -178,16 +178,7 @@ class GroupView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        # 그룹장 여부 확인
-        master = UserGroup.objects.filter(master=request.user).exists()
-        # 그룹장이라면 활성화, 비활성화 상태 다 불러오기
-        if master:
-            groups = groups = UserGroup.objects.filter(status__in=["0", "1"]).order_by(
-                "-created_at"
-            )
-        # 아니라면 활성화 상태만 불러오기
-        else:
-            groups = UserGroup.objects.filter(status="0").order_by("-created_at")
+        groups = UserGroup.objects.filter(members=request.user, status="0").order_by("-created_at")
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -195,8 +186,13 @@ class GroupView(APIView):
     def post(self, request):
         serializer = GroupCreateSerializer(data=request.data)
         if serializer.is_valid():
+            group_name = serializer.validated_data.get('name')
+            # 이미 같은 이름의 그룹이 있는지 확인
+            if UserGroup.objects.filter(name=group_name).exists():
+                error_message = {'error': '이미 같은 이름의 그룹이 존재합니다.'}
+                return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
             # 그룹 생성하면서 그룹장을 request.user로 설정
-            group = serializer.save(master=request.user)
+            group = serializer.save(master_id=request.user.id)
             # master를 멤버로 추가하기
             group.members.add(request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -209,28 +205,28 @@ class GroupDetailView(APIView):
 
     # 그룹 상세보기
     def get(self, request, group_id):
-        # 그룹장 여부 확인
-        master = UserGroup.objects.filter(master=request.user).exists()
-        # 그룹장이라면 활성화, 비활성화 상태 다 불러오기
-        if master:
-            group = get_object_or_404(
-                UserGroup, Q(id=group_id) & Q(status__in=["0", "1"])
+        group = get_object_or_404(
+            UserGroup.objects.filter(id=group_id, members=request.user, status="0")
             )
-        # 멤버라면 활성화 상태만 불러오기
-        else:
-            group = get_object_or_404(UserGroup, Q(id=group_id) & Q(status__in=["0"]))
         serializer = GroupSerializer(group)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 그룹 수정하기
     def patch(self, request, group_id):
-        # 활성, 비활성 다 불러오기
-        group = get_object_or_404(UserGroup, Q(id=group_id) & Q(status__in=["0", "1"]))
+        group = get_object_or_404(UserGroup.objects.filter(id=group_id, master_id=request.user.id, status="0"))
         # 본인이 생성한 그룹이 맞다면
-        if request.user == group.master:
+        if request.user.id == group.master_id:
             serializer = GroupCreateSerializer(group, data=request.data)
             if serializer.is_valid():
-                serializer.save()
+                new_name = serializer.validated_data.get('name')
+                # 그룹명 중복 확인
+                if UserGroup.objects.filter(name=new_name).exclude(id=group_id).exists():
+                    return Response({"message": "같은 이름의 그룹이 이미 존재합니다."}, status=status.HTTP_400_BAD_REQUEST) 
+                
+                # 수정하면서 그룹장을 request.user로 설정
+                group = serializer.save(master_id=request.user.id)
+                # master를 멤버로 추가하기
+                group.members.add(request.user)
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -241,7 +237,7 @@ class GroupDetailView(APIView):
     # 그룹 삭제하기
     def delete(self, request, group_id):
         # 활성, 비활성 다 불러오기
-        group = get_object_or_404(UserGroup, Q(id=group_id) & Q(status__in=["0", "1"]))
+        group = get_object_or_404(UserGroup.objects.filter(id=group_id, master_id=request.user.id, status="0"))
         # 본인이 생성한 그룹이 맞다면
         if request.user == group.master:
             group.status = "3"
@@ -263,26 +259,29 @@ class MapView(APIView):
 
 
 # 소셜 로그인
-BASE_URL = "http://127.0.0.1:8000/"
+
 
 
 # 일반 소셜 로그인==============================
 
-KAKAO_HOST= "https://kauth.kakao.com/"
+# KAKAO_HOST= "https://kauth.kakao.com/"
+URI = "http://127.0.0.1:8000/"
+
+# OAuth 인증 url
 class SocialUrlView(APIView):
     def post(self,request):
         social = request.data.get('social',None)
         if social is None:
             return Response({'error':'소셜로그인이 아닙니다'},status=status.HTTP_400_BAD_REQUEST)
         elif social == 'kakao':
-            url = 'https://kauth.kakao.com/oauth/authorize?client_id=' + os.environ.get('KAKAO_REST_API_KEY') + '&redirect_uri=' + BASE_URL + '&response_type=code&prompt=login'
+            url = 'https://kauth.kakao.com/oauth/authorize?client_id=' + os.environ.get('KAKAO_REST_API_KEY') + '&redirect_uri=' + URI + '&response_type=code&prompt=login'
             return Response({'url':url},status=status.HTTP_200_OK)
         elif social == 'naver':
-            url = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id="+ os.environ.get('SOCIAL_AUTH_NAVER_CLIENT_ID') + "&redirect_uri=" + BASE_URL + "&state=" + os.environ.get("STATE")
+            url = "https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id="+ os.environ.get('SOCIAL_AUTH_NAVER_CLIENT_ID') + "&redirect_uri=" + URI + "&state=" + os.environ.get("STATE")
             return Response({'url':url},status=status.HTTP_200_OK)   
         elif social == 'google':
             client_id = os.environ.get('SOCIAL_AUTH_GOOGLE_CLIENT_ID')
-            redirect_uri = BASE_URL
+            redirect_uri = URI
             
             url = f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&redirect_uri={redirect_uri}&response_type=code&scope=email%20profile"
             
@@ -339,7 +338,7 @@ class KakaoLoginView(APIView):
                 status=status.HTTP_200_OK
             )
 
-# 네이버 소 로그인
+# 네이버 소셜 로그인
 class NaverLoginView(APIView):
     def post(self, request):
         code = request.data.get('code')
