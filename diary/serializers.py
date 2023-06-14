@@ -79,15 +79,16 @@ class PlanSerializer(serializers.ModelSerializer):
             "diary": {"required": False},
         }
 
+
 class StampLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhotoPage
-        fields = ('id', 'location_x', 'location_y','memo','diary')
-    
+        fields = ("id", "location_x", "location_y", "memo", "diary")
+
 
 class StampSerializer(serializers.ModelSerializer):
     photo = StampLocationSerializer()
-    
+
     class Meta:
         model = Stamp
         fields = "__all__"
