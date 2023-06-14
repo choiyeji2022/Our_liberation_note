@@ -48,6 +48,7 @@ class PlanPage(models.Model):
     start = models.DateField()
     title = models.CharField(max_length=100)
     location = models.CharField(max_length=255, null=True, blank=True)
+    category = models.CharField(max_length=100, null=True, blank=True)
     time = models.CharField(max_length=255, null=True, blank=True)
     memo = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(choices=status_choice, max_length=100, default=0)
@@ -61,8 +62,8 @@ class PhotoPage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     memo = models.CharField(null=True, max_length=100)
     status = models.CharField(choices=status_choice, max_length=100, default=0)
-    location_x = models.CharField(max_length=100) # 위도
-    location_y = models.CharField(max_length=100) # 경도
+    location_x = models.CharField(max_length=100)  # 위도
+    location_y = models.CharField(max_length=100)  # 경도
 
     def __str__(self):
         return self.location
@@ -77,7 +78,7 @@ class Comment(models.Model):
     status = models.CharField(choices=status_choice, max_length=100, default=0)
 
     def __str__(self):
-        return self.name
+        return self.comment
 
 
 # 예린
