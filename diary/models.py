@@ -62,6 +62,8 @@ class PhotoPage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     memo = models.CharField(null=True, max_length=100)
     status = models.CharField(choices=status_choice, max_length=100, default=0)
+    location_x = models.CharField(max_length=100)  # 위도
+    location_y = models.CharField(max_length=100)  # 경도
 
     def __str__(self):
         return self.location
