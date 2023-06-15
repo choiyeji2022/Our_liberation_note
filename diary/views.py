@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
@@ -8,7 +9,7 @@ from diary import destinations as de
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, NoteSerializer,
-                          PhotoPageSerializer, PlanSerializer, StampSerializer)
+                          PhotoPageSerializer, PlanSerializer, StampSerializer, MarkerSerializer)
 
 
 # 노트 조회 및 생성
@@ -201,6 +202,16 @@ class StampView(APIView):
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MarkerStampsView(APIView):
+    def get(self, request, photo_location):
+        user = request.user
+        stamps = Stamp.objects.filter(
+            user=user, photo__location=photo_location, photo__status=0, status=0
+        )
+        serializer = MarkerSerializer(stamps, many=True)
+        return Response(serializer.data)
 
 
 class SearchDestination(APIView):
