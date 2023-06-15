@@ -16,10 +16,15 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from diary.models import Stamp
 from diary.serializers import StampSerializer
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (GroupCreateSerializer, GroupSerializer,
-                              LoginSerializer, SignUpSerializer,
-                              TokenObtainPairSerializer, UserUpdateSerializer,
-                              UserViewSerializer)
+from user.serializers import (
+    GroupCreateSerializer,
+    GroupSerializer,
+    LoginSerializer,
+    SignUpSerializer,
+    TokenObtainPairSerializer,
+    UserUpdateSerializer,
+    UserViewSerializer,
+)
 
 
 # 이메일 전송
@@ -290,17 +295,19 @@ class SocialUrlView(APIView):
 class KakaoLoginView(APIView):
     def post(self, request):
         code = request.data.get("code")
+
         access_token = requests.post(
             "https://kauth.kakao.com/" + "oauth/token",
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             data={
                 "grant_type": "authorization_code",
                 "client_id": os.environ.get("KAKAO_REST_API_KEY"),
-                "redirect_uri": "http://127.0.0.1:8000/",
+                "redirect_uri": "http://127.0.0.1:5500/",
                 "code": code,
             },
         )
         access_token = access_token.json().get("access_token")
+
         user_data_request = requests.get(
             "https://kapi.kakao.com/v2/user/me",
             headers={

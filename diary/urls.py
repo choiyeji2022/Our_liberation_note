@@ -26,7 +26,10 @@ urlpatterns = [
     ),
     path("comment/<int:comment_id>", views.CommentView.as_view(), name="comment"),
     path("trash", views.Trash.as_view(), name="trash"),
+    
     path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
+    path("markerstamps/<str:photo_location>", views.MarkerStampsView.as_view(), name="markerstamps"),
+    
     path("search", views.SearchDestination.as_view(), name="search"),
 ]
 
