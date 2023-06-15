@@ -21,4 +21,6 @@ urlpatterns = [
     path("naver/", views.NaverLoginView.as_view(), name="naver_login"),
     path("google/", views.GoogleLoginView.as_view(), name="google_login"),
     path("my-page/<int:user_id>/", views.MyPageView.as_view(), name="my_page"),
+    # 유저 정보 리스트
+    path("userlist/", views.UserListView.as_view(), name="my_page"),
 ]

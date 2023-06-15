@@ -1,13 +1,14 @@
 import os
 import random
 import string
-from django.http import QueryDict
+
 import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.db.models import Q
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect
-from rest_framework import permissions, status
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,8 +19,8 @@ from diary.serializers import StampSerializer
 from user.models import CheckEmail, User, UserGroup
 from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
-                              TokenObtainPairSerializer, UserUpdateSerializer,
-                              UserViewSerializer)
+                              TokenObtainPairSerializer, UserListSerializer,
+                              UserUpdateSerializer, UserViewSerializer)
 
 
 # 이메일 전송
@@ -100,7 +101,9 @@ class UserView(APIView):
         new_password = request.data.get("new_password")
 
         if new_password == "":
-            return Response({'message':'변경할 비밀번호를 입력해주세요!'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "변경할 비밀번호를 입력해주세요!"}, status=status.HTTP_400_BAD_REQUEST
+            )
         # 기존 비밀번호와 check_password가 일치할 경우 회원정보(닉네임, 비밀번호) 수정
         if check_password and user.check_password(check_password):
             serializer = UserUpdateSerializer(user, data=request.data, partial=True)
@@ -480,3 +483,18 @@ class MyPageView(APIView):
             "groups": groupSerializer.data,
         }
         return Response(data, status=status.HTTP_200_OK)
+
+
+# 유저 리스트
+class UserListView(generics.ListAPIView):
+    serializer_class = UserViewSerializer
+
+    def get_queryset(self):
+        usersearch = self.request.query_params.get("usersearch", None)
+        queryset = User.objects.all()
+
+        if usersearch is not None:
+            queryset = queryset.filter(Q(email__icontains=usersearch)).distinct()
+            print("1", queryset)
+
+        return queryset.distinct()
