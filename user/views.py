@@ -16,15 +16,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from diary.models import Stamp
 from diary.serializers import StampSerializer
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (
-    GroupCreateSerializer,
-    GroupSerializer,
-    LoginSerializer,
-    SignUpSerializer,
-    TokenObtainPairSerializer,
-    UserUpdateSerializer,
-    UserViewSerializer,
-)
+from user.serializers import (GroupCreateSerializer, GroupSerializer,
+                              LoginSerializer, SignUpSerializer,
+                              TokenObtainPairSerializer, UserUpdateSerializer,
+                              UserViewSerializer)
 
 
 # 이메일 전송
