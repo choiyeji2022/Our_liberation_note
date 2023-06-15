@@ -9,7 +9,7 @@ from diary import destinations as de
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, NoteSerializer,
-                          PhotoPageSerializer, PlanSerializer, StampSerializer)
+                          PhotoPageSerializer, PlanSerializer, StampSerializer, MarkerSerializer)
 
 
 # 노트 조회 및 생성
@@ -210,7 +210,7 @@ class MarkerStampsView(APIView):
         stamps = Stamp.objects.filter(
             user=user, photo__location=photo_location, photo__status=0, status=0
         )
-        serializer = StampSerializer(stamps, many=True)
+        serializer = MarkerSerializer(stamps, many=True)
         return Response(serializer.data)
 
 

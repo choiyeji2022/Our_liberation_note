@@ -97,9 +97,14 @@ class StampPhotoSerializer(serializers.ModelSerializer):
             "diary_id",
             "diary_name",
         )
-
-
+        
 class StampSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stamp
+        fields = "__all__"
+
+
+class MarkerSerializer(serializers.ModelSerializer):
     photo = StampPhotoSerializer()
 
     class Meta:

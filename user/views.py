@@ -14,7 +14,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from diary.models import Stamp
-from diary.serializers import StampSerializer
+from diary.serializers import MarkerSerializer
 from user.models import CheckEmail, User, UserGroup
 from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
@@ -471,7 +471,7 @@ class MyPageView(APIView):
         stamp = Stamp.objects.filter(user=user_id)
         group = UserGroup.objects.filter(Q(members=user_id) | Q(master=user_id))
         profileserializer = UserViewSerializer(profile)
-        stampserializer = StampSerializer(stamp, many=True)
+        stampserializer = MarkerSerializer(stamp, many=True)
         groupSerializer = GroupSerializer(group, many=True)
         data = {
             "profile": profileserializer.data,
