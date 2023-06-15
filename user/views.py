@@ -14,7 +14,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from diary.models import Stamp
-from diary.serializers import StampSerializer
+from diary.serializers import MarkerSerializer
 from user.models import CheckEmail, User, UserGroup
 from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
@@ -290,17 +290,19 @@ class SocialUrlView(APIView):
 class KakaoLoginView(APIView):
     def post(self, request):
         code = request.data.get("code")
+
         access_token = requests.post(
             "https://kauth.kakao.com/" + "oauth/token",
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             data={
                 "grant_type": "authorization_code",
                 "client_id": os.environ.get("KAKAO_REST_API_KEY"),
-                "redirect_uri": "http://127.0.0.1:8000/",
+                "redirect_uri": "http://127.0.0.1:5500/",
                 "code": code,
             },
         )
         access_token = access_token.json().get("access_token")
+
         user_data_request = requests.get(
             "https://kapi.kakao.com/v2/user/me",
             headers={
@@ -469,7 +471,7 @@ class MyPageView(APIView):
         stamp = Stamp.objects.filter(user=user_id)
         group = UserGroup.objects.filter(Q(members=user_id) | Q(master=user_id))
         profileserializer = UserViewSerializer(profile)
-        stampserializer = StampSerializer(stamp, many=True)
+        stampserializer = MarkerSerializer(stamp, many=True)
         groupSerializer = GroupSerializer(group, many=True)
         data = {
             "profile": profileserializer.data,
