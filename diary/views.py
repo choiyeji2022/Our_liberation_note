@@ -3,9 +3,7 @@ from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from diary import destinations as de
-
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, MarkerSerializer,
@@ -133,27 +131,38 @@ class CommentView(APIView):
 
 class PlanPageView(APIView):
     def get(self, request, note_id):
-        plan = PlanPage.objects.filter(diary_id=note_id)
+        plan = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
         serializer = PlanSerializer(plan, many=True)
         return Response(serializer.data)
 
     def post(self, request, note_id):
-        serializer = PlanSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(diary_id=note_id)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        for plan in request.data['plan_set']:
+            serializer = PlanSerializer(data=plan)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(diary_id=note_id)
+        return Response(status=status.HTTP_200_OK)
+
+    # 전체 삭제
+    def delete(self, request, note_id):
+        plan_set = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
+        serializer_set = PlanSerializer(plan_set, many=True)
+        for delete_plan in serializer_set.data:
+            delete_plan['status'] = 3
+            plan = get_object_or_404(PlanPage, id=delete_plan['id'])
+            serializer = PlanSerializer(plan, data=delete_plan, partial=True)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # 계획표 페이지
 class DetailPlanPageView(APIView):
     def get(self, request, plan_id):
-        plan = get_object_or_404(PlanPage, id=plan_id)
+        plan = get_object_or_404(PlanPage, id=plan_id, status__in=[0, 1])
         serializer = PlanSerializer(plan)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, plan_id):
-        plan = get_object_or_404(PlanPage, id=plan_id)
+        plan = get_object_or_404(PlanPage, id=plan_id, status__in=[0, 1])
         serializer = PlanSerializer(plan, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -162,13 +171,13 @@ class DetailPlanPageView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, plan_id):
-        plan = get_object_or_404(PlanPage, id=plan_id)
-        plan.delete()
+        plan = get_object_or_404(PlanPage, id=plan_id, status__in=[0, 1])
+        delete_plan = PlanSerializer(plan).data
+        delete_plan['status'] = 3
+        serializer = PlanSerializer(plan, data=delete_plan, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class TodoView(APIView):
-    pass
 
 
 # 휴지통
