@@ -8,8 +8,9 @@ from diary import destinations as de
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from .serializers import (CommentSerializer, DetailNoteSerializer,
-                          DetailPhotoPageSerializer, NoteSerializer,
-                          PhotoPageSerializer, PlanSerializer, StampSerializer, MarkerSerializer)
+                          DetailPhotoPageSerializer, MarkerSerializer,
+                          NoteSerializer, PhotoPageSerializer, PlanSerializer,
+                          StampSerializer)
 
 
 # 노트 조회 및 생성
