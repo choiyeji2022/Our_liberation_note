@@ -32,7 +32,6 @@ class Note(models.Model):
     )
 
     group = models.ForeignKey(UserGroup, on_delete=models.CASCADE)
-    group = models.ForeignKey(UserGroup, on_delete=models.CASCADE)
     name = models.CharField("노트이름", max_length=30)
     category = models.CharField("노트표지", choices=note_covers, max_length=10, default=1)
     created_at = models.DateTimeField("생성일", auto_now_add=True)
@@ -56,7 +55,6 @@ class PlanPage(models.Model):
     location_y = models.CharField(max_length=255, null=True, blank=True)
     
 
-
 # 제건
 class PhotoPage(models.Model):
     diary = models.ForeignKey("Note", on_delete=models.CASCADE)  # 소속된 앨범 객체
@@ -69,6 +67,7 @@ class PhotoPage(models.Model):
     status = models.CharField(choices=status_choice, max_length=100, default=0)
     location_x = models.CharField(max_length=100, default=0)  # 위도
     location_y = models.CharField(max_length=100, default=0)  # 경도
+    start = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.location
