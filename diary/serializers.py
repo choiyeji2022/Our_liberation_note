@@ -97,7 +97,8 @@ class StampPhotoSerializer(serializers.ModelSerializer):
             "diary_id",
             "diary_name",
         )
-        
+
+
 class StampSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stamp
