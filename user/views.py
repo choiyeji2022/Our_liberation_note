@@ -6,8 +6,9 @@ import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.db.models import Q
+from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect
-from rest_framework import permissions, status
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,8 +19,8 @@ from diary.serializers import MarkerSerializer
 from user.models import CheckEmail, User, UserGroup
 from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
-                              TokenObtainPairSerializer, UserUpdateSerializer,
-                              UserViewSerializer)
+                              TokenObtainPairSerializer, UserListSerializer,
+                              UserUpdateSerializer, UserViewSerializer)
 
 
 # 이메일 전송
@@ -99,6 +100,10 @@ class UserView(APIView):
         user = User.objects.get(email=request.user)
         new_password = request.data.get("new_password")
 
+        if new_password == "":
+            return Response(
+                {"message": "변경할 비밀번호를 입력해주세요!"}, status=status.HTTP_400_BAD_REQUEST
+            )
         # 기존 비밀번호와 check_password가 일치할 경우 회원정보(닉네임, 비밀번호) 수정
         if check_password and user.check_password(check_password):
             serializer = UserUpdateSerializer(user, data=request.data, partial=True)
@@ -203,7 +208,7 @@ class GroupDetailView(APIView):
         )
         # 본인이 생성한 그룹이 맞다면
         if request.user.id == group.master_id:
-            serializer = GroupCreateSerializer(group, data=request.data)
+            serializer = GroupCreateSerializer(group, data=request.data, partial=True)
             if serializer.is_valid():
                 new_name = serializer.validated_data.get("name")
                 # 그룹명 중복 확인
@@ -247,13 +252,14 @@ class GroupDetailView(APIView):
 
 
 # 소셜 로그인
-URI = "http://127.0.0.1:8000/"
+URI = "http://127.0.0.1:5500/"
 
 
 # OAuth 인증 url
 class SocialUrlView(APIView):
     def post(self, request):
         social = request.data.get("social", None)
+        code = request.data.get("code", None)
         if social is None:
             return Response(
                 {"error": "소셜로그인이 아닙니다"}, status=status.HTTP_400_BAD_REQUEST
@@ -297,7 +303,7 @@ class KakaoLoginView(APIView):
             data={
                 "grant_type": "authorization_code",
                 "client_id": os.environ.get("KAKAO_REST_API_KEY"),
-                "redirect_uri": "http://127.0.0.1:5500/",
+                "redirect_uri": URI,
                 "code": code,
             },
         )
@@ -345,7 +351,7 @@ class NaverLoginView(APIView):
         code = request.data.get("code")
         client_id = os.environ.get("SOCIAL_AUTH_NAVER_CLIENT_ID")
         client_secret = os.environ.get("SOCIAL_AUTH_NAVER_SECRET")
-        redirect_uri = "http://127.0.0.1:8000/"
+        redirect_uri = URI
 
         # 네이버 API로 액세스 토큰 요청
         access_token_request = requests.post(
@@ -376,7 +382,7 @@ class NaverLoginView(APIView):
         user_data_json = user_data_request.json()
         print("1111", user_data_json)
         user_data = user_data_json.get("response")
-        print(user_data)
+        print("user_data", user_data)
         email = user_data.get("email")
 
         try:
@@ -412,7 +418,7 @@ class GoogleLoginView(APIView):
         # nickname = request.data.get('nickname')
         client_id = os.environ.get("SOCIAL_AUTH_GOOGLE_CLIENT_ID")
         client_secret = os.environ.get("SOCIAL_AUTH_GOOGLE_SECRET")
-        redirect_uri = "http://127.0.0.1:8000/"
+        redirect_uri = URI
 
         # 구글 API로 액세스 토큰 요청
         access_token_request = requests.post(
@@ -479,3 +485,18 @@ class MyPageView(APIView):
             "groups": groupSerializer.data,
         }
         return Response(data, status=status.HTTP_200_OK)
+
+
+# 유저 리스트
+class UserListView(generics.ListAPIView):
+    serializer_class = UserViewSerializer
+
+    def get_queryset(self):
+        usersearch = self.request.query_params.get("usersearch", None)
+        queryset = User.objects.all()
+
+        if usersearch is not None:
+            queryset = queryset.filter(Q(email__icontains=usersearch)).distinct()
+            print("1", queryset)
+
+        return queryset.distinct()

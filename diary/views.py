@@ -63,8 +63,9 @@ class PageView(APIView):
 
 # 사진 페이지
 class PhotoPageView(APIView):
-    def get(self, request, note_id):
-        photos = PhotoPage.objects.filter(diary_id=note_id)
+    def get(self, request, note_id, offset=0):
+        limit = 8
+        photos = PhotoPage.objects.filter(diary_id=note_id)[offset:offset+limit]
         serializer = PhotoPageSerializer(photos, many=True)
         return Response(serializer.data)
 

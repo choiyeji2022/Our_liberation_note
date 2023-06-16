@@ -52,18 +52,23 @@ class PlanPage(models.Model):
     time = models.CharField(max_length=255, null=True, blank=True)
     memo = models.CharField(max_length=100, null=True, blank=True)
     status = models.CharField(choices=status_choice, max_length=100, default=0)
+    location_x = models.CharField(max_length=255, null=True, blank=True)
+    location_y = models.CharField(max_length=255, null=True, blank=True)
+    
 
 
 # 제건
 class PhotoPage(models.Model):
     diary = models.ForeignKey("Note", on_delete=models.CASCADE)  # 소속된 앨범 객체
     image = models.ImageField(null=True, blank=True)  # 배포 후엔 null X
+    name = models.CharField(max_length=50, null=True, blank=True)
+    title = models.CharField(max_length=100, null=True, blank=True)
     location = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     memo = models.CharField(null=True, max_length=100)
     status = models.CharField(choices=status_choice, max_length=100, default=0)
-    location_x = models.CharField(max_length=100)  # 위도
-    location_y = models.CharField(max_length=100)  # 경도
+    location_x = models.CharField(max_length=100, default=0)  # 위도
+    location_y = models.CharField(max_length=100, default=0)  # 경도
 
     def __str__(self):
         return self.location
