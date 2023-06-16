@@ -80,7 +80,33 @@ class PlanSerializer(serializers.ModelSerializer):
         }
 
 
+class StampPhotoSerializer(serializers.ModelSerializer):
+    diary_id = serializers.IntegerField(source="diary.id")
+    diary_name = serializers.CharField(source="diary.name")
+
+    class Meta:
+        model = PhotoPage
+        fields = (
+            "id",
+            "location",
+            "location_x",
+            "location_y",
+            "image",
+            "created_at",
+            "status",
+            "diary_id",
+            "diary_name",
+        )
+        
 class StampSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stamp
+        fields = "__all__"
+
+
+class MarkerSerializer(serializers.ModelSerializer):
+    photo = StampPhotoSerializer()
+
     class Meta:
         model = Stamp
         fields = "__all__"
