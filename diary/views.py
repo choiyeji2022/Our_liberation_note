@@ -149,7 +149,8 @@ class PlanPageView(APIView):
             delete_plan['status'] = 3
             plan = get_object_or_404(PlanPage, id=delete_plan['id'])
             serializer = PlanSerializer(plan, data=delete_plan, partial=True)
-
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
