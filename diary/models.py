@@ -69,7 +69,7 @@ class PhotoPage(models.Model):
     status = models.CharField(choices=status_choice, max_length=100, default=0)
     location_x = models.CharField(max_length=100, default=0)  # 위도
     location_y = models.CharField(max_length=100, default=0)  # 경도
-    start = models.DateField(defult='2023-06-16')
+    start = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return self.location
