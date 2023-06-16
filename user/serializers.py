@@ -105,4 +105,4 @@ class GroupCreateSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("email",)
+        fields = ("email",) 
