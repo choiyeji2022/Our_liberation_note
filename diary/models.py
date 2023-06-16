@@ -54,7 +54,6 @@ class PlanPage(models.Model):
     status = models.CharField(choices=status_choice, max_length=100, default=0)
     location_x = models.CharField(max_length=255, null=True, blank=True)
     location_y = models.CharField(max_length=255, null=True, blank=True)
-    
 
 
 # 제건
