@@ -109,6 +109,8 @@ def fail(request):
     code = request.GET.get('code')
     message = request.GET.get('message')
 
+    print(message)
+
     return render(
         request,
         "payments/fail.html",
