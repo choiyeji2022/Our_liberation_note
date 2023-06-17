@@ -5,8 +5,8 @@ from Our_Liberation_Note import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path('payments/', include('pay.urls')),
     path("user/", include("user.urls")),
     path("note/", include("diary.urls")),
-    path('payments/', include('pay.urls')),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
