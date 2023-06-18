@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from diary import destinations as de
 from django.core.mail import send_mail
 from django.conf import settings
+import tabulate
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, NoteSerializer,
@@ -240,9 +241,26 @@ class EmailView(APIView):
         plan_set = serializer.data['plan_set']
         note_name = serializer.data['name']
 
-        print(note_name, plan_set)
-        subject = note_name
-        message = plan_set
+        filtered_data = []  # 필터링된 데이터를 저장할 리스트
+
+        for item in plan_set:
+            filtered_item = {
+                'title': item['title'],
+                'start': item['start'],
+                'location': item['location']
+            }
+            filtered_data.append(filtered_item)
+
+        print(filtered_data)
+
+        table_headers = ['장소명', '날짜', '위치']
+        table_data = [[item['title'], item['start'], item['location']] for item in filtered_data]
+
+        table = tabulate.tabulate(table_data, headers=table_headers, tablefmt='pretty')
+
+        subject = f'{note_name}의 일정 안내'
+        message = f'아래는 일정에 대한 정보입니다:\n\n{table}'
+
         recipient_list = ['kmy9810@naver.com']
         send_mail(
             subject,
