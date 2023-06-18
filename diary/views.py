@@ -1,9 +1,10 @@
-from django.db.models import Count
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from diary import destinations as de
+from django.core.mail import send_mail
+from django.conf import settings
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, NoteSerializer,
@@ -229,3 +230,27 @@ class SearchDestination(APIView):
     def post(self, request):
         test = de.search(request.data["destinations"])
         return Response(test, status=status.HTTP_200_OK)
+
+
+class EmailView(APIView):
+    def get(self, request, note_id):
+
+        note = get_object_or_404(Note, id=note_id)
+        serializer = DetailNoteSerializer(note)
+        plan_set = serializer.data['plan_set']
+        note_name = serializer.data['name']
+
+        print(note_name, plan_set)
+        subject = note_name
+        message = plan_set
+        recipient_list = ['kmy9810@naver.com']
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,  # Gmail 계정 이메일 주소
+            recipient_list,
+            fail_silently=False,
+        )
+
+        # 이메일 전송 후 리다이렉트 또는 응답 등을 처리
+        return Response('이메일이 전송되었습니다.', status=status.HTTP_200_OK)

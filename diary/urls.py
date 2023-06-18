@@ -33,6 +33,7 @@ urlpatterns = [
         name="markerstamps",
     ),
     path("search", views.SearchDestination.as_view(), name="search"),
+    path("email/<int:note_id>", views.EmailView.as_view(), name="email"),
 ]
 
 # 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)
