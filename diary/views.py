@@ -234,7 +234,7 @@ class SearchDestination(APIView):
 
 
 class EmailView(APIView):
-    def get(self, request, note_id):
+    def post(self, request, note_id):
 
         note = get_object_or_404(Note, id=note_id)
         serializer = DetailNoteSerializer(note)
@@ -261,7 +261,8 @@ class EmailView(APIView):
         subject = f'{note_name}의 일정 안내'
         message = f'아래는 일정에 대한 정보입니다:\n\n{table}'
 
-        recipient_list = ['kmy9810@naver.com']
+        recipient_list = request.data['members']
+        print(recipient_list)
         send_mail(
             subject,
             message,
