@@ -25,7 +25,7 @@ urlpatterns = [
         name="detail_plan_page",
     ),
     path("comment/<int:comment_id>", views.CommentView.as_view(), name="comment"),
-    path("trash", views.Trash.as_view(), name="trash"),
+    path("trash/<int:pk>", views.Trash.as_view(), name="trash"),
     path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
     path(
         "markerstamps/<str:photo_location>",
@@ -33,6 +33,7 @@ urlpatterns = [
         name="markerstamps",
     ),
     path("search", views.SearchDestination.as_view(), name="search"),
+    path("email/<int:note_id>", views.EmailView.as_view(), name="email"),
 ]
 
 # 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)
