@@ -252,7 +252,7 @@ class GroupDetailView(APIView):
 
 
 # 소셜 로그인
-URI = "http://127.0.0.1:5500/"
+URI = "https://miyeong.net/"
 
 
 # OAuth 인증 url
