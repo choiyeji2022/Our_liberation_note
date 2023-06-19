@@ -11,6 +11,11 @@ def total_distance(path):
     return sum(haversine(path[i], path[i + 1], unit="km") for i in range(len(path) - 1))
 
 
+def closest_point(point, points):
+    """ 주어진 점에서 가장 가까운 다른 점을 찾습니다. """
+    return min(points, key=lambda other: haversine(point, other))
+
+
 def search(data):
     pprint(data)
 
@@ -52,6 +57,19 @@ def search(data):
         ordered_destinations.extend(shortest_path)
         previous_destination = ordered_destinations[-1]
 
+        # 다음 카테고리 요소 중 가장 가까운 곳 찾기
+        if sorted_categories:
+            next_category = sorted_categories[0]
+            next_group_xy_li = [
+                (float(i["y"]), float(i["x"])) for i in category_groups[next_category]
+            ]
+            closest_next_point = closest_point(previous_destination, next_group_xy_li)
+            # 가장 가까운 다음 목적지가 첫 번째 요소가 되도록 정렬
+            category_groups[next_category] = sorted(
+                category_groups[next_category],
+                key=lambda i: haversine((float(i["y"]), float(i["x"])), closest_next_point)
+            )
+
         # 빈 카테고리 제거
         sorted_categories = [
             category for category in sorted_categories if category_groups[category]
@@ -71,6 +89,3 @@ def search(data):
         "x_y_list": ordered_destinations,
     }
     return data
-
-
-# 변경 사항 : 카페 다음에 음식점 되도록 안오게!

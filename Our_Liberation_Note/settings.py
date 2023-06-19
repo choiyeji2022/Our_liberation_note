@@ -2,7 +2,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-import mysettings
+# import mysettings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,9 +19,23 @@ DEBUG = True
 
 
 ALLOWED_HOSTS = ["*"]
-CORS_ORIGIN_ALLOW_ALL = True
-
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'authorization-token',  # 'authorization-token' 헤더 추가
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+
 
 # Application definition
 
@@ -84,7 +98,14 @@ WSGI_APPLICATION = "Our_Liberation_Note.wsgi.application"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 
-DATABASES = mysettings.DATABASES
+# DATABASES = mysettings.DATABASES
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    }
+}
+
 
 # 이미지 삽입
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -130,9 +151,6 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-CORS_ORIGIN_ALLOW_ALL = True
-
 
 REST_USE_JWT = True
 JWT_AUTH_COOKIE = "jwt_token"

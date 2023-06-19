@@ -55,6 +55,9 @@ class User(AbstractBaseUser):
 
     objects = UserManager()  # custom user 생성 시 필요
 
+    # 결제 여부
+    is_subscribe = models.BooleanField(default=False)
+
     def __str__(self):
         return self.email
 
