@@ -55,9 +55,6 @@ class User(AbstractBaseUser):
 
     objects = UserManager()  # custom user 생성 시 필요
 
-    # 결제 여부
-    is_subscribe = models.BooleanField(default=False)
-
     def __str__(self):
         return self.email
 
@@ -88,6 +85,8 @@ class UserGroup(models.Model):
     created_at = models.DateTimeField("생성일", auto_now_add=True)
     updated_at = models.DateTimeField("업데이트", auto_now=True)
     status = models.CharField("상태", choices=status_choice, max_length=1, default="0")
+    # 결제 여부
+    is_subscribe = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

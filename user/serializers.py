@@ -29,7 +29,6 @@ class LoginSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token["email"] = user.email
         token["is_admin"] = user.is_admin
-        token["is_subscribe"] = user.is_subscribe
 
         return token
 
