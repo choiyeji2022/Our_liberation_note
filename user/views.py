@@ -475,14 +475,14 @@ class MyPageView(APIView):
     def get(self, request, user_id):
         profile = get_object_or_404(User, id=user_id)
         stamp = Stamp.objects.filter(user=user_id)
-        group = UserGroup.objects.filter(Q(members=user_id) | Q(master=user_id))
+        group = UserGroup.objects.filter(members=user_id, status=0)
         profileserializer = UserViewSerializer(profile)
         stampserializer = MarkerSerializer(stamp, many=True)
-        groupSerializer = GroupSerializer(group, many=True)
+        groupserializer = GroupSerializer(group, many=True)
         data = {
             "profile": profileserializer.data,
             "stamps": stampserializer.data,
-            "groups": groupSerializer.data,
+            "groups": groupserializer.data,
         }
         return Response(data, status=status.HTTP_200_OK)
 
