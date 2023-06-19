@@ -478,11 +478,11 @@ class MyPageView(APIView):
         group = UserGroup.objects.filter(members=user_id, status=0)
         profileserializer = UserViewSerializer(profile)
         stampserializer = MarkerSerializer(stamp, many=True)
-        groupSerializer = GroupSerializer(group, many=True)
+        groupserializer = GroupSerializer(group, many=True)
         data = {
             "profile": profileserializer.data,
             "stamps": stampserializer.data,
-            "groups": groupSerializer.data,
+            "groups": groupserializer.data,
         }
         return Response(data, status=status.HTTP_200_OK)
 

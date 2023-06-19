@@ -54,6 +54,7 @@ class PlanPage(models.Model):
     location_x = models.CharField(max_length=255, null=True, blank=True)
     location_y = models.CharField(max_length=255, null=True, blank=True)
 
+
 # 제건
 class PhotoPage(models.Model):
     diary = models.ForeignKey("Note", on_delete=models.CASCADE)  # 소속된 앨범 객체

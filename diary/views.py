@@ -3,7 +3,9 @@ from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from diary import destinations as de
+
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, MarkerSerializer,
@@ -136,7 +138,7 @@ class PlanPageView(APIView):
         return Response(serializer.data)
 
     def post(self, request, note_id):
-        for plan in request.data['plan_set']:
+        for plan in request.data["plan_set"]:
             serializer = PlanSerializer(data=plan)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(diary_id=note_id)
@@ -147,8 +149,8 @@ class PlanPageView(APIView):
         plan_set = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
         serializer_set = PlanSerializer(plan_set, many=True)
         for delete_plan in serializer_set.data:
-            delete_plan['status'] = 3
-            plan = get_object_or_404(PlanPage, id=delete_plan['id'])
+            delete_plan["status"] = 3
+            plan = get_object_or_404(PlanPage, id=delete_plan["id"])
             serializer = PlanSerializer(plan, data=delete_plan, partial=True)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
@@ -174,7 +176,7 @@ class DetailPlanPageView(APIView):
     def delete(self, request, plan_id):
         plan = get_object_or_404(PlanPage, id=plan_id, status__in=[0, 1])
         delete_plan = PlanSerializer(plan).data
-        delete_plan['status'] = 3
+        delete_plan["status"] = 3
         serializer = PlanSerializer(plan, data=delete_plan, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -183,16 +185,42 @@ class DetailPlanPageView(APIView):
 
 # 휴지통
 class Trash(APIView):
-    def patch(self, request, pk):
-        # serializer = 
-        
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return Response(serializer.data, status=status.HTTP_200_OK)
-        # else:
-        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        pass
-        
+    def post(self, request, pk):
+        # note = get_object_or_404(Note, id=pk, status=0)
+        # photo = get_object_or_404(PhotoPage, id=pk, status=0)
+        note = get_object_or_404(Note, id=pk)
+        photo = get_object_or_404(PhotoPage, id=pk)
+
+        noteserializer = NoteSerializer(note, data=request.data)
+        photoserializer = PhotoPageSerializer(photo, data=request.data)
+
+        if noteserializer.is_valid():
+            if note.status == "0":
+                note.status = "1"
+                noteserializer.save()
+                return Response(noteserializer.data, status=status.HTTP_200_OK)
+            elif note.status == "1":
+                note.status = "0"
+                noteserializer.save()
+                return Response(noteserializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    noteserializer.errors, status=status.HTTP_400_BAD_REQUEST
+                )
+
+        if photoserializer.is_valid():
+            if photo.status == "0":
+                photo.status = "1"
+                photoserializer.save()
+                return Response(photoserializer.data, status=status.HTTP_200_OK)
+            elif photo.status == "1":
+                photo.status = "0"
+                photoserializer.save()
+                return Response(photoserializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    photoserializer.errors, status=status.HTTP_400_BAD_REQUEST
+                )
 
 
 # 스탬프
