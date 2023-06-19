@@ -2,6 +2,8 @@ from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
+from user.models import UserGroup
+from user.serializers import GroupSerializer
 
 
 # 노트 일반 CRUD
@@ -15,6 +17,7 @@ class NoteSerializer(serializers.ModelSerializer):
 class DetailNoteSerializer(serializers.ModelSerializer):
     photo_set = serializers.SerializerMethodField()
     plan_set = serializers.SerializerMethodField()
+    group_set = serializers.SerializerMethodField()
 
     def get_photo_set(self, obj):
         photo = PhotoPage.objects.filter(diary_id=obj.id)
@@ -26,11 +29,17 @@ class DetailNoteSerializer(serializers.ModelSerializer):
         serializer = PlanSerializer(plan, many=True)
         return serializer.data
 
+    def get_group_set(self, obj):
+        group = UserGroup.objects.get(id=obj.group_id)
+        serializer = GroupSerializer(group)
+        return serializer.data
+
     class Meta:
         model = Note
         fields = [
             "id",
             "name",
+            "group_set",
             "plan_set",
             "photo_set",
         ]
