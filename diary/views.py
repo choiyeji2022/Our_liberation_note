@@ -1,12 +1,13 @@
+import tabulate
+from django.conf import settings
+from django.core.mail import send_mail
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from diary import destinations as de
-from django.core.mail import send_mail
-from django.conf import settings
-import tabulate
+
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, MarkerSerializer,
@@ -25,7 +26,15 @@ class NoteView(APIView):
 
     def post(self, request, group_id=None):
         serializer = NoteSerializer(data=request.data)
+        print(request.user)
         if serializer.is_valid():
+            # 같은 그룹 같은 노트 작성 불가
+            if Note.objects.filter(
+                name=serializer.validated_data.get("name"),
+                group_id=serializer.validated_data.get("group"),
+            ).exists():
+                error_message = {"error": "이미 같은 이름의 노트가 존재합니다."}
+                return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -66,7 +75,9 @@ class PageView(APIView):
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
         limit = 8
-        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[offset:offset+limit]
+        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[
+            offset : offset + limit
+        ]
         serializer = PhotoPageSerializer(photos, many=True)
         return Response(serializer.data)
 
@@ -106,7 +117,7 @@ class DetailPhotoPageView(APIView):
     def delete(self, request, photo_id):
         photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
         delete_photo = PhotoPageSerializer(photo).data
-        delete_photo['status'] = 3
+        delete_photo["status"] = 3
         serializer = PhotoPageSerializer(photo, data=delete_photo, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -116,12 +127,16 @@ class DetailPhotoPageView(APIView):
 # 댓글
 class CommentView(APIView):
     def get(self, request, comment_id):
-        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0,1])
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, comment_id):
-        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0,1])
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
         serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -130,9 +145,11 @@ class CommentView(APIView):
 
     def delete(self, request, comment_id):
         # permission_classes = [permissions.IsAuthenticated]
-        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0,1])
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
         delete_comment = CommentSerializer(comment).data
-        delete_comment['status'] = 3
+        delete_comment["status"] = 3
         serializer = CommentSerializer(comment, data=delete_comment, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -279,33 +296,34 @@ class SearchDestination(APIView):
 
 class EmailView(APIView):
     def post(self, request, note_id):
-
         note = get_object_or_404(Note, id=note_id)
         serializer = DetailNoteSerializer(note)
-        plan_set = serializer.data['plan_set']
-        note_name = serializer.data['name']
+        plan_set = serializer.data["plan_set"]
+        note_name = serializer.data["name"]
 
         filtered_data = []  # 필터링된 데이터를 저장할 리스트
 
         for item in plan_set:
             filtered_item = {
-                'title': item['title'],
-                'start': item['start'],
-                'location': item['location']
+                "title": item["title"],
+                "start": item["start"],
+                "location": item["location"],
             }
             filtered_data.append(filtered_item)
 
         print(filtered_data)
 
-        table_headers = ['장소명', '날짜', '위치']
-        table_data = [[item['title'], item['start'], item['location']] for item in filtered_data]
+        table_headers = ["장소명", "날짜", "위치"]
+        table_data = [
+            [item["title"], item["start"], item["location"]] for item in filtered_data
+        ]
 
-        table = tabulate.tabulate(table_data, headers=table_headers, tablefmt='pretty')
+        table = tabulate.tabulate(table_data, headers=table_headers, tablefmt="pretty")
 
-        subject = f'{note_name}의 일정 안내'
-        message = f'아래는 일정에 대한 정보입니다:\n\n{table}'
+        subject = f"{note_name}의 일정 안내"
+        message = f"아래는 일정에 대한 정보입니다:\n\n{table}"
 
-        recipient_list = request.data['members']
+        recipient_list = request.data["members"]
         print(recipient_list)
         send_mail(
             subject,
@@ -316,4 +334,4 @@ class EmailView(APIView):
         )
 
         # 이메일 전송 후 리다이렉트 또는 응답 등을 처리
-        return Response('이메일이 전송되었습니다.', status=status.HTTP_200_OK)
+        return Response("이메일이 전송되었습니다.", status=status.HTTP_200_OK)
