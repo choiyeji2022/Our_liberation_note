@@ -21,6 +21,8 @@ from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
                               TokenObtainPairSerializer, UserListSerializer,
                               UserUpdateSerializer, UserViewSerializer)
+from rest_framework.serializers import ValidationError
+from .validators import check_password
 
 
 # 이메일 전송
@@ -96,7 +98,8 @@ class UserView(APIView):
 
     # 회원 정보 수정
     def patch(self, request):
-        check_password = request.data.get("check_password")
+        # check_password = request.data.get("check_password")
+        current_password = request.data.get("check_password")
         user = User.objects.get(email=request.user)
         new_password = request.data.get("new_password")
 
@@ -105,7 +108,17 @@ class UserView(APIView):
                 {"message": "변경할 비밀번호를 입력해주세요!"}, status=status.HTTP_400_BAD_REQUEST
             )
         # 기존 비밀번호와 check_password가 일치할 경우 회원정보(닉네임, 비밀번호) 수정
-        if check_password and user.check_password(check_password):
+        if current_password and user.check_password(current_password):
+            
+            # 새로운 비밀번호의 유효성 검사
+            try:
+                check_password(new_password)
+            except ValidationError:
+                return Response(
+                    {"message": "8자 이상의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다!"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
             serializer = UserUpdateSerializer(user, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
                 # 비밀번호 변경한다면
@@ -153,6 +166,15 @@ class ChangePassword(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # 새 비밀번호 유효성 검사
+        try:
+            check_password(new_password)
+        except ValidationError:
+            return Response(
+                {"message": "8자 이상의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다!"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
         # 비밀번호 업데이트
         user.set_password(new_password)
         user.save()

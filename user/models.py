@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from .validators import check_password
 
 status_choice = (
     ("0", "활성화"),
@@ -37,7 +38,7 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     email = models.EmailField("이메일 주소", max_length=100, unique=True)
-    password = models.CharField("비밀 번호", max_length=128)
+    password = models.CharField("비밀 번호", max_length=128, validators=[check_password])
     join_date = models.DateTimeField("가입일", auto_now_add=True)
 
     # is_active가 False일 경우 계정이 비활성화됨
