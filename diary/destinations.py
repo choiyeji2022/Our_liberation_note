@@ -12,7 +12,7 @@ def total_distance(path):
 
 
 def closest_point(point, points):
-    """ 주어진 점에서 가장 가까운 다른 점을 찾습니다. """
+    """주어진 점에서 가장 가까운 다른 점을 찾습니다."""
     return min(points, key=lambda other: haversine(point, other))
 
 
@@ -67,7 +67,9 @@ def search(data):
             # 가장 가까운 다음 목적지가 첫 번째 요소가 되도록 정렬
             category_groups[next_category] = sorted(
                 category_groups[next_category],
-                key=lambda i: haversine((float(i["y"]), float(i["x"])), closest_next_point)
+                key=lambda i: haversine(
+                    (float(i["y"]), float(i["x"])), closest_next_point
+                ),
             )
 
         # 빈 카테고리 제거
