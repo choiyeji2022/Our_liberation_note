@@ -10,6 +10,7 @@ from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -21,7 +22,7 @@ from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
                               TokenObtainPairSerializer, UserListSerializer,
                               UserUpdateSerializer, UserViewSerializer)
-from rest_framework.serializers import ValidationError
+
 from .validators import check_password
 
 
@@ -109,16 +110,15 @@ class UserView(APIView):
             )
         # 기존 비밀번호와 check_password가 일치할 경우 회원정보(닉네임, 비밀번호) 수정
         if current_password and user.check_password(current_password):
-            
             # 새로운 비밀번호의 유효성 검사
             try:
                 check_password(new_password)
             except ValidationError:
                 return Response(
                     {"message": "8자 이상의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다!"},
-                    status=status.HTTP_400_BAD_REQUEST
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
-                
+
             serializer = UserUpdateSerializer(user, data=request.data, partial=True)
             if serializer.is_valid(raise_exception=True):
                 # 비밀번호 변경한다면
@@ -172,9 +172,9 @@ class ChangePassword(APIView):
         except ValidationError:
             return Response(
                 {"message": "8자 이상의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다!"},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         # 비밀번호 업데이트
         user.set_password(new_password)
         user.save()

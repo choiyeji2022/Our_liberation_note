@@ -6,7 +6,7 @@ from Our_Liberation_Note import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('payments/', include('pay.urls')),
+    path("payments/", include("pay.urls")),
     path("user/", include("user.urls")),
     path("note/", include("diary.urls")),
 ]

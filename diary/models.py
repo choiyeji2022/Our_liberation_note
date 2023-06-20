@@ -60,7 +60,7 @@ class PhotoPage(models.Model):
     diary = models.ForeignKey("Note", on_delete=models.CASCADE)  # 소속된 앨범 객체
     image = models.ImageField(null=True, blank=True)  # 배포 후엔 null X
     name = models.CharField(max_length=50, null=True, blank=True)
-    title = models.CharField(max_length=100, null=True, blank=True)
+    title = models.CharField(max_length=100, null=True, blank=True)  # 배포 후엔 null X
     location = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     memo = models.CharField(null=True, max_length=100)
