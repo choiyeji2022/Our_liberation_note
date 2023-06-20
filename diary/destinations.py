@@ -87,7 +87,7 @@ def open_ai(location_li):
 
     for idx, location in enumerate(location_li):
         q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!' \
-                 f'이것에 대한 답변은 "{idx}번:" 형식을 붙여서 답변 해주세요!'
+                 f'이것에 대한 답변은 반드시 "{idx}번:" 형식을 지켜서 답변 해주세요!'
 
     if location_li:
             messages.append(
