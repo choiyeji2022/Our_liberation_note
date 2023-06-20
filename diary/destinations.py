@@ -4,6 +4,8 @@ from pprint import pprint
 
 import openai
 from haversine import haversine
+import time
+from datetime import datetime
 
 
 def total_distance(path):
@@ -72,6 +74,7 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 def open_ai(location_li):
     # 회원 정보 기준으로 role 추가?
+    start = datetime.now()
 
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
@@ -80,18 +83,34 @@ def open_ai(location_li):
 
     answer_li = []
 
+    q_str = ''
+
+    for idx, location in enumerate(location_li):
+        q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!' \
+                 f'이것에 대한 답변은 "{idx}번:" 형식을 붙여서 답변 해주세요!'
+
     if location_li:
-        for location in location_li:
             messages.append(
                 {
                     "role": "user",
-                    "content": f"내가 이전에 했던 말은 잊어줘.. "
-                    f"{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!",
+                    "content": f"내가 이전에 했던 말은 잊고, 대답도 하지 말아줘!! 정보만 주면 됩니다. {q_str}"
                 }
             )
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo", messages=messages
-            )
-            answer_li.append(response.choices[0].message.content)
 
-    return answer_li
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo", messages=messages
+    )
+    answer_li.append(response.choices[0].message.content)
+
+    end = datetime.now()
+
+    li = []
+
+    for string in answer_li[0].split('\n'):
+        if ": " in string:
+            li.append(string.split(": ", 1)[1])
+
+    pprint(start)
+    pprint(end)
+
+    return li
