@@ -1,7 +1,8 @@
 from django.db import models
-from django.utils import timezone
-from user.models import User
 from django.urls import reverse
+from django.utils import timezone
+
+from user.models import User
 
 
 class Payment(models.Model):
@@ -16,7 +17,7 @@ class Payment(models.Model):
 
 
 class Subscribe(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='user_set')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_set")
     price = models.PositiveIntegerField(default=0)
     type = models.CharField(max_length=50)
     is_subscribe = models.BooleanField(default=False)
@@ -26,9 +27,9 @@ class Subscribe(models.Model):
 
     # 구독 만료일 계산
     def calculate_end_date(self):
-        if self.type == '베이직 이용권':
+        if self.type == "베이직 이용권":
             duration = 30  # 베이직 이용권 기간 (30일)
-        elif self.type == '프리미엄 이용권':
+        elif self.type == "프리미엄 이용권":
             duration = 90  # 프리미엄 이용권 기간 (90일)
         else:
             duration = 0  # 이외의 경우 기간을 0으로 설정하거나 에러 처리
