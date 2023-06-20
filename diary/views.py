@@ -5,8 +5,7 @@ from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.pagination import PageNumberPagination
-from rest_framework import generics
+# from rest_framework.pagination import PageNumberPagination
 
 from diary import destinations as de
 
@@ -71,28 +70,22 @@ class DetailNoteView(APIView):
 
 # class PageView(APIView):
 #     pass
-class LageResultsSetPagination(PageNumberPagination):
-    page_size = 9
-    page_size_query_param = 'page_size'
-    max_page_size = 12
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 6
-    page_query_param = 'page_size'
-    max_page_size = 9
+# class LargeResultsSetPagination(PageNumberPagination):
+#     page_size = 9
+#     page_size_query_param = 'page_size'
+#     max_page_size = 12
+# class StandardResultsSetPagination(PageNumberPagination):
+#     page_size = 6
+#     page_query_param = 'page_size'
+#     max_page_size = 9
 
 # 사진 페이지
 class PhotoPageView(APIView):
-    pagination_class = LageResultsSetPagination
-    
-    def get(self, request, note_id):
-        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])
-        
-        paginator = self.pagination_class()
-        result_page = paginator.paginate_queryset(photos, request)
-        serializer = PhotoPageSerializer(result_page, many=True)
-        
-        return paginator.get_paginated_response(serializer.data)
-
+    def get(self, request, note_id, offset=0):
+        limit = 8
+        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[offset:offset+limit]
+        serializer = PhotoPageSerializer(photos, many=True)
+        return Response(serializer.data)
 
     def post(self, request, note_id):
         serializer = PhotoPageSerializer(data=request.data)
