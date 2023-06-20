@@ -71,7 +71,7 @@ class DetailNoteView(APIView):
 
 # class PageView(APIView):
 #     pass
-class LageResultsSetPagination(PageNumberPagination):
+class LargeResultsSetPagination(PageNumberPagination):
     page_size = 9
     page_size_query_param = 'page_size'
     max_page_size = 12
@@ -82,7 +82,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 
 # 사진 페이지
 class PhotoPageView(APIView):
-    pagination_class = LageResultsSetPagination
+    pagination_class = LargeResultsSetPagination
     
     def get(self, request, note_id):
         photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])
