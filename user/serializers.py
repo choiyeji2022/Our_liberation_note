@@ -1,8 +1,10 @@
 from rest_framework import serializers
+from rest_framework.serializers import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from diary.models import Stamp
 from user.models import User, UserGroup
+
+from .validators import check_words
 
 
 class SignUpSerializer(serializers.ModelSerializer):
@@ -29,7 +31,6 @@ class LoginSerializer(TokenObtainPairSerializer):
         token = super().get_token(user)
         token["email"] = user.email
         token["is_admin"] = user.is_admin
-        token["is_subscribe"] = user.is_subscribe
 
         return token
 
@@ -101,6 +102,11 @@ class GroupCreateSerializer(serializers.ModelSerializer):
         model = UserGroup
         fields = ("name", "members", "master", "status")
         read_only_fields = ("master",)
+
+    def validate(self, attrs):
+        if check_words(attrs["name"]):
+            raise ValidationError("비속어 사용이 불가합니다!")
+        return attrs
 
 
 class UserListSerializer(serializers.ModelSerializer):

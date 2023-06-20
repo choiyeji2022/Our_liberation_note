@@ -1,79 +1,51 @@
-from collections import defaultdict
+import os
 from itertools import permutations
 from pprint import pprint
 
+import openai
 from haversine import haversine
-from rest_framework import permissions, status
-from rest_framework.response import Response
+import time
+from datetime import datetime
 
 
 def total_distance(path):
     return sum(haversine(path[i], path[i + 1], unit="km") for i in range(len(path) - 1))
 
 
-def closest_point(point, points):
-    """ 주어진 점에서 가장 가까운 다른 점을 찾습니다. """
-    return min(points, key=lambda other: haversine(point, other))
-
-
 def search(data):
-    pprint(data)
-
     title_li = []
     x_y_li = []
-    # 카테고리별로 데이터를 그룹화
-    category_groups = defaultdict(list)
+    location_li = []
     for item in data:
-        category_groups[item["category"]].append(item)
         title_li.append(item["title"])
         x_y_li.append((float(item["y"]), float(item["x"])))
+        location_li.append((item["location"]))
 
-    # 가장 많은 아이템이 있는 카테고리를 기준으로 정렬
-    sorted_categories = sorted(
-        category_groups.keys(), key=lambda x: len(category_groups[x]), reverse=True
-    )
-
-    # 각 카테고리의 시작점부터 가장 가까운 목적지를 찾아 순서를 결정
     ordered_destinations = []
-    previous_destination = None
-    while sorted_categories:
-        current_category = sorted_categories.pop(0)
+    remaining_points = list(range(len(x_y_li)))
 
-        current_group_xy_li = [
-            (float(i["y"]), float(i["x"])) for i in category_groups[current_category]
-        ]
-        current_group_permutations = permutations(current_group_xy_li)
-        current_group_distances = [
-            (path, total_distance(path)) for path in current_group_permutations
-        ]
-        shortest_path, _ = min(current_group_distances, key=lambda x: x[1])
+    # 기차역이나 터미널 이름이 포함된 경우 해당 위치를 가장 처음에 배치
+    for idx, item in enumerate(data):
+        if "역" == item["title"][-1] or "터미널" in item["title"]:
+            ordered_destinations.append(x_y_li[idx])
+            remaining_points.remove(idx)
 
-        if previous_destination:
-            # 이전 목적지와 현재 목적지가 중복되지 않도록 처리
-            shortest_path = list(
-                filter(lambda x: x != previous_destination, shortest_path)
-            )
+    # 첫 번째 좌표를 시작으로 가장 가까운 좌표 순서로 돌아다닙니다.
+    current_point = remaining_points.pop(0)
+    ordered_destinations.append(x_y_li[current_point])
 
-        ordered_destinations.extend(shortest_path)
-        previous_destination = ordered_destinations[-1]
+    while remaining_points:
+        closest_point = None
+        closest_distance = float("inf")
+        for point in remaining_points:
+            distance = haversine(x_y_li[current_point], x_y_li[point])
+            if distance < closest_distance:
+                closest_distance = distance
+                closest_point = point
 
-        # 다음 카테고리 요소 중 가장 가까운 곳 찾기
-        if sorted_categories:
-            next_category = sorted_categories[0]
-            next_group_xy_li = [
-                (float(i["y"]), float(i["x"])) for i in category_groups[next_category]
-            ]
-            closest_next_point = closest_point(previous_destination, next_group_xy_li)
-            # 가장 가까운 다음 목적지가 첫 번째 요소가 되도록 정렬
-            category_groups[next_category] = sorted(
-                category_groups[next_category],
-                key=lambda i: haversine((float(i["y"]), float(i["x"])), closest_next_point)
-            )
-
-        # 빈 카테고리 제거
-        sorted_categories = [
-            category for category in sorted_categories if category_groups[category]
-        ]
+        ordered_destinations.append(x_y_li[closest_point])
+        current_point = closest_point
+        remaining_points.remove(closest_point)
 
     # 목적지 리스트
     answer_li = [title_li[x_y_li.index(item)] for item in ordered_destinations]
@@ -81,11 +53,64 @@ def search(data):
     # 최종 경로의 총 거리 계산
     total_km = total_distance(ordered_destinations)
 
-    pprint(answer_li)
-    print(total_km)
+    openai_data = []
+
+    for i in answer_li:
+        idx = title_li.index(i)
+        openai_data.append((i, location_li[idx]))
+
     data = {
         "title_list": answer_li,
         "total_km": total_km,
         "x_y_list": ordered_destinations,
     }
+    recommend = open_ai(openai_data)
+    data["answer"] = recommend
     return data
+
+
+openai.api_key = os.environ.get("OPENAI_API_KEY")
+
+
+def open_ai(location_li):
+    # 회원 정보 기준으로 role 추가?
+    start = datetime.now()
+
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "추천해주세요!"},
+    ]
+
+    answer_li = []
+
+    q_str = ''
+
+    for idx, location in enumerate(location_li):
+        q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!' \
+                 f'이것에 대한 답변은 "{idx}번:" 형식을 붙여서 답변 해주세요!'
+
+    if location_li:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": f"내가 이전에 했던 말은 잊고, 대답도 하지 말아줘!! 정보만 주면 됩니다. {q_str}"
+                }
+            )
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo", messages=messages
+    )
+    answer_li.append(response.choices[0].message.content)
+
+    end = datetime.now()
+
+    li = []
+
+    for string in answer_li[0].split('\n'):
+        if ": " in string:
+            li.append(string.split(": ", 1)[1])
+
+    pprint(start)
+    pprint(end)
+
+    return li

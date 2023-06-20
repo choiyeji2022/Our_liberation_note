@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from rest_framework.serializers import ValidationError
 
-from .models import Comment, Note, PhotoPage, PlanPage, Stamp
 from user.models import UserGroup
 from user.serializers import GroupSerializer
+
+from .models import Comment, Note, PhotoPage, PlanPage, Stamp
+from .validators import check_words
 
 
 # 노트 일반 CRUD
@@ -11,6 +13,11 @@ class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
         fields = "__all__"
+
+    def validate(self, attrs):
+        if check_words(attrs["name"]):
+            raise ValidationError("비속어 사용이 불가합니다!")
+        return attrs
 
 
 # 노트에 들어 가는 모든 photo, Plan
@@ -53,6 +60,11 @@ class PhotoPageSerializer(serializers.ModelSerializer):
             "diary": {"required": False},
         }
 
+    def validate(self, attrs):
+        if check_words(attrs["name"]):
+            raise ValidationError("비속어 사용이 불가합니다!")
+        return attrs
+
 
 class DetailPhotoPageSerializer(serializers.ModelSerializer):
     comment_set = serializers.SerializerMethodField()
@@ -78,6 +90,11 @@ class CommentSerializer(serializers.ModelSerializer):
             "photo": {"required": False},
             "user": {"required": False},
         }
+
+    def validate(self, attrs):
+        if check_words(attrs["comment"]):
+            raise ValidationError("비속어 사용이 불가합니다!")
+        return attrs
 
 
 class PlanSerializer(serializers.ModelSerializer):
