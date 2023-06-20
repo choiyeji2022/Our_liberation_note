@@ -209,9 +209,11 @@ class Trash(APIView):
     def post(self, request, pk):
         note = get_object_or_404(Note, id=pk)
         photo = get_object_or_404(PhotoPage, id=pk)
+        group = get_object_or_404(UserGroup, id=pk)
 
         noteserializer = NoteSerializer(note, data=request.data)
         photoserializer = PhotoPageSerializer(photo, data=request.data)
+        groupserializer = GroupSerializer(group, data=request.data)
 
         if noteserializer.is_valid():
             if note.status == "0":
@@ -239,6 +241,20 @@ class Trash(APIView):
             else:
                 return Response(
                     photoserializer.errors, status=status.HTTP_400_BAD_REQUEST
+                )
+
+        if groupserializer.is_valid():
+            if group.status == "0":
+                group.status = "1"
+                groupserializer.save()
+                return Response(groupserializer.data, status=status.HTTP_200_OK)
+            elif group.status == "1":
+                group.status = "0"
+                groupserializer.save()
+                return Response(groupserializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(
+                    groupserializer.errors, status=status.HTTP_400_BAD_REQUEST
                 )
 
 
