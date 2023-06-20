@@ -106,11 +106,6 @@ class PlanSerializer(serializers.ModelSerializer):
             "diary": {"required": False},
         }
 
-    def validate(self, attrs):
-        if check_words(attrs['memo']):
-            raise ValidationError('비속어 사용이 불가합니다!')
-        return attrs
-
 
 class StampPhotoSerializer(serializers.ModelSerializer):
     diary_id = serializers.IntegerField(source="diary.id")
