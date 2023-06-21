@@ -83,7 +83,9 @@ class DetailNoteView(APIView):
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
         limit = 8
-        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[offset:offset+limit]
+        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[
+            offset : offset + limit
+        ]
         serializer = PhotoPageSerializer(photos, many=True)
         return Response(serializer.data)
 
