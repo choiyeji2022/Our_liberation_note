@@ -134,13 +134,13 @@ class DetailPhotoPageView(APIView):
 class CommentView(APIView):
     def get(self, request, photo_id, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+            Comment, user_id=request.user.id, id=comment_id, status__in=[0, 1]
         )
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, photo_id, comment_id):
-        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0, 1])
+        comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id, status__in=[0, 1])
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -149,7 +149,7 @@ class CommentView(APIView):
 
     def delete(self, request, photo_id, comment_id):
         # permission_classes = [permissions.IsAuthenticated]
-        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0, 1])
+        comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id, status__in=[0, 1])
         delete_comment = CommentSerializer(comment).data
         delete_comment["status"] = 3
         serializer = CommentSerializer(comment, data=delete_comment, partial=True)
