@@ -124,9 +124,9 @@ class DetailPhotoPageView(APIView):
 
     def delete(self, request, photo_id):
         photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
-        delete_photo = PhotoPageSerializer(photo).data
+        delete_photo = DetailPhotoPageSerializer(photo).data
         delete_photo["status"] = 3
-        serializer = PhotoPageSerializer(photo, data=delete_photo, partial=True)
+        serializer = DetailPhotoPageSerializer(photo, data=delete_photo, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -142,6 +142,7 @@ class CommentView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, comment_id):
+        comment_id = comment_id.split("/")[1]
         comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0, 1])
         serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid():
