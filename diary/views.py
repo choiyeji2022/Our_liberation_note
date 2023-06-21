@@ -5,15 +5,22 @@ from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-# from rest_framework.pagination import PageNumberPagination
 
 from diary import destinations as de
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (CommentSerializer, DetailNoteSerializer,
-                          DetailPhotoPageSerializer, MarkerSerializer,
-                          NoteSerializer, PhotoPageSerializer, PlanSerializer,
-                          StampSerializer)
+from .serializers import (
+    CommentSerializer,
+    DetailNoteSerializer,
+    DetailPhotoPageSerializer,
+    MarkerSerializer,
+    NoteSerializer,
+    PhotoPageSerializer,
+    PlanSerializer,
+    StampSerializer,
+)
+
+# from rest_framework.pagination import PageNumberPagination
 
 
 # 노트 조회 및 생성
@@ -79,6 +86,7 @@ class DetailNoteView(APIView):
 #     page_query_param = 'page_size'
 #     max_page_size = 9
 
+
 # 사진 페이지
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
@@ -142,7 +150,9 @@ class CommentView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, comment_id):
-        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0, 1])
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
         serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -151,7 +161,9 @@ class CommentView(APIView):
 
     def delete(self, request, comment_id):
         # permission_classes = [permissions.IsAuthenticated]
-        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0, 1])
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
         delete_comment = CommentSerializer(comment).data
         delete_comment["status"] = 3
         serializer = CommentSerializer(comment, data=delete_comment, partial=True)
