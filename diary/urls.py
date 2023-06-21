@@ -19,6 +19,7 @@ urlpatterns = [
         views.DetailPhotoPageView.as_view(),
         name="detail_photo_page",
     ),
+
     path(
         "plan-detail/<int:plan_id>",
         views.DetailPlanPageView.as_view(),
