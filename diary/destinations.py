@@ -6,6 +6,7 @@ import openai
 from haversine import haversine
 import time
 from datetime import datetime
+from bardapi import Bard
 
 
 def total_distance(path):
@@ -64,15 +65,44 @@ def search(data):
         "total_km": total_km,
         "x_y_list": ordered_destinations,
     }
-    recommend = open_ai(openai_data)
+    # recommend = open_ai(openai_data)
+    recommend = bard_ai(openai_data)
     data["answer"] = recommend
     return data
 
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+def bard_ai(location_li):
+    token = "XQjGvFI-VaFDrPIx8PlyXRfsRnN319BMejkOWPAJvP3u7Tucgpky9hNEmLyPu9au_3yw2A."
+    bard = Bard(token=token)
+
+    start = datetime.now()
+
+    q_str = ''
+
+    for idx, location in enumerate(location_li):
+        q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!' \
+                 f'이것에 대한 답변은 반드시 "{idx}번:" 형식을 지켜서 답변 해주세요!'
+
+    answer_li = [bard.get_answer(f"{q_str} 반드시 가게 이름이랑 설명만 말해주세요!")['content']]
+
+    li = []
+
+    for string in answer_li[0].split('\n'):
+        if ": " in string:
+            li.append(string.split(": ", 1)[1])
+
+    end = datetime.now()
+
+    pprint(start)
+    pprint(end)
+    print(end-start)
+
+    return li
 
 
 def open_ai(location_li):
+    openai.api_key = os.environ.get("OPENAI_API_KEY")
+
     # 회원 정보 기준으로 role 추가?
     start = datetime.now()
 
@@ -112,5 +142,7 @@ def open_ai(location_li):
 
     pprint(start)
     pprint(end)
+    print(end-start)
 
     return li
+
