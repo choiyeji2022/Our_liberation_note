@@ -77,22 +77,25 @@ def bard_ai(location_li):
 
     start = datetime.now()
 
-    q_str = ''
+    q_str = '다음 제시 되는 질문마다 답변을 한글로 반드시 하나씩 번호를 매기면서 달아주세요!'
 
     for idx, location in enumerate(location_li):
-        q_str += f'{location[1]}에 위치한 {location[0]} !!이 장소를 제외하고!! 이 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!' \
-                 f'이것에 대한 답변은 반드시 "{idx}번:" 형식을 지켜서 답변 해주세요!'
+        q_str += f'{location[1]}에 위치한 {location[0]} 이 장소와 비슷한 곳 추천과 그에 대한 설명, 이동 예상시간을 반드시 한줄로 답변 해주세요!' \
 
-    answer_li = [bard.get_answer(f"{q_str} 반드시 가게 이름이랑 설명만 말해주세요!")['content']]
+    answer_li = [bard.get_answer(f"{q_str}")['content']]
 
     li = []
 
     for string in answer_li[0].split('\n'):
         if ": " in string:
             li.append(string.split(": ", 1)[1])
+        else:
+            li.append(string[3:])
+
 
     end = datetime.now()
 
+    pprint(li)
     pprint(start)
     pprint(end)
     print(end-start)
