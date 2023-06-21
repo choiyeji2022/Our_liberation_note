@@ -150,7 +150,6 @@ class CommentView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, comment_id):
-        comment_id = comment_id.split("/")[1]
         comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0, 1])
         serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid():
