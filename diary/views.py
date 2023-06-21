@@ -134,7 +134,7 @@ class DetailPhotoPageView(APIView):
 class CommentView(APIView):
     def get(self, request, photo_id, comment_id):
         comment = get_object_or_404(
-            Comment, user_id=request.user.id, id=comment_id, status__in=[0, 1]
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
