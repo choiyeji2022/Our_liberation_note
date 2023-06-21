@@ -2,22 +2,25 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from user.models import User
+from user.models import User, UserGroup
 
 
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey(UserGroup, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     supplied_amount = models.DecimalField(max_digits=10, decimal_places=2)
     # 다른 필드들을 필요에 따라 추가할 수 있습니다.
-    point = models.DecimalField(max_digits=10, decimal_places=2)
+    # point = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"결제 금액:{self.amount} Point: {self.point}"
+        return f"결제 금액:{self.amount}"
 
 
 class Subscribe(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_set")
+    group = models.OneToOneField(
+        UserGroup, on_delete=models.CASCADE, related_name="user_set"
+    )
     price = models.PositiveIntegerField(default=0)
     type = models.CharField(max_length=50)
     is_subscribe = models.BooleanField(default=False)
