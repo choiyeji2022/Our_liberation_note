@@ -132,9 +132,9 @@ class DetailPhotoPageView(APIView):
 
     def delete(self, request, photo_id):
         photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
-        delete_photo = PhotoPageSerializer(photo).data
+        delete_photo = DetailPhotoPageSerializer(photo).data
         delete_photo["status"] = 3
-        serializer = PhotoPageSerializer(photo, data=delete_photo, partial=True)
+        serializer = DetailPhotoPageSerializer(photo, data=delete_photo, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -142,24 +142,22 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    def get(self, request, comment_id):
+    def get(self, request, photo_id, comment_id):
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, comment_id):
-        comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
-        serializer = CommentSerializer(comment, data=request.data)
+    def put(self, request, photo_id, comment_id):
+        comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id, status__in=[0, 1])
+        serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, comment_id):
+    def delete(self, request, photo_id, comment_id):
         # permission_classes = [permissions.IsAuthenticated]
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1]
