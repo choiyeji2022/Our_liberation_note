@@ -107,6 +107,12 @@ class UserGroupAdmin(admin.ModelAdmin):
     filter_horizontal = ("members",)
 
 
+class CheckEmailGroupAdmin(admin.ModelAdmin):
+    ordering = ("id",)
+    list_display_links = ("id",)
+    list_display = ("id", "email", "code", "created_at", "expires_at")
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(UserGroup, UserGroupAdmin)
-admin.site.register(CheckEmail)
+admin.site.register(CheckEmail, CheckEmailGroupAdmin)
