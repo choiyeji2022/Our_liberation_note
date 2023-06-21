@@ -233,7 +233,7 @@ class Trash(APIView):
         if "location" in request.data:
             photo = get_object_or_404(PhotoPage, id=pk)
             photoserializer = PhotoPageSerializer(photo, data=request.data)
-            
+
             if photoserializer.is_valid():
                 if photo.status == "0":
                     photo.status = "1"
@@ -250,7 +250,7 @@ class Trash(APIView):
         elif "group" in request.data:
             note = get_object_or_404(Note, id=pk)
             noteserializer = NoteSerializer(note, data=request.data)
-            
+
             if noteserializer.is_valid():
                 if note.status == "0":
                     note.status = "1"
@@ -267,7 +267,7 @@ class Trash(APIView):
         else:
             group = get_object_or_404(UserGroup, id=pk)
             groupserializer = GroupSerializer(group, data=request.data)
-            
+
             if groupserializer.is_valid():
                 if group.status == "0":
                     group.status = "1"

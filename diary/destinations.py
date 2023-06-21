@@ -1,10 +1,9 @@
+import os
 from itertools import permutations
 from pprint import pprint
 
-from haversine import haversine
-
 import openai
-import os
+from haversine import haversine
 
 
 def total_distance(path):
@@ -20,7 +19,7 @@ def search(data):
     for item in data:
         title_li.append(item["title"])
         x_y_li.append((float(item["y"]), float(item["x"])))
-        location_li.append((item['title'], item['location']))
+        location_li.append((item["title"], item["location"]))
 
     ordered_destinations = []
     remaining_points = list(range(len(x_y_li)))
@@ -62,7 +61,7 @@ def search(data):
         "x_y_list": ordered_destinations,
     }
     recommend = open_ai(location_li)
-    data['answer'] = recommend
+    data["answer"] = recommend
     return data
 
 
@@ -70,23 +69,24 @@ openai.api_key = os.environ.get("OPENAI_API_KEY")
 
 
 def open_ai(location_li):
-
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "추천해주세요!"}
+        {"role": "user", "content": "추천해주세요!"},
     ]
 
-    answer_li =[]
+    answer_li = []
 
     if location_li:
         for location in location_li:
-            messages.append({"role": "user", "content": f"{location[0]}({location[1]}) 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!"})
+            messages.append(
+                {
+                    "role": "user",
+                    "content": f"{location[0]}({location[1]}) 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!",
+                }
+            )
             response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=messages
+                model="gpt-3.5-turbo", messages=messages
             )
             answer_li.append(response.choices[0].message.content)
 
     return answer_li
-
-

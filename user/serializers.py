@@ -3,6 +3,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from user.models import User, UserGroup
+
 from .validators import check_words
 
 
@@ -103,8 +104,8 @@ class GroupCreateSerializer(serializers.ModelSerializer):
         read_only_fields = ("master",)
 
     def validate(self, attrs):
-        if check_words(attrs['name']):
-            raise ValidationError('비속어 사용이 불가합니다!')
+        if check_words(attrs["name"]):
+            raise ValidationError("비속어 사용이 불가합니다!")
         return attrs
 
 

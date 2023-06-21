@@ -5,7 +5,6 @@ from user.models import UserGroup
 from user.serializers import GroupSerializer
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-
 from .validators import check_words
 
 
@@ -16,8 +15,8 @@ class NoteSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def validate(self, attrs):
-        if check_words(attrs['name']):
-            raise ValidationError('비속어 사용이 불가합니다!')
+        if check_words(attrs["name"]):
+            raise ValidationError("비속어 사용이 불가합니다!")
         return attrs
 
 
@@ -62,8 +61,8 @@ class PhotoPageSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        if check_words(attrs['name']):
-            raise ValidationError('비속어 사용이 불가합니다!')
+        if check_words(attrs["name"]):
+            raise ValidationError("비속어 사용이 불가합니다!")
         return attrs
 
 
@@ -93,8 +92,8 @@ class CommentSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        if check_words(attrs['comment']):
-            raise ValidationError('비속어 사용이 불가합니다!')
+        if check_words(attrs["comment"]):
+            raise ValidationError("비속어 사용이 불가합니다!")
         return attrs
 
 
