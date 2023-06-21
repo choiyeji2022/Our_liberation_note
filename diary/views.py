@@ -90,7 +90,7 @@ class DetailNoteView(APIView):
 # 사진 페이지
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
-        limit = 8
+        limit = 2
         photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[
             offset : offset + limit
         ]

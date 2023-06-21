@@ -7,7 +7,8 @@ from Our_Liberation_Note import settings
 urlpatterns = [
     path("", views.NoteView.as_view(), name="note_post"),
     path("<int:group_id>", views.NoteView.as_view(), name="note_detail"),
-    path("photo/<int:note_id>", views.PhotoPageView.as_view(), name="photo_page"),
+    path("photo/<int:note_id>/<int:offset>", views.PhotoPageView.as_view(), name="photo_page_post"),
+    path("photo/<int:note_id>", views.PhotoPageView.as_view(), name="photo_page_get"),
     path("plan/<int:note_id>", views.PlanPageView.as_view(), name="plan_page"),
     path(
         "note-detail/<int:note_id>",
