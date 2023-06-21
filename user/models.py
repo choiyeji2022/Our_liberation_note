@@ -2,7 +2,10 @@ from datetime import timedelta
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+<<<<<<< HEAD
 from django.utils import timezone
+=======
+>>>>>>> 1a853d7c4de36e2c835b9977c0ecf06b0dd1b425
 
 from .validators import check_password
 

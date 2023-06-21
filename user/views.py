@@ -1,7 +1,7 @@
 import os
 import random
 import string
-from datetime import datetime, timedelta
+from datetime import datetime
 
 import requests
 from django.core.exceptions import ObjectDoesNotExist

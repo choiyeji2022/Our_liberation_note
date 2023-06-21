@@ -5,6 +5,7 @@ from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
+# from rest_framework.pagination import PageNumberPagination
 
 from diary import destinations as de
 
@@ -26,7 +27,15 @@ class NoteView(APIView):
 
     def post(self, request, group_id=None):
         serializer = NoteSerializer(data=request.data)
+        print(request.user)
         if serializer.is_valid():
+            # 같은 그룹 같은 노트 작성 불가
+            if Note.objects.filter(
+                name=serializer.validated_data.get("name"),
+                group_id=serializer.validated_data.get("group"),
+            ).exists():
+                error_message = {"error": "이미 같은 이름의 노트가 존재합니다."}
+                return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
@@ -59,9 +68,16 @@ class DetailNoteView(APIView):
 # 페이지 전체 조회 및 생성 -> 생성시 카테 고리를 보고 나눠 주세요~
 
 
-class PageView(APIView):
-    pass
-
+# class PageView(APIView):
+#     pass
+# class LargeResultsSetPagination(PageNumberPagination):
+#     page_size = 9
+#     page_size_query_param = 'page_size'
+#     max_page_size = 12
+# class StandardResultsSetPagination(PageNumberPagination):
+#     page_size = 6
+#     page_query_param = 'page_size'
+#     max_page_size = 9
 
 # 사진 페이지
 class PhotoPageView(APIView):
@@ -126,9 +142,7 @@ class CommentView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, comment_id):
-        comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
+        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0, 1])
         serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -137,9 +151,7 @@ class CommentView(APIView):
 
     def delete(self, request, comment_id):
         # permission_classes = [permissions.IsAuthenticated]
-        comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
+        comment = get_object_or_404(Comment, user=request.user, id=comment_id, status__in=[0, 1])
         delete_comment = CommentSerializer(comment).data
         delete_comment["status"] = 3
         serializer = CommentSerializer(comment, data=delete_comment, partial=True)
