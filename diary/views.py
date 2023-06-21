@@ -1,5 +1,8 @@
+import os
+
 import tabulate
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.mail import send_mail
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
@@ -15,6 +18,8 @@ from .serializers import (CommentSerializer, DetailNoteSerializer,
                           DetailPhotoPageSerializer, MarkerSerializer,
                           NoteSerializer, PhotoPageSerializer, PlanSerializer,
                           StampSerializer)
+
+# from rest_framework.pagination import PageNumberPagination
 
 
 # 노트 조회 및 생성
@@ -60,8 +65,12 @@ class DetailNoteView(APIView):
 
     def delete(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
-        note.delete()
-        return Response({"message": "노트가 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+        delete_note = NoteSerializer(note).data
+        delete_note["status"] = 3
+        serializer = NoteSerializer(note, data=delete_note, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # 노트 조회 및 생성
@@ -69,8 +78,16 @@ class DetailNoteView(APIView):
 # 페이지 전체 조회 및 생성 -> 생성시 카테 고리를 보고 나눠 주세요~
 
 
-class PageView(APIView):
-    pass
+# class PageView(APIView):
+#     pass
+# class LargeResultsSetPagination(PageNumberPagination):
+#     page_size = 9
+#     page_size_query_param = 'page_size'
+#     max_page_size = 12
+# class StandardResultsSetPagination(PageNumberPagination):
+#     page_size = 6
+#     page_query_param = 'page_size'
+#     max_page_size = 9
 
 
 # 사진 페이지
@@ -120,9 +137,19 @@ class DetailPhotoPageView(APIView):
         photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
         delete_photo = PhotoPageSerializer(photo).data
         delete_photo["status"] = 3
+
+        image_file_path = photo.image.path
+        image_file_name = os.path.basename(image_file_path)
+
+        with open(image_file_path, "rb") as f:
+            image_data = f.read()
+
+        delete_photo["image"] = SimpleUploadedFile(image_file_name, image_data)
+
         serializer = PhotoPageSerializer(photo, data=delete_photo, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -204,6 +231,7 @@ class DetailPlanPageView(APIView):
         plan = get_object_or_404(PlanPage, id=plan_id, status__in=[0, 1])
         delete_plan = PlanSerializer(plan).data
         delete_plan["status"] = 3
+
         serializer = PlanSerializer(plan, data=delete_plan, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()

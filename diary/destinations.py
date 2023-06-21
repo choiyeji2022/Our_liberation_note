@@ -1,8 +1,8 @@
-import os
-from itertools import permutations
-from pprint import pprint
+from datetime import datetime
 
-import openai
+import requests
+from bardapi import Bard
+from bs4 import BeautifulSoup as bs
 from haversine import haversine
 
 
@@ -11,15 +11,14 @@ def total_distance(path):
 
 
 def search(data):
-    pprint(data)
-
+    start = datetime.now()
     title_li = []
     x_y_li = []
     location_li = []
     for item in data:
         title_li.append(item["title"])
         x_y_li.append((float(item["y"]), float(item["x"])))
-        location_li.append((item["title"], item["location"]))
+        location_li.append((item["location"]))
 
     ordered_destinations = []
     remaining_points = list(range(len(x_y_li)))
@@ -53,40 +52,79 @@ def search(data):
     # 최종 경로의 총 거리 계산
     total_km = total_distance(ordered_destinations)
 
-    pprint(answer_li)
-    print(total_km)
+    openai_data = []
+
+    for i in answer_li:
+        idx = title_li.index(i)
+        openai_data.append((i, location_li[idx]))
+
     data = {
         "title_list": answer_li,
         "total_km": total_km,
         "x_y_list": ordered_destinations,
     }
-    recommend = open_ai(location_li)
+
+    recommend = bard_ai(openai_data)
+    crawling = crawling_data(answer_li)
+
     data["answer"] = recommend
+    data["crawling"] = crawling
+    end = datetime.now()
+    print("all", end - start)
     return data
 
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+def bard_ai(location_li):
+    token = "XQjGvFI-VaFDrPIx8PlyXRfsRnN319BMejkOWPAJvP3u7Tucgpky9hNEmLyPu9au_3yw2A."
+    bard = Bard(token=token)
+
+    start = datetime.now()
+
+    q_str = "다음 제시 되는 질문마다 답변을 한글로 반드시 하나씩 번호를 매기면서 달아주세요!"
+
+    for idx, location in enumerate(location_li):
+        q_str += f"{location[1]}에 위치한 {location[0]}의 같은 지역 내에 있는 비슷한 한 곳과 그에 대한 설명을 반드시 답변 해주세요!"
+    answer_li = [bard.get_answer(f"{q_str}")["content"]]
+
+    li = []
+
+    for string in answer_li[0].split("\n"):
+        if ": " in string:
+            li.append(string.split(": ", 1)[1])
+        else:
+            li.append(string[3:])
+
+    end = datetime.now()
+
+    print("bard", end - start)
+    return li
 
 
-def open_ai(location_li):
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "추천해주세요!"},
-    ]
+def crawling_data(answer_li):
+    start = datetime.now()
+    data_li = []
 
-    answer_li = []
+    for i in answer_li:
+        # 검색 결과의 URL을 저장
+        url = "https://search.naver.com/search.naver?where=view&sm=tab_jum&query=" + i
 
-    if location_li:
-        for location in location_li:
-            messages.append(
-                {
-                    "role": "user",
-                    "content": f"{location[0]}({location[1]}) 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!",
-                }
-            )
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo", messages=messages
-            )
-            answer_li.append(response.choices[0].message.content)
+        # requests 패키지를 이용해 URL의 HTML 문서를 가져옴
+        response = requests.get(url)
+        html_text = response.text
 
-    return answer_li
+        # HTML을 파싱하고, 'soup' 변수에 저장
+        soup = bs(html_text, "html.parser")
+
+        # 첫 번째 링크
+        link = soup.select_one(".api_txt_lines.total_tit")
+
+        # href 속성을 가져와 data_li에 추가
+        if link:
+            href = link.get("href")
+            data_li.append(href)
+        else:
+            print("No related link found")
+
+    end = datetime.now()
+    print("crawling", end - start)
+    return data_li
