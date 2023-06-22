@@ -1,7 +1,7 @@
 ![footer](https://capsule-render.vercel.app/api?section=footer&height=350&text=Our%20liberation%20note!&color=6FC7E1&desc=우리들의%20해방%20일지&)
 
 ## 목차 🎊
-- [프로젝트 소개](#🏝_프로젝트_소개)
+- [프로젝트 소개](#_🏝_프로젝트_소개)
 - [프로젝트 기획 의도](#💡_프로젝트_기획_의도)
 - [기능 설명](#🛠_기능_설명_(중요도_⭐️로_표시!))
 - [Stacks](#🚀_Stacks)
