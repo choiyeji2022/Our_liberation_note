@@ -19,16 +19,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from diary.models import Stamp
 from diary.serializers import MarkerSerializer
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (
-    GroupCreateSerializer,
-    GroupSerializer,
-    LoginSerializer,
-    SignUpSerializer,
-    TokenObtainPairSerializer,
-    UserListSerializer,
-    UserUpdateSerializer,
-    UserViewSerializer,
-)
+from user.serializers import (GroupCreateSerializer, GroupSerializer,
+                              LoginSerializer, SignUpSerializer,
+                              TokenObtainPairSerializer, UserListSerializer,
+                              UserUpdateSerializer, UserViewSerializer)
 
 from .validators import check_password
 
@@ -321,7 +315,9 @@ class GroupDetailView(APIView):
     def delete(self, request, group_id):
         # 활성, 비활성 다 불러오기
         group = get_object_or_404(
-            UserGroup.objects.filter(id=group_id, master_id=request.user.id, status="0")
+            UserGroup.objects.filter(
+                id=group_id, master_id=request.user.id, status__in=["0", "1"]
+            )
         )
         # 본인이 생성한 그룹이 맞다면
         if request.user == group.master:

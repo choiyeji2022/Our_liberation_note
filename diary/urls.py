@@ -19,7 +19,6 @@ urlpatterns = [
         views.DetailPhotoPageView.as_view(),
         name="detail_photo_page",
     ),
-
     path(
         "plan-detail/<int:plan_id>",
         views.DetailPlanPageView.as_view(),
@@ -31,6 +30,7 @@ urlpatterns = [
         name="comment",
     ),
     path("trash", views.Trash.as_view(), name="trash"),
+    path("trash/<int:pk>", views.Trash.as_view(), name="trash"),
     path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
     path(
         "markerstamps/<str:photo_location>",
