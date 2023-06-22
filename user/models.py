@@ -105,8 +105,8 @@ class UserGroup(models.Model):
     def __str__(self):
         return self.name
 
-    def get_absolute_url(self, category='note'):
-        if category == 'note':
+    def get_absolute_url(self, category="note"):
+        if category == "note":
             return reverse("note_detail", kwargs={"group_id": self.id})
-        elif category == 'group':
+        elif category == "group":
             return reverse("group_detail", kwargs={"group_id": self.id})

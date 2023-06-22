@@ -2,7 +2,8 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from user.models import User, UserGroup
-from .models import Note, PhotoPage, PlanPage, Stamp
+
+from .models import Note, PlanPage
 
 
 class NoteTest(APITestCase):
@@ -69,10 +70,14 @@ class PlanTest(APITestCase):
         )
         cls.group = UserGroup.objects.create(name="test", master=cls.user)
         cls.note = Note.objects.create(name="test", group=cls.group, category="1")
-        cls.plan = PlanPage.objects.create(title="test", diary=cls.note, start="2022-12-12")
+        cls.plan = PlanPage.objects.create(
+            title="test", diary=cls.note, start="2022-12-12"
+        )
         cls.user_data = {"email": "test@naver.com", "password": "aldud3015^^"}
         cls.note_data = {"name": "test2", "category": "1", "group": "1"}
-        cls.plan_data = {"plan_set": [{"title": "스타벅스 리버사이드팔당DT점", "start": "2023-6-17"}]}
+        cls.plan_data = {
+            "plan_set": [{"title": "스타벅스 리버사이드팔당DT점", "start": "2023-6-17"}]
+        }
 
     def setUp(self):
         self.access_token = self.client.post(reverse("login"), self.user_data).data[
@@ -114,7 +119,9 @@ class PlanTest(APITestCase):
     def test_patch_detail_plan(self):
         url = self.plan.get_absolute_url()
         response = self.client.patch(
-            path=url, HTTP_AUTHORIZATION=f"Bearer {self.access_token}", data={"title":"test"}
+            path=url,
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
+            data={"title": "test"},
         )
         self.assertEquals(response.status_code, 200)
 
@@ -124,4 +131,3 @@ class PlanTest(APITestCase):
             path=url, HTTP_AUTHORIZATION=f"Bearer {self.access_token}"
         )
         self.assertEquals(response.status_code, 204)
-

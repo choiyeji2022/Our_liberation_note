@@ -17,7 +17,7 @@ from .models import Payment, Subscribe
 from .serializers import SubscribeSerializer
 
 
-class success(APIView):
+class Success(APIView):
     def get(self, request):
         print(request.user)
         access_token = request.META.get("HTTP_AUTHORIZATION_TOKEN")

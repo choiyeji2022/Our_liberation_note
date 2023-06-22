@@ -1,9 +1,11 @@
+from unittest.mock import patch
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from user.models import User, UserGroup
+
 from diary.models import Note
-from unittest.mock import patch
+from user.models import User, UserGroup
 
 
 class UserTest(APITestCase):
@@ -15,7 +17,7 @@ class UserTest(APITestCase):
         cls.group = UserGroup.objects.create(name="test", master=cls.user)
         cls.group.members.set([cls.user])
         cls.note = Note.objects.create(name="test", group=cls.group, category="1")
-        cls.user_data = {"email":"test@naver.com", "password":"aldud3015^^"}
+        cls.user_data = {"email": "test@naver.com", "password": "aldud3015^^"}
 
     def setUp(self):
         self.access_token = self.client.post(reverse("login"), self.user_data).data[
@@ -43,8 +45,8 @@ class UserTest(APITestCase):
             data={
                 "check_password": "aldud3015^^",
                 "new_password": "aldud3015^^^",
-                "check_new_password": "aldud3015^^^"
-            }
+                "check_new_password": "aldud3015^^^",
+            },
         )
         self.assertEquals(response.status_code, 200)
 
@@ -63,7 +65,7 @@ class UserTest(APITestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_get_detail_group(self):
-        url = self.group.get_absolute_url(category='group')
+        url = self.group.get_absolute_url(category="group")
         response = self.client.get(
             path=url,
             HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
@@ -71,16 +73,16 @@ class UserTest(APITestCase):
         self.assertEquals(response.status_code, 200)
 
     def test_patch_detail_group(self):
-        url = self.group.get_absolute_url(category='group')
+        url = self.group.get_absolute_url(category="group")
         response = self.client.patch(
             path=url,
             HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
-            data={"name":"test_group2"}
+            data={"name": "test_group2"},
         )
         self.assertEquals(response.status_code, 200)
 
     def test_delete_detail_group(self):
-        url = self.group.get_absolute_url(category='group')
+        url = self.group.get_absolute_url(category="group")
         response = self.client.delete(
             path=url,
             HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
@@ -103,8 +105,8 @@ class UserTest(APITestCase):
 
 
 class KakaoLoginTest(APITestCase):
-    @patch('requests.post')  # requests.post 요청을 모킹
-    @patch('requests.get')   # requests.get 요청도 모킹
+    @patch("requests.post")  # requests.post 요청을 모킹
+    @patch("requests.get")  # requests.get 요청도 모킹
     def test_kakao_login_success(self, mock_get, mock_post):
         # Mocking된 응답 설정
         mock_post.return_value.json.return_value = {
@@ -116,35 +118,33 @@ class KakaoLoginTest(APITestCase):
         }
 
         # 테스트할 요청
-        response = self.client.post(reverse('kakao_login'), data={"code": 'mock_code'})
+        response = self.client.post(reverse("kakao_login"), data={"code": "mock_code"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
+        self.assertIn("access", response.data)
 
 
 class GoogleLoginTest(APITestCase):
-    @patch('requests.post')  # requests.post 요청을 모킹
-    @patch('requests.get')   # requests.get 요청도 모킹
+    @patch("requests.post")  # requests.post 요청을 모킹
+    @patch("requests.get")  # requests.get 요청도 모킹
     def test_google_login_success(self, mock_get, mock_post):
         # Mocking된 응답 설정
         mock_post.return_value.json.return_value = {
             "access_token": "mock_access_token",
         }
 
-        mock_get.return_value.json.return_value = {
-            "email": "test@naver.com"
-        }
+        mock_get.return_value.json.return_value = {"email": "test@naver.com"}
 
         # 테스트할 요청
-        response = self.client.post(reverse('google_login'), data={"code": 'mock_code'})
+        response = self.client.post(reverse("google_login"), data={"code": "mock_code"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
+        self.assertIn("access", response.data)
 
 
 class NaverLoginTest(APITestCase):
-    @patch('requests.post')  # requests.post 요청을 모킹
-    @patch('requests.get')   # requests.get 요청도 모킹
+    @patch("requests.post")  # requests.post 요청을 모킹
+    @patch("requests.get")  # requests.get 요청도 모킹
     def test_google_login_success(self, mock_get, mock_post):
         # Mocking된 응답 설정
         mock_post.return_value.json.return_value = {
@@ -152,11 +152,11 @@ class NaverLoginTest(APITestCase):
         }
 
         mock_get.return_value.json.return_value = {
-            "response":{"email": "test@naver.com"}
+            "response": {"email": "test@naver.com"}
         }
 
         # 테스트할 요청
-        response = self.client.post(reverse('naver_login'), data={"code": 'mock_code'})
+        response = self.client.post(reverse("naver_login"), data={"code": "mock_code"})
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('access', response.data)
+        self.assertIn("access", response.data)
