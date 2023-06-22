@@ -14,10 +14,16 @@ from user.models import UserGroup
 from user.serializers import GroupSerializer
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (CommentSerializer, DetailNoteSerializer,
-                          DetailPhotoPageSerializer, MarkerSerializer,
-                          NoteSerializer, PhotoPageSerializer, PlanSerializer,
-                          StampSerializer)
+from .serializers import (
+    CommentSerializer,
+    DetailNoteSerializer,
+    DetailPhotoPageSerializer,
+    MarkerSerializer,
+    NoteSerializer,
+    PhotoPageSerializer,
+    PlanSerializer,
+    StampSerializer,
+)
 
 # from rest_framework.pagination import PageNumberPagination
 
@@ -71,23 +77,6 @@ class DetailNoteView(APIView):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# 노트 조회 및 생성
-
-# 페이지 전체 조회 및 생성 -> 생성시 카테 고리를 보고 나눠 주세요~
-
-
-# class PageView(APIView):
-#     pass
-# class LargeResultsSetPagination(PageNumberPagination):
-#     page_size = 9
-#     page_size_query_param = 'page_size'
-#     max_page_size = 12
-# class StandardResultsSetPagination(PageNumberPagination):
-#     page_size = 6
-#     page_query_param = 'page_size'
-#     max_page_size = 9
 
 
 # 사진 페이지
@@ -186,6 +175,11 @@ class CommentView(APIView):
 
 
 class PlanPageView(APIView):
+    """
+    미영
+    계획에 대한 전체 조회와 삭제, 생성을 하는 로직
+    """
+
     def get(self, request, note_id):
         plan = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
         serializer = PlanSerializer(plan, many=True)
@@ -193,6 +187,7 @@ class PlanPageView(APIView):
 
     def post(self, request, note_id):
         for plan in request.data["plan_set"]:
+            print(plan)
             serializer = PlanSerializer(data=plan)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(diary_id=note_id)

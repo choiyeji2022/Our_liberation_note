@@ -10,9 +10,9 @@ urlpatterns = [
     path(
         "photo/<int:note_id>/<int:offset>",
         views.PhotoPageView.as_view(),
-        name="photo_page_post",
+        name="photo_page_get",
     ),
-    path("photo/<int:note_id>", views.PhotoPageView.as_view(), name="photo_page_get"),
+    path("photo/<int:note_id>", views.PhotoPageView.as_view(), name="photo_page_post"),
     path("plan/<int:note_id>", views.PlanPageView.as_view(), name="plan_page"),
     path(
         "note-detail/<int:note_id>",
