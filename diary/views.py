@@ -187,9 +187,8 @@ class PlanPageView(APIView):
 
     def post(self, request, note_id):
         for plan in request.data["plan_set"]:
-            print(plan)
             serializer = PlanSerializer(data=plan)
-            if serializer.is_valid(raise_exception=True):
+            if serializer.is_valid():
                 serializer.save(diary_id=note_id)
         return Response(status=status.HTTP_200_OK)
 
