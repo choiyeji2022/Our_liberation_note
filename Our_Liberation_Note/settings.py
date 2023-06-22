@@ -83,6 +83,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "Our_Liberation_Note.wsgi.application"
+GUNICORN_TIMEOUT = 300
 
 
 DATABASES = mysettings.DATABASES
