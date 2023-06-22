@@ -1,11 +1,9 @@
-import os
-from itertools import permutations
-from pprint import pprint
-
-import openai
-from haversine import haversine
-import time
 from datetime import datetime
+
+import requests
+from bardapi import Bard
+from bs4 import BeautifulSoup as bs
+from haversine import haversine
 
 
 def total_distance(path):
@@ -13,6 +11,7 @@ def total_distance(path):
 
 
 def search(data):
+    start = datetime.now()
     title_li = []
     x_y_li = []
     location_li = []
@@ -64,53 +63,68 @@ def search(data):
         "total_km": total_km,
         "x_y_list": ordered_destinations,
     }
-    recommend = open_ai(openai_data)
+
+    recommend = bard_ai(openai_data)
+    crawling = crawling_data(answer_li)
+
     data["answer"] = recommend
+    data["crawling"] = crawling
+    end = datetime.now()
+    print("all", end - start)
     return data
 
 
-openai.api_key = os.environ.get("OPENAI_API_KEY")
+def bard_ai(location_li):
+    token = "XQjGvFI-VaFDrPIx8PlyXRfsRnN319BMejkOWPAJvP3u7Tucgpky9hNEmLyPu9au_3yw2A."
+    bard = Bard(token=token)
 
-
-def open_ai(location_li):
-    # 회원 정보 기준으로 role 추가?
     start = datetime.now()
 
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "추천해주세요!"},
-    ]
-
-    answer_li = []
-
-    q_str = ''
+    q_str = "다음 제시 되는 질문마다 답변을 한글로 반드시 하나씩 번호를 매기면서 달아주세요!"
 
     for idx, location in enumerate(location_li):
-        q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!' \
-                 f'이것에 대한 답변은 반드시 "{idx}번:" 형식을 지켜서 답변 해주세요!'
-
-    if location_li:
-            messages.append(
-                {
-                    "role": "user",
-                    "content": f"내가 이전에 했던 말은 잊고, 대답도 하지 말아줘!! 정보만 주면 됩니다. {q_str}"
-                }
-            )
-
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=messages
-    )
-    answer_li.append(response.choices[0].message.content)
-
-    end = datetime.now()
+        q_str += f"{location[1]}에 위치한 {location[0]}의 같은 지역 내에 있는 비슷한 한 곳과 그에 대한 설명을 반드시 답변 해주세요!"
+    answer_li = [bard.get_answer(f"{q_str}")["content"]]
 
     li = []
 
-    for string in answer_li[0].split('\n'):
+    for string in answer_li[0].split("\n"):
         if ": " in string:
             li.append(string.split(": ", 1)[1])
+        else:
+            li.append(string[3:])
 
-    pprint(start)
-    pprint(end)
+    end = datetime.now()
 
+    print("bard", end - start)
     return li
+
+
+def crawling_data(answer_li):
+    start = datetime.now()
+    data_li = []
+
+    for i in answer_li:
+        # 검색 결과의 URL을 저장
+        url = "https://search.naver.com/search.naver?where=view&sm=tab_jum&query=" + i
+
+        # requests 패키지를 이용해 URL의 HTML 문서를 가져옴
+        response = requests.get(url)
+        html_text = response.text
+
+        # HTML을 파싱하고, 'soup' 변수에 저장
+        soup = bs(html_text, "html.parser")
+
+        # 첫 번째 링크
+        link = soup.select_one(".api_txt_lines.total_tit")
+
+        # href 속성을 가져와 data_li에 추가
+        if link:
+            href = link.get("href")
+            data_li.append(href)
+        else:
+            print("No related link found")
+
+    end = datetime.now()
+    print("crawling", end - start)
+    return data_li

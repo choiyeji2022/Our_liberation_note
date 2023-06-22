@@ -1,19 +1,31 @@
+import os
+
 import tabulate
 from django.conf import settings
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.mail import send_mail
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.views import APIView
-# from rest_framework.pagination import PageNumberPagination
 
 from diary import destinations as de
+from user.models import UserGroup
+from user.serializers import GroupSerializer
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (CommentSerializer, DetailNoteSerializer,
-                          DetailPhotoPageSerializer, MarkerSerializer,
-                          NoteSerializer, PhotoPageSerializer, PlanSerializer,
-                          StampSerializer)
+from .serializers import (
+    CommentSerializer,
+    DetailNoteSerializer,
+    DetailPhotoPageSerializer,
+    MarkerSerializer,
+    NoteSerializer,
+    PhotoPageSerializer,
+    PlanSerializer,
+    StampSerializer,
+)
+
+# from rest_framework.pagination import PageNumberPagination
 
 
 # 노트 조회 및 생성
@@ -59,31 +71,21 @@ class DetailNoteView(APIView):
 
     def delete(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
-        note.delete()
-        return Response({"message": "노트가 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT)
+        delete_note = NoteSerializer(note).data
+        delete_note["status"] = 3
+        serializer = NoteSerializer(note, data=delete_note, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-# 노트 조회 및 생성
-
-# 페이지 전체 조회 및 생성 -> 생성시 카테 고리를 보고 나눠 주세요~
-
-
-# class PageView(APIView):
-#     pass
-# class LargeResultsSetPagination(PageNumberPagination):
-#     page_size = 9
-#     page_size_query_param = 'page_size'
-#     max_page_size = 12
-# class StandardResultsSetPagination(PageNumberPagination):
-#     page_size = 6
-#     page_query_param = 'page_size'
-#     max_page_size = 9
 
 # 사진 페이지
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
-        limit = 8
-        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[offset:offset+limit]
+        limit = 2
+        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[
+            offset : offset + limit
+        ]
         serializer = PhotoPageSerializer(photos, many=True)
         return Response(serializer.data)
 
@@ -124,9 +126,19 @@ class DetailPhotoPageView(APIView):
         photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
         delete_photo = DetailPhotoPageSerializer(photo).data
         delete_photo["status"] = 3
-        serializer = DetailPhotoPageSerializer(photo, data=delete_photo, partial=True)
+
+        image_file_path = photo.image.path
+        image_file_name = os.path.basename(image_file_path)
+
+        with open(image_file_path, "rb") as f:
+            image_data = f.read()
+
+        delete_photo["image"] = SimpleUploadedFile(image_file_name, image_data)
+
+        serializer = PhotoPageSerializer(photo, data=delete_photo, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -139,6 +151,7 @@ class CommentView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, photo_id, comment_id):
+
         comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id)
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
@@ -156,10 +169,24 @@ class CommentView(APIView):
         # serializer = CommentSerializer(comment, data=delete_comment, partial=True)
         # if serializer.is_valid(raise_exception=True):
         #     serializer.save()
+
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
+        delete_comment = CommentSerializer(comment).data
+        delete_comment["status"] = 3
+        serializer = CommentSerializer(comment, data=delete_comment, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PlanPageView(APIView):
+    """
+    미영
+    계획에 대한 전체 조회와 삭제, 생성을 하는 로직
+    """
+
     def get(self, request, note_id):
         plan = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
         serializer = PlanSerializer(plan, many=True)
@@ -167,6 +194,7 @@ class PlanPageView(APIView):
 
     def post(self, request, note_id):
         for plan in request.data["plan_set"]:
+            print(plan)
             serializer = PlanSerializer(data=plan)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(diary_id=note_id)
@@ -205,6 +233,7 @@ class DetailPlanPageView(APIView):
         plan = get_object_or_404(PlanPage, id=plan_id, status__in=[0, 1])
         delete_plan = PlanSerializer(plan).data
         delete_plan["status"] = 3
+
         serializer = PlanSerializer(plan, data=delete_plan, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
@@ -213,42 +242,75 @@ class DetailPlanPageView(APIView):
 
 # 휴지통
 class Trash(APIView):
+    def get(self, request):
+        group = UserGroup.objects.filter(master_id=request.user.id, status=1)
+        note = Note.objects.filter(group__members=request.user, status=1)
+        note_ids = Note.objects.filter(group__members=request.user).values_list(
+            "id", flat=True
+        )
+        photo = PhotoPage.objects.filter(diary_id__in=note_ids, status=1)
+        noteserializer = NoteSerializer(note, many=True)
+        photoserializer = PhotoPageSerializer(photo, many=True)
+        groupserializer = GroupSerializer(group, many=True)
+        data = {
+            "note": noteserializer.data,
+            "photo": photoserializer.data,
+            "group": groupserializer.data,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
     def post(self, request, pk):
-        # note = get_object_or_404(Note, id=pk, status=0)
-        # photo = get_object_or_404(PhotoPage, id=pk, status=0)
-        note = get_object_or_404(Note, id=pk)
-        photo = get_object_or_404(PhotoPage, id=pk)
+        if "location" in request.data:
+            photo = get_object_or_404(PhotoPage, id=pk)
+            photoserializer = PhotoPageSerializer(photo, data=request.data)
 
-        noteserializer = NoteSerializer(note, data=request.data)
-        photoserializer = PhotoPageSerializer(photo, data=request.data)
+            if photoserializer.is_valid():
+                if photo.status == "0":
+                    photo.status = "1"
+                    photoserializer.save()
+                    return Response(photoserializer.data, status=status.HTTP_200_OK)
+                elif photo.status == "1":
+                    photo.status = "0"
+                    photoserializer.save()
+                    return Response(photoserializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(
+                        photoserializer.errors, status=status.HTTP_400_BAD_REQUEST
+                    )
+        elif "group" in request.data:
+            note = get_object_or_404(Note, id=pk)
+            noteserializer = NoteSerializer(note, data=request.data)
 
-        if noteserializer.is_valid():
-            if note.status == "0":
-                note.status = "1"
-                noteserializer.save()
-                return Response(noteserializer.data, status=status.HTTP_200_OK)
-            elif note.status == "1":
-                note.status = "0"
-                noteserializer.save()
-                return Response(noteserializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    noteserializer.errors, status=status.HTTP_400_BAD_REQUEST
-                )
+            if noteserializer.is_valid():
+                if note.status == "0":
+                    note.status = "1"
+                    noteserializer.save()
+                    return Response(noteserializer.data, status=status.HTTP_200_OK)
+                elif note.status == "1":
+                    note.status = "0"
+                    noteserializer.save()
+                    return Response(noteserializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(
+                        noteserializer.errors, status=status.HTTP_400_BAD_REQUEST
+                    )
+        else:
+            group = get_object_or_404(UserGroup, id=pk)
+            groupserializer = GroupSerializer(group, data=request.data)
 
-        if photoserializer.is_valid():
-            if photo.status == "0":
-                photo.status = "1"
-                photoserializer.save()
-                return Response(photoserializer.data, status=status.HTTP_200_OK)
-            elif photo.status == "1":
-                photo.status = "0"
-                photoserializer.save()
-                return Response(photoserializer.data, status=status.HTTP_200_OK)
-            else:
-                return Response(
-                    photoserializer.errors, status=status.HTTP_400_BAD_REQUEST
-                )
+            if groupserializer.is_valid():
+                if group.status == "0":
+                    group.status = "1"
+                    groupserializer.save()
+                    return Response(groupserializer.data, status=status.HTTP_200_OK)
+                elif group.status == "1":
+                    group.status = "0"
+                    groupserializer.save()
+                    return Response(groupserializer.data, status=status.HTTP_200_OK)
+                else:
+                    return Response(
+                        groupserializer.errors, status=status.HTTP_400_BAD_REQUEST
+                    )
 
 
 # 스탬프

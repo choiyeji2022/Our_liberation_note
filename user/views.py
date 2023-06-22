@@ -1,6 +1,7 @@
 import os
 import random
 import string
+from datetime import datetime
 
 import requests
 from django.core.exceptions import ObjectDoesNotExist
@@ -18,10 +19,16 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from diary.models import Stamp
 from diary.serializers import MarkerSerializer
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (GroupCreateSerializer, GroupSerializer,
-                              LoginSerializer, SignUpSerializer,
-                              TokenObtainPairSerializer, UserListSerializer,
-                              UserUpdateSerializer, UserViewSerializer)
+from user.serializers import (
+    GroupCreateSerializer,
+    GroupSerializer,
+    LoginSerializer,
+    SignUpSerializer,
+    TokenObtainPairSerializer,
+    UserListSerializer,
+    UserUpdateSerializer,
+    UserViewSerializer,
+)
 
 from .validators import check_password
 
@@ -56,6 +63,8 @@ class SignupView(APIView):
     def post(self, request):
         email = request.data.get("email")
         code = request.data.get("code")
+        password = request.data.get("password")
+        password2 = request.data.get("password2")
 
         # 이메일 중복 확인
         try:
@@ -65,12 +74,34 @@ class SignupView(APIView):
             )
         except ObjectDoesNotExist:
             pass
-        # 인증 코드 일치하는지 확인
+
+        # 유효 기간 확인
         try:
             code_obj = CheckEmail.objects.get(code=code)
+            if code_obj.expires_at < datetime.now():
+                # 인증 코드 유효 기간이 지난 경우
+                code_obj.delete()
+                return Response(
+                    {"message": "인증 코드 유효 기간이 지났습니다."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except CheckEmail.DoesNotExist:
             return Response(
-                {"message": "이메일 확인 코드가 유효하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST
+                {"message": "이메일 확인 코드가 유효하지 않습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 인증 코드가 일치하지 않을 경우
+        if code_obj.code != code:
+            return Response(
+                {"message": "인증 코드가 유효하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 비밀번호와 비밀번호 확인 일치 여부 확인
+        if password != password2:
+            return Response(
+                {"message": "비밀번호와 비밀번호 확인이 일치하지 않습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         serializer = SignUpSerializer(data=request.data)
@@ -103,11 +134,18 @@ class UserView(APIView):
         current_password = request.data.get("check_password")
         user = User.objects.get(email=request.user)
         new_password = request.data.get("new_password")
+        check_new_password = request.data.get("check_new_password")
 
-        if new_password == "":
+        if new_password == "" or current_password == "" or check_new_password == "":
             return Response(
-                {"message": "변경할 비밀번호를 입력해주세요!"}, status=status.HTTP_400_BAD_REQUEST
+                {"message": " 빈칸을 입력해주세요!"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+        if new_password != check_new_password:
+            return Response(
+                {"message": "새로운 비밀번호가 일치하지 않습니다"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         # 기존 비밀번호와 check_password가 일치할 경우 회원정보(닉네임, 비밀번호) 수정
         if current_password and user.check_password(current_password):
             # 새로운 비밀번호의 유효성 검사
@@ -148,14 +186,7 @@ class ChangePassword(APIView):
         email = request.data.get("email")
         code = request.data.get("code")
         new_password = request.data.get("new_password")
-
-        # 인증 코드 일치하는지 확인
-        try:
-            code_obj = CheckEmail.objects.get(code=code)
-        except CheckEmail.DoesNotExist:
-            return Response(
-                {"message": "이메일 확인 코드가 유효하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST
-            )
+        check_password_input = request.data.get("check_password")
 
         # 이메일 일치하는지 확인
         try:
@@ -166,9 +197,40 @@ class ChangePassword(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # 유효 기간 확인
+        try:
+            code_obj = CheckEmail.objects.get(code=code)
+            if code_obj.expires_at < datetime.now():
+                # 인증 코드 유효 기간이 지난 경우
+                code_obj.delete()
+                return Response(
+                    {"message": "인증 코드 유효 기간이 지났습니다."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        except CheckEmail.DoesNotExist:
+            return Response(
+                {"message": "이메일 확인 코드가 유효하지 않습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 인증 코드 일치하는지 확인
+        try:
+            code_obj = CheckEmail.objects.get(code=code)
+        except CheckEmail.DoesNotExist:
+            return Response(
+                {"message": "이메일 확인 코드가 유효하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 비밀번호와 비밀번호 확인 일치 여부 확인
+        if new_password != check_password_input:
+            return Response(
+                {"message": "비밀번호와 비밀번호 확인이 일치하지 않습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # 새 비밀번호 유효성 검사
         try:
-            check_password(new_password)
+            check_password(check_password_input)
         except ValidationError:
             return Response(
                 {"message": "8자 이상의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다!"},
@@ -259,7 +321,9 @@ class GroupDetailView(APIView):
     def delete(self, request, group_id):
         # 활성, 비활성 다 불러오기
         group = get_object_or_404(
-            UserGroup.objects.filter(id=group_id, master_id=request.user.id, status="0")
+            UserGroup.objects.filter(
+                id=group_id, master_id=request.user.id, status__in=["0", "1"]
+            )
         )
         # 본인이 생성한 그룹이 맞다면
         if request.user == group.master:

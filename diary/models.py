@@ -40,6 +40,12 @@ class Note(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self, category="note"):
+        if category == "note":
+            return reverse("detail_note", kwargs={"note_id": self.id})
+        elif category == "plan":
+            return reverse("plan_page", kwargs={"note_id": self.id})
+
 
 # 미영
 class PlanPage(models.Model):
@@ -53,6 +59,9 @@ class PlanPage(models.Model):
     status = models.CharField(choices=status_choice, max_length=100, default=0)
     location_x = models.CharField(max_length=255, null=True, blank=True)
     location_y = models.CharField(max_length=255, null=True, blank=True)
+
+    def get_absolute_url(self):
+        return reverse("detail_plan_page", kwargs={"plan_id": self.id})
 
 
 # 제건

@@ -1,5 +1,9 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.urls import reverse
+from django.utils import timezone
 
 from .validators import check_password
 
@@ -16,6 +20,14 @@ class CheckEmail(models.Model):
     code = models.CharField("확인용 코드", max_length=6, unique=True)
     try_num = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def __str__(self):
+        return self.email
+
+    def save(self, **kwargs):
+        self.expires_at = timezone.now() + timedelta(minutes=5)
+        super().save(**kwargs)
 
 
 # custom user model 사용 시 UserManager 클래스와 create_user, create_superuser 함수가 정의되어 있어야 함
@@ -92,3 +104,6 @@ class UserGroup(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("note_detail", kwargs={"group_id": self.id})
