@@ -126,10 +126,15 @@ def open_ai(location_li):
                 }
             )
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=messages
+    response = openai.Completion.create(
+        model="text-davinci-003", prompt=q_str, max_tokens=7, temperature=0, top_p=1, n=1, stream=false, logprobs=null, stop="\n"
     )
-    answer_li.append(response.choices[0].message.content)
+
+    print(response)
+    
+    answer_li.append(response.choices[0].text)
+
+    print(answer_li)
 
     end = datetime.now()
 
