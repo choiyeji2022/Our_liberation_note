@@ -177,7 +177,7 @@ class UserView(APIView):
         user = request.user
         user.is_active = False
         user.save()
-        return Response({"message": "계정 삭제 완료!"})
+        return Response({"message": "계정 삭제 완료!"}, status=status.HTTP_204_NO_CONTENT)
 
 
 # 비밀번호 새로 만들기
@@ -558,10 +558,10 @@ class GoogleLoginView(APIView):
 
 
 class MyPageView(APIView):
-    def get(self, request, user_id):
-        profile = get_object_or_404(User, id=user_id)
-        stamp = Stamp.objects.filter(user=user_id)
-        group = UserGroup.objects.filter(members=user_id, status=0)
+    def get(self, request):
+        profile = get_object_or_404(User, id=request.user.id)
+        stamp = Stamp.objects.filter(user=request.user.id)
+        group = UserGroup.objects.filter(members=request.user.id, status=0)
         profileserializer = UserViewSerializer(profile)
         stampserializer = MarkerSerializer(stamp, many=True)
         groupserializer = GroupSerializer(group, many=True)

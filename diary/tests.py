@@ -2,7 +2,6 @@ from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from user.models import User, UserGroup
-
 from .models import Note, PhotoPage, PlanPage, Stamp
 
 
