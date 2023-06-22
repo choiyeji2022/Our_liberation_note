@@ -127,7 +127,7 @@ def open_ai(location_li):
             )
 
     response = openai.Completion.create(
-        model="text-davinci-003", prompt=q_str, max_tokens=7, temperature=0, top_p=1, n=1, stream=false, logprobs=null, stop="\n"
+        model="text-davinci-003", prompt=q_str, max_tokens=7, temperature=0, top_p=1, n=1, stream=False, logprobs=None, stop="\n"
     )
 
     print(response)
