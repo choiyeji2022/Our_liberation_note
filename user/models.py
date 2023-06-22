@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 from .validators import check_password
@@ -103,3 +104,6 @@ class UserGroup(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse("note_detail", kwargs={"group_id": self.id})
