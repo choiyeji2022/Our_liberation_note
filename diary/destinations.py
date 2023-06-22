@@ -4,6 +4,7 @@ import requests
 from bardapi import Bard
 from bs4 import BeautifulSoup as bs
 from haversine import haversine
+import openai
 
 
 def total_distance(path):
@@ -137,9 +138,6 @@ def open_ai(location_li):
     for string in answer_li[0].split('\n'):
         if ": " in string:
             li.append(string.split(": ", 1)[1])
-
-    pprint(start)
-    pprint(end)
 
     return li
 

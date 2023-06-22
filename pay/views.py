@@ -16,6 +16,20 @@ from user.serializers import UserViewSerializer
 from .models import Payment, Subscribe
 from .serializers import SubscribeSerializer
 
+from rest_framework import status
+from rest_framework.response import Response
+
+
+class check_subscription(APIView):
+    def get(self, request, note_id):
+        note = Note.objects.get(id=note_id)
+        group_id = NoteSerializer(note).data["group"]
+        group = UserGroup.objects.get(id=group_id)
+        print(group_id)
+        if group.is_subscribe:
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
 class Success(APIView):
     def get(self, request):
