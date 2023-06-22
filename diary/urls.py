@@ -46,5 +46,4 @@ urlpatterns = [
     path("email/<int:note_id>", views.EmailView.as_view(), name="email"),
 ]
 
-# 활성화, 비 활성화, 강제 중지, 삭제(복구 요청 때문에 영구 삭제는 잘 안함)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

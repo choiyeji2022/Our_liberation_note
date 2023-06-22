@@ -25,8 +25,6 @@ from .serializers import (
     StampSerializer,
 )
 
-# from rest_framework.pagination import PageNumberPagination
-
 
 # 노트 조회 및 생성
 class NoteView(APIView):
