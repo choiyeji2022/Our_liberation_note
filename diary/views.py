@@ -150,6 +150,7 @@ class CommentView(APIView):
         # permission_classes = [permissions.IsAuthenticated]
         comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id)
         comment.delete()
+        # 댓글의 삭제 기능에는 따로 휴지통을 필요로 하지 않기에 
         # delete_comment = CommentSerializer(comment).data
         # delete_comment["status"] = 3
         # serializer = CommentSerializer(comment, data=delete_comment, partial=True)
