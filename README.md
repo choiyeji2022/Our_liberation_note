@@ -1,22 +1,23 @@
 ![footer](https://capsule-render.vercel.app/api?section=footer&height=350&text=Our%20liberation%20note!&color=6FC7E1&desc=우리들의%20해방%20일지&)
 
 ## 목차 🎊
-- [프로젝트 소개](#_🏝_프로젝트_소개)
-- [프로젝트 기획 의도](#💡_프로젝트_기획_의도)
+- [프로젝트 소개](#프로젝트소개)
+- [프로젝트 기획 의도](#프로젝트기획의도)
 - [기능 설명](#🛠_기능_설명_(중요도_⭐️로_표시!))
 - [Stacks](#🚀_Stacks)
 - [Stacks 설명](#🧰_Stack_설명)
+- [Database ERD]
 - [Link](#🔗_Link)
 <br>
 <br>
 
-## 🏝 프로젝트 소개
+## 🏝 프로젝트 소개 {#프로젝트소개}
 친구들과의 여행 계획 및 사진첩 공유와 여행 루트를 짜주는 AI기능을 제공하는 시크릿 사이트!
 
 <br>
 <br>
 
-## 💡 프로젝트 기획 의도
+## 💡 프로젝트 기획 의도 {#프로젝트기획의도}
   - 여름에 맞춰 프로젝트 기획을 하던 도중 여행을 주제로 멤버끼리만 공유하는 시크릿 다이어리를 주제로 진행하게 되었습니다.
   - 기획 진행하며 다이어리는 앱용이 적절하다는 의견이 있었고,
 
@@ -24,8 +25,22 @@
     그 부분을 보안하기 위해 웹사이트만의 장점을 살릴 수 있는
     MBTI 테스트와 AI 요소를 추가해 지금의 웹사이트가 탄생하게 되었습니다!
   - 사용자의 입장에서 바라보며 이목을 끌 수 있을만한 요소들을 팀원들과 다같이 고민하고 흥미로운 기능들을 넣기 위해 많은 노력을 했습니다.
-  - 프라이빗한 다이어리를 주제로 하기 떄문에 모든 기능들을 보기 위해서 제일 먼저 해야할 일은 그룹 생성입니다.
+  - 프라이빗한 다이어리를 주제로 하기 떄문에 저희 웹사이트의 기능들을 온전히 즐기기 위해서 제일 먼저 해야할 일은 그룹 생성입니다.
   - 그룹과 노트 생성 후 노트 상세 페이지로 이동하면 달력과 함께 여러가지 기능(일정추가, 사진첩 생성, AI랑 놀기, 계획표 전송, 해방 필름 등)을 만나 볼 수 있습니다.
+
+
+<br>
+
+
+## ℹ️ 웹사이트 정보
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/3e74ae15-857f-4f45-a51a-f502041ea843" alt="info_main" style="width: 50%;">
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/52794d03-cd2c-434e-a5d2-177cf5fc10d7" alt="info_mydiary" style="width: 50%;">
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/5b26e245-a614-4343-b81b-603ff32183ab" alt="info_plan" style="width: 50%;">
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/5b26e245-a614-4343-b81b-603ff32183ab" alt="info_lifephoto" style="width: 50%;">
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/0f29557c-c257-4032-87f5-78540153b55c" alt="info_AI" style="width: 50%;">
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/09708069-d672-4979-bb64-38e6de623271" alt="info_mypage" style="width: 50%;">
+
+
 <br>
 <br>
 
@@ -140,6 +155,7 @@
 
 
  <br>
+
  
 ## 🚀 Stacks
 
@@ -187,23 +203,7 @@
 ![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=Jenkins&logoColor=white)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<br>
 
 
 <br>
@@ -237,16 +237,21 @@
    
   ![imgage](https://github.com/Msgun7/Our_liberation_note/assets/125116878/320e4810-60be-460f-bed3-f89c7bfcd932)
 
-<br>
-
 - 🍀 GitGub Actions(Frontend)
   - [관련링크](https://hwasurr.io/git-github/github-actions/)↗️
   - 사용 이유
     - 통합성 : 깃허브 플랫폼에 내장되어 있기 때문에 별도의 통합 작업 없이 즉시 사용 가능하기 때문입니다.
     - 간단한 배포 : main.yml 파일을 작성하고, 관련 키를 등록해 주면 되기 때문에 jenkins보다 쉽고 빠르게 배포 가능합니다.
+
    
 <br>
 
+
+## 🛢 Database ERD
+![image](https://github.com/Msgun7/Our_liberation_note/assets/125116878/9863e4c3-48b5-453f-8c63-4c4ad042265b)
+
+
+<br>
 
 
 ## 🔗 Link
@@ -254,3 +259,10 @@
 
 - 참고 사이트
   - [카카오 Maps API](https://apis.map.kakao.com/web/sample/multipleMarkerEvent/)
+ 
+- ⚙️ Developers
+  - [❤️연재건(팀장)](https://github.com/Msgun7)
+  - [💚김미영](https://github.com/kmy9810)
+  - [💙김정은](https://github.com/Eunnylog)
+  - [💜양예린](https://github.com/yell2023)
+  - [💛최예지](https://github.com/choiyeji2022)
