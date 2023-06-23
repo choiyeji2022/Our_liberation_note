@@ -116,7 +116,7 @@ class DetailPhotoPageView(APIView):
 
     # 부분 수정이 유리하게 수정
     def patch(self, request, photo_id):
-        photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
+        photo = get_object_or_404(PhotoPage, id=photo_id)
         serializer = DetailPhotoPageSerializer(photo, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
