@@ -47,6 +47,7 @@ class DetailNoteSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "group",
             "group_set",
             "plan_set",
             "photo_set",
@@ -77,11 +78,6 @@ class PhotoPageSerializer(serializers.ModelSerializer):
             "diary": {"required": False},
         }
 
-    def validate(self, attrs):
-        if check_words(attrs["name"]):
-            raise ValidationError("비속어 사용이 불가합니다!")
-        return attrs
-
 
 class DetailPhotoPageSerializer(serializers.ModelSerializer):
     comment_set = serializers.SerializerMethodField()
@@ -111,6 +107,8 @@ class CommentSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if check_words(attrs["comment"]):
             raise ValidationError("비속어 사용이 불가합니다!")
+        if len(attrs["comment"]) > 30:
+            raise ValidationError("30자 이하로 작성해주세요!")
         return attrs
 
 
