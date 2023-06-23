@@ -7,7 +7,6 @@ import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import EmailMessage
 from django.db.models import Q
-from django.http import QueryDict
 from django.shortcuts import get_object_or_404, redirect
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -24,8 +23,6 @@ from user.serializers import (
     GroupSerializer,
     LoginSerializer,
     SignUpSerializer,
-    TokenObtainPairSerializer,
-    UserListSerializer,
     UserUpdateSerializer,
     UserViewSerializer,
 )
@@ -259,6 +256,7 @@ class GroupView(APIView):
     # 그룹 만들기
     def post(self, request):
         serializer = GroupCreateSerializer(data=request.data)
+        
         if serializer.is_valid():
             group_name = serializer.validated_data.get("name")
             # 이미 같은 이름의 그룹이 있는지 확인
@@ -301,8 +299,9 @@ class GroupDetailView(APIView):
                     .exclude(id=group_id)
                     .exists()
                 ):
+                    error_message = {"message": "같은 이름의 그룹이 이미 존재합니다."}
                     return Response(
-                        {"message": "같은 이름의 그룹이 이미 존재합니다."},
+                        error_message,
                         status=status.HTTP_400_BAD_REQUEST,
                     )
 
