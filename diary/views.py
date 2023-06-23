@@ -151,9 +151,11 @@ class CommentView(APIView):
         )
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
     def patch(self, request, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1])
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
 
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
@@ -313,7 +315,7 @@ class Trash(APIView):
 class StampView(APIView):
     def post(self, request, photo_id):
         try:
-            stamp = Stamp.objects.get(id=photo_id)
+            stamp = Stamp.objects.get(photo_id=photo_id)
             serializer = StampSerializer(stamp, data=request.data)
 
         except Stamp.DoesNotExist:
