@@ -85,7 +85,7 @@ class DetailNoteView(APIView):
 # 사진 페이지
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
-        limit = 2
+        limit = 6
         photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[
             offset : offset + limit
         ]
@@ -111,9 +111,11 @@ class DetailPhotoPageView(APIView):
     # 댓글 저장
     def post(self, request, photo_id):
         serializer = CommentSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             serializer.save(photo_id=photo_id, user_id=request.user.id)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # 부분 수정이 유리하게 수정
@@ -147,26 +149,25 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    def put(self, request, comment_id):
+    def patch(self, request, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
+            Comment, user=request.user, id=comment_id, status__in=[0, 1])
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, comment_id):
-        comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
-        delete_comment = CommentSerializer(comment).data
-        delete_comment["status"] = 3
-        serializer = CommentSerializer(comment, data=delete_comment, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+def delete(self, request, comment_id):
+    comment = get_object_or_404(
+    Comment, user=request.user, id=comment_id
+    )
+    delete_comment = CommentSerializer(comment).data
+    delete_comment["status"] = 3
+    serializer = CommentSerializer(comment, data=delete_comment, partial=True)
+    if serializer.is_valid(raise_exception=True):
+        serializer.save()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PlanPageView(APIView):

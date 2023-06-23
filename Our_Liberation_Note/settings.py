@@ -85,13 +85,9 @@ WSGI_APPLICATION = "Our_Liberation_Note.wsgi.application"
 GUNICORN_TIMEOUT = 300
 
 
-# DATABASES = mysettings.DATABASES
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASES = mysettings.DATABASES
+
+
 
 
 # 이미지 삽입
