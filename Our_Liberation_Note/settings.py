@@ -29,7 +29,6 @@ CORS_ALLOW_HEADERS = [
 ]
 
 
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -123,7 +122,6 @@ TIME_ZONE = "Asia/Seoul"
 USE_I18N = True
 
 USE_TZ = False  # False 로 설정해야 DB에 변경 된 TIME_ZONE 이 반영 됨
-
 
 
 STATIC_URL = "static/"
