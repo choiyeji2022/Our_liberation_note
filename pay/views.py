@@ -1,14 +1,11 @@
 import base64
 import json
 import os
-import time
 
 import jwt
 import requests
 from django.http import HttpResponse
 from django.shortcuts import render
-from rest_framework import permissions, status
-from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from diary.models import Note
@@ -18,6 +15,9 @@ from user.serializers import UserViewSerializer
 
 from .models import Payment, Subscribe
 from .serializers import SubscribeSerializer
+
+from rest_framework import status
+from rest_framework.response import Response
 
 
 class check_subscription(APIView):
@@ -31,7 +31,7 @@ class check_subscription(APIView):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class success(APIView):
+class Success(APIView):
     def get(self, request):
         print(request.user)
         access_token = request.META.get("HTTP_AUTHORIZATION_TOKEN")

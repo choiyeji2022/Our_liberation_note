@@ -25,8 +25,6 @@ from .serializers import (
     StampSerializer,
 )
 
-# from rest_framework.pagination import PageNumberPagination
-
 
 # 노트 조회 및 생성
 class NoteView(APIView):
@@ -187,9 +185,8 @@ class PlanPageView(APIView):
 
     def post(self, request, note_id):
         for plan in request.data["plan_set"]:
-            print(plan)
             serializer = PlanSerializer(data=plan)
-            if serializer.is_valid(raise_exception=True):
+            if serializer.is_valid():
                 serializer.save(diary_id=note_id)
         return Response(status=status.HTTP_200_OK)
 
@@ -369,27 +366,24 @@ class EmailView(APIView):
             }
             filtered_data.append(filtered_item)
 
-        print(filtered_data)
+        formatted_data = ""
 
-        table_headers = ["장소명", "날짜", "위치"]
-        table_data = [
-            [item["title"], item["start"], item["location"]] for item in filtered_data
-        ]
+        for index, item in enumerate(filtered_data, start=1):
+            formatted_data += f"{index}. 장소명: {item['title']}, 날짜: {item['start']}, 위치: {item['location']}\n"
 
-        table = tabulate.tabulate(table_data, headers=table_headers, tablefmt="pretty")
+        print(formatted_data)
 
         subject = f"{note_name}의 일정 안내"
-        message = f"아래는 일정에 대한 정보입니다:\n\n{table}"
+        message = f"아래는 일정에 대한 정보입니다:\n\n{formatted_data}"
 
         recipient_list = request.data["members"]
-        print(recipient_list)
-        send_mail(
-            subject,
-            message,
-            settings.EMAIL_HOST_USER,  # Gmail 계정 이메일 주소
-            recipient_list,
-            fail_silently=False,
-        )
+        # send_mail(
+        #     subject,
+        #     message,
+        #     settings.EMAIL_HOST_USER,  # Gmail 계정 이메일 주소
+        #     recipient_list,
+        #     fail_silently=False,
+        # )
 
         # 이메일 전송 후 리다이렉트 또는 응답 등을 처리
         return Response("이메일이 전송되었습니다.", status=status.HTTP_200_OK)

@@ -77,11 +77,6 @@ class PhotoPageSerializer(serializers.ModelSerializer):
             "diary": {"required": False},
         }
 
-    def validate(self, attrs):
-        if check_words(attrs["name"]):
-            raise ValidationError("비속어 사용이 불가합니다!")
-        return attrs
-
 
 class DetailPhotoPageSerializer(serializers.ModelSerializer):
     comment_set = serializers.SerializerMethodField()
