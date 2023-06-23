@@ -25,8 +25,6 @@ from .serializers import (
     StampSerializer,
 )
 
-# from rest_framework.pagination import PageNumberPagination
-
 
 # 노트 조회 및 생성
 class NoteView(APIView):
@@ -58,6 +56,11 @@ class DetailNoteView(APIView):
     def get(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
         serializer = DetailNoteSerializer(note)
+        group_exists = UserGroup.objects.filter(
+            id=serializer.data["group"], members=request.user
+        ).exists()
+        if not group_exists:
+            return Response(status=status.HTTP_403_FORBIDDEN)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, note_id):
@@ -146,14 +149,14 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    # def get(self, request, comment_id):
-    #     comment = get_object_or_404(
-    #         Comment, user=request.user, id=comment_id)
-    #     serializer = CommentSerializer(comment)
-    #     return Response(serializer.data, status=status.HTTP_200_OK)
-
     def patch(self, request, comment_id):
         comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id)
+
+    def put(self, request, comment_id):
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
+
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -161,24 +164,12 @@ class CommentView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, comment_id):
-        # permission_classes = [permissions.IsAuthenticated]
         comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id)
         comment.delete()
-        # 댓글의 삭제 기능에는 따로 휴지통을 필요로 하지 않기에 
-        # delete_comment = CommentSerializer(comment).data
-        # delete_comment["status"] = 3
-        # serializer = CommentSerializer(comment, data=delete_comment, partial=True)
-        # if serializer.is_valid(raise_exception=True):
-        #     serializer.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PlanPageView(APIView):
-    """
-    미영
-    계획에 대한 전체 조회와 삭제, 생성을 하는 로직
-    """
-
     def get(self, request, note_id):
         plan = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
         serializer = PlanSerializer(plan, many=True)
@@ -186,9 +177,8 @@ class PlanPageView(APIView):
 
     def post(self, request, note_id):
         for plan in request.data["plan_set"]:
-            print(plan)
             serializer = PlanSerializer(data=plan)
-            if serializer.is_valid(raise_exception=True):
+            if serializer.is_valid():
                 serializer.save(diary_id=note_id)
         return Response(status=status.HTTP_200_OK)
 
@@ -368,20 +358,17 @@ class EmailView(APIView):
             }
             filtered_data.append(filtered_item)
 
-        print(filtered_data)
+        formatted_data = ""
 
-        table_headers = ["장소명", "날짜", "위치"]
-        table_data = [
-            [item["title"], item["start"], item["location"]] for item in filtered_data
-        ]
+        for index, item in enumerate(filtered_data, start=1):
+            formatted_data += f"{index}. 장소명: {item['title']}, 날짜: {item['start']}, 위치: {item['location']}\n"
 
-        table = tabulate.tabulate(table_data, headers=table_headers, tablefmt="pretty")
+        print(formatted_data)
 
         subject = f"{note_name}의 일정 안내"
-        message = f"아래는 일정에 대한 정보입니다:\n\n{table}"
+        message = f"아래는 일정에 대한 정보입니다:\n\n{formatted_data}"
 
         recipient_list = request.data["members"]
-        print(recipient_list)
         send_mail(
             subject,
             message,

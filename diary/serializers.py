@@ -47,6 +47,7 @@ class DetailNoteSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "group",
             "group_set",
             "plan_set",
             "photo_set",
@@ -76,11 +77,6 @@ class PhotoPageSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "diary": {"required": False},
         }
-
-    def validate(self, attrs):
-        if check_words(attrs["name"]):
-            raise ValidationError("비속어 사용이 불가합니다!")
-        return attrs
 
 
 class DetailPhotoPageSerializer(serializers.ModelSerializer):
