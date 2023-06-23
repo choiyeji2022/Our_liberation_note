@@ -150,23 +150,24 @@ class DetailPhotoPageView(APIView):
 # 댓글
 class CommentView(APIView):
     def patch(self, request, comment_id):
-        comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id)
-
-    def put(self, request, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
-
+            Comment, user=request.user, id=comment_id, status__in=[0, 1])
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, comment_id):
-        comment = get_object_or_404(Comment, user_id=request.user.id, id=comment_id)
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+def delete(self, request, comment_id):
+    comment = get_object_or_404(
+    Comment, user=request.user, id=comment_id
+    )
+    delete_comment = CommentSerializer(comment).data
+    delete_comment["status"] = 3
+    serializer = CommentSerializer(comment, data=delete_comment, partial=True)
+    if serializer.is_valid(raise_exception=True):
+        serializer.save()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class PlanPageView(APIView):
