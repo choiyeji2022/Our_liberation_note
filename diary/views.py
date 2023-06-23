@@ -107,9 +107,11 @@ class DetailPhotoPageView(APIView):
     # 댓글 저장
     def post(self, request, photo_id):
         serializer = CommentSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             serializer.save(photo_id=photo_id, user_id=request.user.id)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # 부분 수정이 유리하게 수정
@@ -143,10 +145,10 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    def put(self, request, comment_id):
+    def patch(self, request, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
+            Comment, user=request.user, id=comment_id, status__in=[0, 1])
+
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -155,7 +157,7 @@ class CommentView(APIView):
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+            Comment, user=request.user, id=comment_id
         )
         delete_comment = CommentSerializer(comment).data
         delete_comment["status"] = 3
