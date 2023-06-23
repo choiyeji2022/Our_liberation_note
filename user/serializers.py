@@ -106,13 +106,14 @@ class GroupCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if check_words(attrs["name"]):
             raise ValidationError("비속어 사용이 불가합니다!")
-        
-        name = attrs['name']
-        if len(name) < 2 or len(name) > 15 :
+
+        name = attrs["name"]
+        if len(name) < 2 or len(name) > 15:
             raise ValidationError("제한 글자수는 2~15자 입니다!")
-        
+
         return attrs
-    
+
+
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

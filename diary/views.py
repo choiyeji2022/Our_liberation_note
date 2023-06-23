@@ -14,16 +14,10 @@ from user.models import UserGroup
 from user.serializers import GroupSerializer
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (
-    CommentSerializer,
-    DetailNoteSerializer,
-    DetailPhotoPageSerializer,
-    MarkerSerializer,
-    NoteSerializer,
-    PhotoPageSerializer,
-    PlanSerializer,
-    StampSerializer,
-)
+from .serializers import (CommentSerializer, DetailNoteSerializer,
+                          DetailPhotoPageSerializer, MarkerSerializer,
+                          NoteSerializer, PhotoPageSerializer, PlanSerializer,
+                          StampSerializer)
 
 
 # 노트 조회 및 생성
@@ -228,11 +222,15 @@ class DetailPlanPageView(APIView):
 class Trash(APIView):
     def get(self, request):
         group = UserGroup.objects.filter(master_id=request.user.id, status=1)
-        note = Note.objects.filter(group__members=request.user, status=1)
+        note = Note.objects.filter(
+            group__members=request.user, group__status=0, status=1
+        )
         note_ids = Note.objects.filter(group__members=request.user).values_list(
             "id", flat=True
         )
-        photo = PhotoPage.objects.filter(diary_id__in=note_ids, status=1)
+        photo = PhotoPage.objects.filter(
+            diary_id__in=note_ids, diary__group__status=0, diary__status=0, status=1
+        )
         noteserializer = NoteSerializer(note, many=True)
         photoserializer = PhotoPageSerializer(photo, many=True)
         groupserializer = GroupSerializer(group, many=True)
