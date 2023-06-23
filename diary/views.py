@@ -27,7 +27,9 @@ class NoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, group_id):
-        notes = Note.objects.filter(group_id=group_id).order_by("-created_at")
+        notes = Note.objects.filter(group_id=group_id, status="0").order_by(
+            "-created_at"
+        )
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -50,7 +52,7 @@ class NoteView(APIView):
 
 class DetailNoteView(APIView):
     def get(self, request, note_id):
-        note = get_object_or_404(Note, id=note_id)
+        note = get_object_or_404(Note, id=note_id, status="0")
         serializer = DetailNoteSerializer(note)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -94,7 +96,7 @@ class DetailNoteView(APIView):
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
         limit = 8
-        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[
+        photos = PhotoPage.objects.filter(diary_id=note_id, status="0")[
             offset : offset + limit
         ]
         serializer = PhotoPageSerializer(photos, many=True)
@@ -112,7 +114,7 @@ class PhotoPageView(APIView):
 # 사진 상세 페이지
 class DetailPhotoPageView(APIView):
     def get(self, request, photo_id):
-        photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
+        photo = get_object_or_404(PhotoPage, id=photo_id, status="0")
         serializer = DetailPhotoPageSerializer(photo)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -187,7 +189,7 @@ class CommentView(APIView):
 
 class PlanPageView(APIView):
     def get(self, request, note_id):
-        plan = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
+        plan = PlanPage.objects.filter(diary_id=note_id, status="0")
         serializer = PlanSerializer(plan, many=True)
         return Response(serializer.data)
 
@@ -214,7 +216,7 @@ class PlanPageView(APIView):
 # 계획표 페이지
 class DetailPlanPageView(APIView):
     def get(self, request, plan_id):
-        plan = get_object_or_404(PlanPage, id=plan_id, status__in=[0, 1])
+        plan = get_object_or_404(PlanPage, id=plan_id, status="0")
         serializer = PlanSerializer(plan)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -266,7 +268,9 @@ class Trash(APIView):
                 if photo.status == "0":
                     photo.status = "1"
                     photoserializer.save()
-                    return Response(photoserializer.data, status=status.HTTP_200_OK)
+                    return Response(
+                        photoserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
                 elif photo.status == "1":
                     photo.status = "0"
                     photoserializer.save()
@@ -283,7 +287,9 @@ class Trash(APIView):
                 if note.status == "0":
                     note.status = "1"
                     noteserializer.save()
-                    return Response(noteserializer.data, status=status.HTTP_200_OK)
+                    return Response(
+                        noteserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
                 elif note.status == "1":
                     note.status = "0"
                     noteserializer.save()
@@ -300,7 +306,9 @@ class Trash(APIView):
                 if group.status == "0":
                     group.status = "1"
                     groupserializer.save()
-                    return Response(groupserializer.data, status=status.HTTP_200_OK)
+                    return Response(
+                        groupserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
                 elif group.status == "1":
                     group.status = "0"
                     groupserializer.save()
