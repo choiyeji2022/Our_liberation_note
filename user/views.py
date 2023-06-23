@@ -127,7 +127,6 @@ class UserView(APIView):
 
     # 회원 정보 수정
     def patch(self, request):
-        # check_password = request.data.get("check_password")
         current_password = request.data.get("check_password")
         user = User.objects.get(email=request.user)
         new_password = request.data.get("new_password")
@@ -339,7 +338,8 @@ class GroupDetailView(APIView):
 
 
 # 소셜 로그인
-URI = "https://liberation-note.com"
+# URI = "https://liberation-note.com"
+URI = "http://127.0.0.1:5500"
 
 
 # OAuth 인증 url
@@ -387,8 +387,9 @@ class SocialUrlView(APIView):
 # 카카오 소셜 로그인
 class KakaoLoginView(APIView):
     def post(self, request):
-        code = request.data.get("code")
+        code = request.data.get("code") # 카카오에서 인증 후 얻은 code
 
+        # 네이버 API로 액세스 토큰 요청
         access_token = requests.post(
             "https://kauth.kakao.com/" + "oauth/token",
             headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -396,11 +397,14 @@ class KakaoLoginView(APIView):
                 "grant_type": "authorization_code",
                 "client_id": os.environ.get("KAKAO_REST_API_KEY"),
                 "redirect_uri": URI,
-                "code": code,
+                "code": code, # 인증 후 얻은 코드
             },
         )
+        
+        # 발급 받은 토큰에서 access token만 추출
         access_token = access_token.json().get("access_token")
 
+        # 카카오 API로 사용자 정보 요청
         user_data_request = requests.get(
             "https://kapi.kakao.com/v2/user/me",
             headers={
@@ -413,6 +417,7 @@ class KakaoLoginView(APIView):
         email = user_data["email"]
         
         try:
+            # 사용자가 이미 존재하는 경우 (회원가입이 되어 있는 경우)
             user = User.objects.get(email=email)
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -424,8 +429,9 @@ class KakaoLoginView(APIView):
                 status=status.HTTP_200_OK,
             )
         except:
+            # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)
-            user.set_unusable_password()
+            user.set_unusable_password() # 비밀번호 생성 X
             user.save()
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -460,6 +466,7 @@ class NaverLoginView(APIView):
         )
 
         access_token_json = access_token_request.json()
+        # 발급 받은 토큰에서 access token만 추출
         access_token = access_token_json.get("access_token")
 
         # 네이버 API로 사용자 정보 요청
@@ -477,6 +484,7 @@ class NaverLoginView(APIView):
         email = user_data.get("email")
 
         try:
+            # 사용자가 이미 존재하는 경우 (회원가입이 되어 있는 경우)
             user = User.objects.get(email=email)
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -488,8 +496,9 @@ class NaverLoginView(APIView):
                 status=status.HTTP_200_OK,
             )
         except:
+            # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)
-            user.set_unusable_password()
+            user.set_unusable_password() # 비밀번호 생성 X
             user.save()
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -506,7 +515,6 @@ class NaverLoginView(APIView):
 class GoogleLoginView(APIView):
     def post(self, request):
         code = request.data.get("code")
-        # nickname = request.data.get('nickname')
         client_id = os.environ.get("SOCIAL_AUTH_GOOGLE_CLIENT_ID")
         client_secret = os.environ.get("SOCIAL_AUTH_GOOGLE_SECRET")
         redirect_uri = URI
@@ -536,6 +544,7 @@ class GoogleLoginView(APIView):
         email = user_data_json.get("email")
 
         try:
+            # 사용자가 이미 존재하는 경우 (회원가입이 되어 있는 경우)
             user = User.objects.get(email=email)
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -547,8 +556,9 @@ class GoogleLoginView(APIView):
                 status=status.HTTP_200_OK,
             )
         except:
+            # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)
-            user.set_unusable_password()
+            user.set_unusable_password() # 비밀번호 생성 X
             user.save()
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -582,10 +592,11 @@ class UserListView(generics.ListAPIView):
     serializer_class = UserViewSerializer
 
     def get_queryset(self):
-        usersearch = self.request.query_params.get("usersearch", None)
+        usersearch = self.request.query_params.get("usersearch", None)  # 유저 검색어 가져오기
         queryset = User.objects.all()
-
+        
+        # 이메일 필드에서 검색어가 포함된 사용자 찾기
         if usersearch is not None:
             queryset = queryset.filter(Q(email__icontains=usersearch)).distinct()
 
-        return queryset.distinct()
+        return queryset.distinct() # 중복 제거하여 반환
