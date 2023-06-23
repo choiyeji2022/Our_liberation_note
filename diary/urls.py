@@ -30,7 +30,7 @@ urlpatterns = [
         name="detail_plan_page",
     ),
     path(
-        "comment/<int:photo_id>/<int:comment_id>",
+        "comment/<int:comment_id>",
         views.CommentView.as_view(),
         name="comment",
     ),

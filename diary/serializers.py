@@ -111,6 +111,8 @@ class CommentSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if check_words(attrs["comment"]):
             raise ValidationError("비속어 사용이 불가합니다!")
+        if len(attrs["comment"]) > 30:
+            raise ValidationError("30자 이하로 작성해주세요!")
         return attrs
 
 
