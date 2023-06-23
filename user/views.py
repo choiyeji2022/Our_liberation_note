@@ -18,14 +18,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from diary.models import Stamp
 from diary.serializers import MarkerSerializer
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (
-    GroupCreateSerializer,
-    GroupSerializer,
-    LoginSerializer,
-    SignUpSerializer,
-    UserUpdateSerializer,
-    UserViewSerializer,
-)
+from user.serializers import (GroupCreateSerializer, GroupSerializer,
+                              LoginSerializer, SignUpSerializer,
+                              UserUpdateSerializer, UserViewSerializer)
 
 from .validators import check_password
 
@@ -258,7 +253,7 @@ class GroupView(APIView):
     # 그룹 만들기
     def post(self, request):
         serializer = GroupCreateSerializer(data=request.data)
-        
+
         if serializer.is_valid():
             group_name = serializer.validated_data.get("name")
             # 이미 같은 이름의 그룹이 있는지 확인
@@ -347,7 +342,7 @@ class SocialUrlView(APIView):
     def post(self, request):
         social = request.data.get("social", None)
         code = request.data.get("code", None)
-        
+
         # 소셜 로그인 확인 여부
         if social is None:
             return Response(
@@ -411,7 +406,7 @@ class KakaoLoginView(APIView):
         user_datajson = user_data_request.json()
         user_data = user_datajson["kakao_account"]
         email = user_data["email"]
-        
+
         try:
             user = User.objects.get(email=email)
             refresh = RefreshToken.for_user(user)
