@@ -147,9 +147,9 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    def put(self, request, comment_id):
+    def patch(self, request, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+            Comment, user=request.user, id=comment_id
         )
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
@@ -159,7 +159,7 @@ class CommentView(APIView):
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+            Comment, user=request.user, id=comment_id
         )
         delete_comment = CommentSerializer(comment).data
         delete_comment["status"] = 3
