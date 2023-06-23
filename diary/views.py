@@ -14,12 +14,16 @@ from user.models import UserGroup
 from user.serializers import GroupSerializer
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (CommentSerializer, DetailNoteSerializer,
-                          DetailPhotoPageSerializer, MarkerSerializer,
-                          NoteSerializer, PhotoPageSerializer, PlanSerializer,
-                          StampSerializer)
-
-# from rest_framework.pagination import PageNumberPagination
+from .serializers import (
+    CommentSerializer,
+    DetailNoteSerializer,
+    DetailPhotoPageSerializer,
+    MarkerSerializer,
+    NoteSerializer,
+    PhotoPageSerializer,
+    PlanSerializer,
+    StampSerializer,
+)
 
 
 # 노트 조회 및 생성
@@ -54,6 +58,11 @@ class DetailNoteView(APIView):
     def get(self, request, note_id):
         note = get_object_or_404(Note, id=note_id, status="0")
         serializer = DetailNoteSerializer(note)
+        group_exists = UserGroup.objects.filter(
+            id=serializer.data["group"], members=request.user
+        ).exists()
+        if not group_exists:
+            return Response(status=status.HTTP_403_FORBIDDEN)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, note_id):
@@ -75,27 +84,10 @@ class DetailNoteView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-# 노트 조회 및 생성
-
-# 페이지 전체 조회 및 생성 -> 생성시 카테 고리를 보고 나눠 주세요~
-
-
-# class PageView(APIView):
-#     pass
-# class LargeResultsSetPagination(PageNumberPagination):
-#     page_size = 9
-#     page_size_query_param = 'page_size'
-#     max_page_size = 12
-# class StandardResultsSetPagination(PageNumberPagination):
-#     page_size = 6
-#     page_query_param = 'page_size'
-#     max_page_size = 9
-
-
 # 사진 페이지
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
-        limit = 8
+        limit = 2
         photos = PhotoPage.objects.filter(diary_id=note_id, status="0")[
             offset : offset + limit
         ]
@@ -157,14 +149,7 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    def get(self, request, photo_id, comment_id):
-        comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
-        serializer = CommentSerializer(comment)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, photo_id, comment_id):
+    def put(self, request, comment_id):
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
@@ -174,8 +159,7 @@ class CommentView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, photo_id, comment_id):
-        # permission_classes = [permissions.IsAuthenticated]
+    def delete(self, request, comment_id):
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
@@ -196,7 +180,7 @@ class PlanPageView(APIView):
     def post(self, request, note_id):
         for plan in request.data["plan_set"]:
             serializer = PlanSerializer(data=plan)
-            if serializer.is_valid(raise_exception=True):
+            if serializer.is_valid():
                 serializer.save(diary_id=note_id)
         return Response(status=status.HTTP_200_OK)
 
@@ -382,20 +366,17 @@ class EmailView(APIView):
             }
             filtered_data.append(filtered_item)
 
-        print(filtered_data)
+        formatted_data = ""
 
-        table_headers = ["장소명", "날짜", "위치"]
-        table_data = [
-            [item["title"], item["start"], item["location"]] for item in filtered_data
-        ]
+        for index, item in enumerate(filtered_data, start=1):
+            formatted_data += f"{index}. 장소명: {item['title']}, 날짜: {item['start']}, 위치: {item['location']}\n"
 
-        table = tabulate.tabulate(table_data, headers=table_headers, tablefmt="pretty")
+        print(formatted_data)
 
         subject = f"{note_name}의 일정 안내"
-        message = f"아래는 일정에 대한 정보입니다:\n\n{table}"
+        message = f"아래는 일정에 대한 정보입니다:\n\n{formatted_data}"
 
         recipient_list = request.data["members"]
-        print(recipient_list)
         send_mail(
             subject,
             message,
