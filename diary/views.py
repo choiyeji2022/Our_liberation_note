@@ -116,7 +116,7 @@ class DetailPhotoPageView(APIView):
 
     # 부분 수정이 유리하게 수정
     def patch(self, request, photo_id):
-        photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
+        photo = get_object_or_404(PhotoPage, id=photo_id)
         serializer = DetailPhotoPageSerializer(photo, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -145,6 +145,12 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
+    def get(self, request, photo_id, comment_id):
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     def patch(self, request, comment_id):
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1])
@@ -157,7 +163,7 @@ class CommentView(APIView):
 
     def delete(self, request, comment_id):
         comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
         delete_comment = CommentSerializer(comment).data
         delete_comment["status"] = 3
