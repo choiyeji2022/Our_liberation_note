@@ -96,6 +96,8 @@ class DetailPhotoPageSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.EmailField(source="user.email", read_only=True)
+    
     class Meta:
         model = Comment
         fields = "__all__"
