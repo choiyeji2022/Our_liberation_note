@@ -112,22 +112,29 @@ def open_ai(location_li):
 
     answer_li = []
 
-    q_str = ''
+    q_str = '[중요]\n'
 
     for idx, location in enumerate(location_li):
-        q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳 알려 주세요! 설명과 같이요!' \
-                 f'이것에 대한 답변은 "{idx}번:" 형식을 붙여서 답변 해주세요!'
+        if idx == len(location_li)-1:
+            q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳과 설명을 알려 주세요!'
+        else:
+            q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳과 설명을 알려 주세요! 그리고 '
+    #
+    #     if idx == 0:
+    #         break
 
-    if location_li:
-            messages.append(
-                {
-                    "role": "user",
-                    "content": f"내가 이전에 했던 말은 잊고, 대답도 하지 말아줘!! 정보만 주면 됩니다. {q_str}"
-                }
-            )
+    # if location_li:
+    #         messages.append(
+    #             {
+    #                 "role": "user",
+    #                 "content": f"내가 이전에 했던 말은 잊고, 대답도 하지 말아줘!! 정보만 주면 됩니다. {q_str}"
+    #             }
+    #         )
 
+    # q_str += '전체에 대한 대답을 부탁합니다..제발...'
+    print(q_str)
     response = openai.Completion.create(
-        model="text-davinci-003", prompt=q_str, max_tokens=7, temperature=0, top_p=1, n=1, stream=False, logprobs=None, stop="\n"
+        model="text-davinci-002", prompt=q_str, max_tokens=3000
     )
 
     print(response)
@@ -140,9 +147,11 @@ def open_ai(location_li):
 
     li = []
 
-    for string in answer_li[0].split('\n'):
+    for string in answer_li[0].split("\n"):
         if ": " in string:
             li.append(string.split(": ", 1)[1])
+        else:
+            li.append(string[3:])
 
     return li
 

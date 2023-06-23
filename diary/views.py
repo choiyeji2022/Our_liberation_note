@@ -56,6 +56,9 @@ class DetailNoteView(APIView):
     def get(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
         serializer = DetailNoteSerializer(note)
+        group_exists = UserGroup.objects.filter(id=serializer.data['group'], members=request.user).exists()
+        if not group_exists:
+            return Response(status=status.HTTP_403_FORBIDDEN)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def patch(self, request, note_id):

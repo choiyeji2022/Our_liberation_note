@@ -47,6 +47,7 @@ class DetailNoteSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "group",
             "group_set",
             "plan_set",
             "photo_set",
