@@ -6,6 +6,8 @@ import jwt
 import requests
 from django.http import HttpResponse
 from django.shortcuts import render
+from rest_framework import status
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from diary.models import Note
@@ -15,9 +17,6 @@ from user.serializers import UserViewSerializer
 
 from .models import Payment, Subscribe
 from .serializers import SubscribeSerializer
-
-from rest_framework import status
-from rest_framework.response import Response
 
 
 class check_subscription(APIView):

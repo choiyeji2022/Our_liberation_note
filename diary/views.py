@@ -56,7 +56,9 @@ class DetailNoteView(APIView):
     def get(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
         serializer = DetailNoteSerializer(note)
-        group_exists = UserGroup.objects.filter(id=serializer.data['group'], members=request.user).exists()
+        group_exists = UserGroup.objects.filter(
+            id=serializer.data["group"], members=request.user
+        ).exists()
         if not group_exists:
             return Response(status=status.HTTP_403_FORBIDDEN)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -145,14 +147,7 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    def get(self, request, photo_id, comment_id):
-        comment = get_object_or_404(
-            Comment, user=request.user, id=comment_id, status__in=[0, 1]
-        )
-        serializer = CommentSerializer(comment)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, photo_id, comment_id):
+    def put(self, request, comment_id):
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
@@ -162,8 +157,7 @@ class CommentView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, photo_id, comment_id):
-        # permission_classes = [permissions.IsAuthenticated]
+    def delete(self, request, comment_id):
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
@@ -176,11 +170,6 @@ class CommentView(APIView):
 
 
 class PlanPageView(APIView):
-    """
-    미영
-    계획에 대한 전체 조회와 삭제, 생성을 하는 로직
-    """
-
     def get(self, request, note_id):
         plan = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
         serializer = PlanSerializer(plan, many=True)
@@ -380,13 +369,13 @@ class EmailView(APIView):
         message = f"아래는 일정에 대한 정보입니다:\n\n{formatted_data}"
 
         recipient_list = request.data["members"]
-        # send_mail(
-        #     subject,
-        #     message,
-        #     settings.EMAIL_HOST_USER,  # Gmail 계정 이메일 주소
-        #     recipient_list,
-        #     fail_silently=False,
-        # )
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,  # Gmail 계정 이메일 주소
+            recipient_list,
+            fail_silently=False,
+        )
 
         # 이메일 전송 후 리다이렉트 또는 응답 등을 처리
         return Response("이메일이 전송되었습니다.", status=status.HTTP_200_OK)

@@ -1,10 +1,10 @@
 from datetime import datetime
 
+import openai
 import requests
 from bardapi import Bard
 from bs4 import BeautifulSoup as bs
 from haversine import haversine
-import openai
 
 
 def total_distance(path):
@@ -101,6 +101,7 @@ def search(data):
 #     print("bard", end - start)
 #     return li
 
+
 def open_ai(location_li):
     # 회원 정보 기준으로 role 추가?
     start = datetime.now()
@@ -112,13 +113,15 @@ def open_ai(location_li):
 
     answer_li = []
 
-    q_str = '[중요]\n'
+    q_str = "[중요]\n"
 
     for idx, location in enumerate(location_li):
-        if idx == len(location_li)-1:
-            q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳과 설명을 알려 주세요!'
+        if idx == len(location_li) - 1:
+            q_str += f"{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳과 설명을 알려 주세요!"
         else:
-            q_str += f'{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳과 설명을 알려 주세요! 그리고 '
+            q_str += (
+                f"{location[1]}에 위치한 {location[0]} 주변에 추천 할 만한 장소 1곳과 설명을 알려 주세요! 그리고 "
+            )
     #
     #     if idx == 0:
     #         break
@@ -138,7 +141,7 @@ def open_ai(location_li):
     )
 
     print(response)
-    
+
     answer_li.append(response.choices[0].text)
 
     print(answer_li)
