@@ -11,7 +11,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = False
 
 
-ALLOWED_HOSTS = ["https://liberation-note.com/, https://liberation-note.com, http://liberation-note.com/, http://liberation-note.com, http://127.0.0.1:5500, http://127.0.0.1:5500/"]
+ALLOWED_HOSTS = ["liberation-note.com, https://liberation-note.com/, https://liberation-note.com, http://liberation-note.com/, http://liberation-note.com, http://127.0.0.1:5500, http://127.0.0.1:5500/"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
