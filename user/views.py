@@ -15,18 +15,12 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from diary.models import Stamp
+from diary.models import Comment, Note, PhotoPage, PlanPage, Stamp
 from diary.serializers import MarkerSerializer
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (
-    GroupCreateSerializer,
-    GroupSerializer,
-    LoginSerializer,
-    SignUpSerializer,
-    UserUpdateSerializer,
-    UserViewSerializer,
-)
-from diary.models import Note, PlanPage, PhotoPage, Comment, Stamp
+from user.serializers import (GroupCreateSerializer, GroupSerializer,
+                              LoginSerializer, SignUpSerializer,
+                              UserUpdateSerializer, UserViewSerializer)
 
 from .validators import check_password
 
@@ -258,10 +252,10 @@ class GroupView(APIView):
     # 그룹 만들기
     def post(self, request):
         serializer = GroupCreateSerializer(data=request.data)
-        
+
         if serializer.is_valid():
             group_name = serializer.validated_data.get("name")
-            
+
             # 이미 같은 이름의 그룹이 있는지 확인
             if UserGroup.objects.filter(name=group_name).exists():
                 error_message = {"error": "이미 같은 이름의 그룹이 존재합니다."}
@@ -331,23 +325,23 @@ class GroupDetailView(APIView):
         if request.user == group.master:
             group.status = "1"
             group.save()
-            
+
             # 그룹에 속한 노트, 계획, 사진첩, 댓글, 스탬프 상태 변경
             notes = Note.objects.filter(group=group)
             notes.update(status="1")
-            
+
             plan_pages = PlanPage.objects.filter(diary__in=notes)
             plan_pages.update(status="1")
-            
+
             photo_pages = PhotoPage.objects.filter(diary__in=notes)
             photo_pages.update(status="1")
-            
+
             comments = Comment.objects.filter(photo__in=photo_pages)
             comments.update(status="1")
-            
+
             stamps = Stamp.objects.filter(photo__in=photo_pages)
             stamps.update(status="1")
-            
+
             return Response(
                 {"message": "그룹이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
             )
@@ -366,7 +360,7 @@ class SocialUrlView(APIView):
     def post(self, request):
         social = request.data.get("social", None)
         code = request.data.get("code", None)
-        
+
         # 소셜 로그인 확인 여부
         if social is None:
             return Response(
@@ -406,7 +400,7 @@ class SocialUrlView(APIView):
 # 카카오 소셜 로그인
 class KakaoLoginView(APIView):
     def post(self, request):
-        code = request.data.get("code") # 카카오에서 인증 후 얻은 code
+        code = request.data.get("code")  # 카카오에서 인증 후 얻은 code
 
         # 네이버 API로 액세스 토큰 요청
         access_token = requests.post(
@@ -416,10 +410,10 @@ class KakaoLoginView(APIView):
                 "grant_type": "authorization_code",
                 "client_id": os.environ.get("KAKAO_REST_API_KEY"),
                 "redirect_uri": URI,
-                "code": code, # 인증 후 얻은 코드
+                "code": code,  # 인증 후 얻은 코드
             },
         )
-        
+
         # 발급 받은 토큰에서 access token만 추출
         access_token = access_token.json().get("access_token")
 
@@ -434,7 +428,7 @@ class KakaoLoginView(APIView):
         user_datajson = user_data_request.json()
         user_data = user_datajson["kakao_account"]
         email = user_data["email"]
-        
+
         try:
             # 사용자가 이미 존재하는 경우 (회원가입이 되어 있는 경우)
             user = User.objects.get(email=email)
@@ -450,7 +444,7 @@ class KakaoLoginView(APIView):
         except:
             # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)
-            user.set_unusable_password() # 비밀번호 생성 X
+            user.set_unusable_password()  # 비밀번호 생성 X
             user.save()
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -517,7 +511,7 @@ class NaverLoginView(APIView):
         except:
             # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)
-            user.set_unusable_password() # 비밀번호 생성 X
+            user.set_unusable_password()  # 비밀번호 생성 X
             user.save()
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -577,7 +571,7 @@ class GoogleLoginView(APIView):
         except:
             # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)
-            user.set_unusable_password() # 비밀번호 생성 X
+            user.set_unusable_password()  # 비밀번호 생성 X
             user.save()
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
@@ -613,9 +607,9 @@ class UserListView(generics.ListAPIView):
     def get_queryset(self):
         usersearch = self.request.query_params.get("usersearch", None)  # 유저 검색어 가져오기
         queryset = User.objects.all()
-        
+
         # 이메일 필드에서 검색어가 포함된 사용자 찾기
         if usersearch is not None:
             queryset = queryset.filter(Q(email__icontains=usersearch)).distinct()
 
-        return queryset.distinct() # 중복 제거하여 반환
+        return queryset.distinct()  # 중복 제거하여 반환
