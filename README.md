@@ -262,7 +262,7 @@
   - [카카오 Maps API](https://apis.map.kakao.com/web/sample/multipleMarkerEvent/)
  
 - ⚙️ Developers
-  - [❤️연재건(팀장)](https://github.com/Msgun7)
+  - [❤️연제건(팀장)](https://github.com/Msgun7)
   - [💚김미영](https://github.com/kmy9810)
   - [💙김정은](https://github.com/Eunnylog)
   - [💜양예린](https://github.com/yell2023)
