@@ -26,6 +26,7 @@ from user.serializers import (
     UserUpdateSerializer,
     UserViewSerializer,
 )
+from diary.models import Note, PlanPage, PhotoPage, Comment, Stamp
 
 from .validators import check_password
 
@@ -260,6 +261,7 @@ class GroupView(APIView):
         
         if serializer.is_valid():
             group_name = serializer.validated_data.get("name")
+            
             # 이미 같은 이름의 그룹이 있는지 확인
             if UserGroup.objects.filter(name=group_name).exists():
                 error_message = {"error": "이미 같은 이름의 그룹이 존재합니다."}
@@ -327,8 +329,25 @@ class GroupDetailView(APIView):
         )
         # 본인이 생성한 그룹이 맞다면
         if request.user == group.master:
-            group.status = "3"
+            group.status = "1"
             group.save()
+            
+            # 그룹에 속한 노트, 계획, 사진첩, 댓글, 스탬프 상태 변경
+            notes = Note.objects.filter(group=group)
+            notes.update(status="1")
+            
+            plan_pages = PlanPage.objects.filter(diary__in=notes)
+            plan_pages.update(status="1")
+            
+            photo_pages = PhotoPage.objects.filter(diary__in=notes)
+            photo_pages.update(status="1")
+            
+            comments = Comment.objects.filter(photo__in=photo_pages)
+            comments.update(status="1")
+            
+            stamps = Stamp.objects.filter(photo__in=photo_pages)
+            stamps.update(status="1")
+            
             return Response(
                 {"message": "그룹이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
             )
