@@ -126,6 +126,7 @@ class PlanSerializer(serializers.ModelSerializer):
 class StampPhotoSerializer(serializers.ModelSerializer):
     diary_id = serializers.IntegerField(source="diary.id")
     diary_name = serializers.CharField(source="diary.name")
+    group_name = serializers.CharField(source="diary.group.name")
 
     class Meta:
         model = PhotoPage
@@ -139,6 +140,7 @@ class StampPhotoSerializer(serializers.ModelSerializer):
             "status",
             "diary_id",
             "diary_name",
+            "group_name",
         )
 
 
