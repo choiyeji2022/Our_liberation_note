@@ -88,7 +88,6 @@ GUNICORN_TIMEOUT = 300
 DATABASES = mysettings.DATABASES
 
 
-
 # 이미지 삽입
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
