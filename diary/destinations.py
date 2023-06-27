@@ -7,11 +7,12 @@ from bs4 import BeautifulSoup as bs
 from haversine import haversine
 
 
-# 주어진 경로의 총 거리를 계산하는 함수. 
+# 주어진 경로의 총 거리를 계산하는 함수.
 # 경로는 좌표 목록으로 주어지며, 각 좌표는 경도와 위도의 한쌍
 # 이 함수는 haversine 함수를 사용해 각 점 사이의 거리를 계산하고 총합을 반환
 def total_distance(path):
     return sum(haversine(path[i], path[i + 1], unit="km") for i in range(len(path) - 1))
+
 
 #  완전탐색 ->  그리디와 비슷한 가장 가까운 이웃(Nearest Neighbor) 알고리즘사용 -> openai을 사용하기 때문에 시간절약을 위해 변경
 # 검색 함수는 데이터를 받아서 가장 효율적인 경로를 찾아내고, 다른 정보와 함께 결과를 반환
@@ -83,7 +84,6 @@ def search(data):
     end = datetime.now()  # 종료 시간을 기록.
     print("all", end - start)  # 전체 실행 시간을 출력
     return data
-
 
 
 def open_ai(location_li):
