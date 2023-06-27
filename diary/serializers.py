@@ -83,7 +83,7 @@ class DetailPhotoPageSerializer(serializers.ModelSerializer):
     comment_set = serializers.SerializerMethodField()
 
     def get_comment_set(self, obj):
-        comments = Comment.objects.filter(photo_id=obj.id)
+        comments = Comment.objects.filter(photo_id=obj.id, status__in=[0, 1])
         serializer = CommentSerializer(comments, many=True)
         return serializer.data
 
@@ -96,6 +96,8 @@ class DetailPhotoPageSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.EmailField(source="user.email", read_only=True)
+
     class Meta:
         model = Comment
         fields = "__all__"

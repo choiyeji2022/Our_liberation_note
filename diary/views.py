@@ -25,7 +25,9 @@ class NoteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, group_id):
-        notes = Note.objects.filter(group_id=group_id).order_by("-created_at")
+        notes = Note.objects.filter(group_id=group_id, status="0").order_by(
+            "-created_at"
+        )
         serializer = NoteSerializer(notes, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -48,7 +50,7 @@ class NoteView(APIView):
 
 class DetailNoteView(APIView):
     def get(self, request, note_id):
-        note = get_object_or_404(Note, id=note_id)
+        note = get_object_or_404(Note, id=note_id, status="0")
         serializer = DetailNoteSerializer(note)
         group_exists = UserGroup.objects.filter(
             id=serializer.data["group"], members=request.user
@@ -79,8 +81,8 @@ class DetailNoteView(APIView):
 # 사진 페이지
 class PhotoPageView(APIView):
     def get(self, request, note_id, offset=0):
-        limit = 2
-        photos = PhotoPage.objects.filter(diary_id=note_id, status__in=[0, 1])[
+        limit = 6
+        photos = PhotoPage.objects.filter(diary_id=note_id, status="0")[
             offset : offset + limit
         ]
         serializer = PhotoPageSerializer(photos, many=True)
@@ -98,21 +100,23 @@ class PhotoPageView(APIView):
 # 사진 상세 페이지
 class DetailPhotoPageView(APIView):
     def get(self, request, photo_id):
-        photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
+        photo = get_object_or_404(PhotoPage, id=photo_id, status="0")
         serializer = DetailPhotoPageSerializer(photo)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     # 댓글 저장
     def post(self, request, photo_id):
         serializer = CommentSerializer(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             serializer.save(photo_id=photo_id, user_id=request.user.id)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # 부분 수정이 유리하게 수정
     def patch(self, request, photo_id):
-        photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
+        photo = get_object_or_404(PhotoPage, id=photo_id)
         serializer = DetailPhotoPageSerializer(photo, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -141,10 +145,18 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    def put(self, request, comment_id):
+    def get(self, request, photo_id, comment_id):
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request, comment_id):
+        comment = get_object_or_404(
+            Comment, user=request.user, id=comment_id, status__in=[0, 1]
+        )
+
         serializer = CommentSerializer(comment, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -165,7 +177,7 @@ class CommentView(APIView):
 
 class PlanPageView(APIView):
     def get(self, request, note_id):
-        plan = PlanPage.objects.filter(diary_id=note_id, status__in=[0, 1])
+        plan = PlanPage.objects.filter(diary_id=note_id, status="0")
         serializer = PlanSerializer(plan, many=True)
         return Response(serializer.data)
 
@@ -192,7 +204,7 @@ class PlanPageView(APIView):
 # 계획표 페이지
 class DetailPlanPageView(APIView):
     def get(self, request, plan_id):
-        plan = get_object_or_404(PlanPage, id=plan_id, status__in=[0, 1])
+        plan = get_object_or_404(PlanPage, id=plan_id, status="0")
         serializer = PlanSerializer(plan)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -220,11 +232,15 @@ class DetailPlanPageView(APIView):
 class Trash(APIView):
     def get(self, request):
         group = UserGroup.objects.filter(master_id=request.user.id, status=1)
-        note = Note.objects.filter(group__members=request.user, status=1)
+        note = Note.objects.filter(
+            group__members=request.user, group__status=0, status=1
+        )
         note_ids = Note.objects.filter(group__members=request.user).values_list(
             "id", flat=True
         )
-        photo = PhotoPage.objects.filter(diary_id__in=note_ids, status=1)
+        photo = PhotoPage.objects.filter(
+            diary_id__in=note_ids, diary__group__status=0, diary__status=0, status=1
+        )
         noteserializer = NoteSerializer(note, many=True)
         photoserializer = PhotoPageSerializer(photo, many=True)
         groupserializer = GroupSerializer(group, many=True)
@@ -244,7 +260,9 @@ class Trash(APIView):
                 if photo.status == "0":
                     photo.status = "1"
                     photoserializer.save()
-                    return Response(photoserializer.data, status=status.HTTP_200_OK)
+                    return Response(
+                        photoserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
                 elif photo.status == "1":
                     photo.status = "0"
                     photoserializer.save()
@@ -261,7 +279,9 @@ class Trash(APIView):
                 if note.status == "0":
                     note.status = "1"
                     noteserializer.save()
-                    return Response(noteserializer.data, status=status.HTTP_200_OK)
+                    return Response(
+                        noteserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
                 elif note.status == "1":
                     note.status = "0"
                     noteserializer.save()
@@ -278,7 +298,9 @@ class Trash(APIView):
                 if group.status == "0":
                     group.status = "1"
                     groupserializer.save()
-                    return Response(groupserializer.data, status=status.HTTP_200_OK)
+                    return Response(
+                        groupserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
                 elif group.status == "1":
                     group.status = "0"
                     groupserializer.save()
@@ -293,7 +315,7 @@ class Trash(APIView):
 class StampView(APIView):
     def post(self, request, photo_id):
         try:
-            stamp = Stamp.objects.get(id=photo_id)
+            stamp = Stamp.objects.get(photo_id=photo_id)
             serializer = StampSerializer(stamp, data=request.data)
 
         except Stamp.DoesNotExist:

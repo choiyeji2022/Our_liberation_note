@@ -1,31 +1,44 @@
 ![footer](https://capsule-render.vercel.app/api?section=footer&height=350&text=Our%20liberation%20note!&color=6FC7E1&desc=우리들의%20해방%20일지&)
 
 ## 목차 🎊
-- [프로젝트 소개](#🏝-프로젝트-소개)
-- [프로젝트 기획 의도](#💡-프로젝트-기획-의도)
-- [기능 설명](#🛠-기능-설명-(중요도-⭐️로-표시!))
-- [Stacks](#🚀-Stacks)
-- [Stacks 설명](#🧰-Stack-설명)
-- [Link](#🔗-Link)
+- 🏝 프로젝트 소개
+- 💡 프로젝트 기획 의도
+- ℹ️ 웹사이트 정보
+- 🛠 기능 설명
+- 🚀 Stacks
+- 🧰 Stack 선택한 이유
+- 🛢 Database ERD
+- 🔗 Link
 <br>
 <br>
 
-## 🏝 프로젝트 소개
-친구들과의 여행 계획 및 사진첩 공유와 여행 루트를 짜주는 AI기능을 제공하는 시크릿 사이트!
+
+## 🏝 프로젝트 소개 
+  - 친구들과의 여행 계획 및 사진첩 공유와 여행 루트를 짜주는 AI기능을 제공하는 시크릿 사이트!
 
 <br>
 <br>
 
 ## 💡 프로젝트 기획 의도
-  - 여름에 맞춰 프로젝트 기획을 하던 도중 여행을 주제로 멤버끼리만 공유하는 시크릿 다이어리를 주제로 진행하게 되었습니다.
+  - 여름에 맞춰 프로젝트 기획을 하던 도중 여행을 주제로 멤버끼리만 공유하는 시크릿 다이어리를 주제로 진행하였습니다!
   - 기획 진행하며 다이어리는 앱용이 적절하다는 의견이 있었고,
 
 
     그 부분을 보안하기 위해 웹사이트만의 장점을 살릴 수 있는
     MBTI 테스트와 AI 요소를 추가해 지금의 웹사이트가 탄생하게 되었습니다!
-  - 사용자의 입장에서 바라보며 이목을 끌 수 있을만한 요소들을 팀원들과 다같이 고민하고 흥미로운 기능들을 넣기 위해 많은 노력을 했습니다.
-  - 프라이빗한 다이어리를 주제로 하기 떄문에 모든 기능들을 보기 위해서 제일 먼저 해야할 일은 그룹 생성입니다.
-  - 그룹과 노트 생성 후 노트 상세 페이지로 이동하면 달력과 함께 여러가지 기능(일정추가, 사진첩 생성, AI랑 놀기, 계획표 전송, 해방 필름 등)을 만나 볼 수 있습니다.
+  - 사용자의 입장에서 바라보며 이목을 끌 수 있을만한 요소들을 팀원들과 다같이 고민하고 흥미로운 기능들을 넣기 위해 많은 노력을 했습니다!
+  - 프라이빗함이 핵심 키워드이기 떄문에 저희 웹사이트의 기능을 온전히 즐기고 싶으시다면 그룹 생성을 먼저 해주셔야 합니다!
+  - 그룹과 노트 생성 후 노트 상세 페이지로 이동하면 달력과 함께 여러가지 기능(일정추가, 사진첩 생성, AI랑 놀기, 계획표 전송, 해방 필름 등)을 만나 볼 수 있습니다!
+
+
+<br>
+
+
+## ℹ️ 웹사이트 정보
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/cc5a98e0-8001-4a71-8f82-ed49fc90041e" alt="info1">
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/acf6468b-61f5-4166-b4fe-1572d8f2d26a" alt="info2">
+<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/2a6f8f3b-d2fe-4ecf-b8a1-315bb22766fc" alt="info3">
+
 <br>
 <br>
 
@@ -133,6 +146,15 @@
 <br>
 
 <details>
+  <summary>휴지통 기능 (⭐️⭐️⭐️) - 예린</summary>
+
+    - 그룹, 사진, 노트를 삭제하면 휴지통으로 이동
+    - 휴지통에서 복원&삭제 선택 가능
+</details>
+
+<br>
+
+<details>
   <summary>✨Front PM - 예지</summary>
 
     - 예술 팀장
@@ -140,6 +162,7 @@
 
 
  <br>
+
  
 ## 🚀 Stacks
 
@@ -149,13 +172,7 @@
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 ![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
 [![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=Django&logoColor=white)](https://www.djangoproject.com/)
-
-
 [![Django REST Framework](https://img.shields.io/badge/Django%20REST%20Framework-009688?style=for-the-badge&logo=Django&logoColor=white)](https://www.django-rest-framework.org/)
-![Stack Overflow](https://img.shields.io/badge/-Stackoverflow-FE7A16?style=for-the-badge&logo=stack-overflow&logoColor=white)
-![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
-![Google Chrome](https://img.shields.io/badge/Google%20Chrome-4285F4?style=for-the-badge&logo=GoogleChrome&logoColor=white)
-
 
 <br>
 
@@ -183,33 +200,17 @@
 
 ## 👥  Collaboration
 [![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=Slack&logoColor=white)](https://slack.com/)
-![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=GitHub%20Actions&logoColor=white)
-![Jenkins](https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=Jenkins&logoColor=white)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+![Notion](https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white)
+![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
 
 
 <br>
 
 
-## 🧰 Stack 설명
+<br>
+
+
+## 🧰 Stack 선택한 이유
 - 🍀 MYSQL
   - [관련링크](https://www.integrate.io/ko/blog/postgresql-vs-mysql-the-critical-differences-ko/#whydodeveloperschooseoneovertheother)↗️
   - 사용 이유
@@ -237,16 +238,21 @@
    
   ![imgage](https://github.com/Msgun7/Our_liberation_note/assets/125116878/320e4810-60be-460f-bed3-f89c7bfcd932)
 
-<br>
-
 - 🍀 GitGub Actions(Frontend)
   - [관련링크](https://hwasurr.io/git-github/github-actions/)↗️
   - 사용 이유
     - 통합성 : 깃허브 플랫폼에 내장되어 있기 때문에 별도의 통합 작업 없이 즉시 사용 가능하기 때문입니다.
     - 간단한 배포 : main.yml 파일을 작성하고, 관련 키를 등록해 주면 되기 때문에 jenkins보다 쉽고 빠르게 배포 가능합니다.
+
    
 <br>
 
+
+## 🛢 Database ERD
+![image](https://github.com/Msgun7/Our_liberation_note/assets/125116878/9863e4c3-48b5-453f-8c63-4c4ad042265b)
+
+
+<br>
 
 
 ## 🔗 Link
@@ -254,3 +260,10 @@
 
 - 참고 사이트
   - [카카오 Maps API](https://apis.map.kakao.com/web/sample/multipleMarkerEvent/)
+ 
+- ⚙️ Developers
+  - [❤️연제건(팀장)](https://github.com/Msgun7)
+  - [💚김미영](https://github.com/kmy9810)
+  - [💙김정은](https://github.com/Eunnylog)
+  - [💜양예린](https://github.com/yell2023)
+  - [💛최예지](https://github.com/choiyeji2022)
