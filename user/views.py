@@ -89,6 +89,15 @@ class SignupView(APIView):
                 {"message": "인증 코드가 유효하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST
             )
 
+        # 새 비밀번호 유효성 검사
+        try:
+            check_password(password)
+        except ValidationError:
+            return Response(
+                {"message": "8자 이상의 영문 대/소문자, 숫자, 특수문자 조합이어야 합니다!"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         # 비밀번호와 비밀번호 확인 일치 여부 확인
         if password != password2:
             return Response(
@@ -318,29 +327,29 @@ class GroupDetailView(APIView):
         # 활성, 비활성 다 불러오기
         group = get_object_or_404(
             UserGroup.objects.filter(
-                id=group_id, master_id=request.user.id, status__in=["0", "1"]
+                id=group_id, master_id=request.user.id, status__in=["1"]
             )
         )
         # 본인이 생성한 그룹이 맞다면
         if request.user == group.master:
-            group.status = "1"
+            group.status = "3"
             group.save()
 
             # 그룹에 속한 노트, 계획, 사진첩, 댓글, 스탬프 상태 변경
             notes = Note.objects.filter(group=group)
-            notes.update(status="1")
+            notes.update(status="3")
 
             plan_pages = PlanPage.objects.filter(diary__in=notes)
-            plan_pages.update(status="1")
+            plan_pages.update(status="3")
 
             photo_pages = PhotoPage.objects.filter(diary__in=notes)
-            photo_pages.update(status="1")
+            photo_pages.update(status="3")
 
             comments = Comment.objects.filter(photo__in=photo_pages)
-            comments.update(status="1")
+            comments.update(status="3")
 
             stamps = Stamp.objects.filter(photo__in=photo_pages)
-            stamps.update(status="1")
+            stamps.update(status="3")
 
             return Response(
                 {"message": "그룹이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
