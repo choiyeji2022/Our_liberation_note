@@ -252,79 +252,89 @@ class Trash(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        if "location" in request.data:
-            photo = PhotoPage.objects.filter()
-            photoserializer = PhotoPageSerializer(photo, data=request.data)
+        if "group_set" in request.data:
+            group_set = request.data.get("group_set", [])
+            updated_groups = []
 
-            if photoserializer.is_valid():
-                if photo.status == "0":
-                    photo.status = "1"
-                    photoserializer.save()
-                    return Response(
-                        photoserializer.data, status=status.HTTP_202_ACCEPTED
-                    )
-                elif photo.status == "1":
-                    photo.status = "0"
-                    photoserializer.save()
-                    return Response(photoserializer.data, status=status.HTTP_200_OK)
+            for group_data in group_set:
+                group_id = group_data.get("id")
+                group = get_object_or_404(UserGroup, id=group_id)
+                group_serializer = GroupSerializer(group, data=group_data)
+
+                if group_serializer.is_valid():
+                    if group.status == "0":
+                        group.status = "1"
+                        status_code = status.HTTP_202_ACCEPTED
+
+                    elif group.status == "1":
+                        group.status = "0"
+                        status_code = status.HTTP_200_OK
+
+                    group_serializer.save()
+                    updated_groups.append(group_serializer.data)
+
                 else:
                     return Response(
-                        photoserializer.errors, status=status.HTTP_400_BAD_REQUEST
+                        group_serializer.errors, status=status.HTTP_400_BAD_REQUEST
                     )
-        # elif "group" in request.data:
-        #     note = Note.objects.filter()
-        #     noteserializer = NoteSerializer(note, data=request.data,many=True)
 
-        #     if noteserializer.is_valid():
-        #         if note.status == "0":
-        #             note.status = "1"
-        #             noteserializer.save()
-        #             return Response(
-        #                 noteserializer.data, status=status.HTTP_202_ACCEPTED
-        #             )
-        #         elif note.status == "1":
-        #             note.status = "0"
-        #             noteserializer.save()
-        #             return Response(noteserializer.data, status=status.HTTP_200_OK)
-        #         else:
-        #             return Response(
-        #                 noteserializer.errors, status=status.HTTP_400_BAD_REQUEST
-        #             )
-        # else:
+            return Response(updated_groups, status=status_code)
 
-    #  계속 {
+        elif "note_set" in request.data:
+            note_set = request.data.get("note_set", [])
+            updated_notes = []
 
+            for note_data in note_set:
+                note_id = note_data.get("id")
+                note = get_object_or_404(Note, id=note_id)
+                note_serializer = NoteSerializer(note, data=note_data)
 
-#     "non_field_errors": [
-#         "Expected a list of items but got type \"dict\"."
-#     ]
-# } 이런 오류가 남...
-# group_ids = [group["id"] for group in request.data.get("group_set", [])]
-# groups = UserGroup.objects.filter(id__in=group_ids)
-# print(group_ids)
-# print(groups)
-# print(request.data)
+                if note_serializer.is_valid():
+                    if note.status == "0":
+                        note.status = "1"
+                        status_code = status.HTTP_202_ACCEPTED
 
-# groupserializer = GroupSerializer(groups, data=request.data, many=True)
+                    elif note.status == "1":
+                        note.status = "0"
+                        status_code = status.HTTP_200_OK
 
-# if groupserializer.is_valid():
-#     for group in groups:
-#         if group.status == "0":
-#             group.status = "1"
-#             groupserializer.save()
-#             return Response(
-#                 groupserializer.data, status=status.HTTP_202_ACCEPTED
-#             )
-#         elif group.status == "1":
-#             group.status = "0"
-#             groupserializer.save()
-#             return Response(groupserializer.data, status=status.HTTP_200_OK)
-#         else:
-#             return Response(
-#                 groupserializer.errors, status=status.HTTP_400_BAD_REQUEST
-#             )
-# else:
-#     return Response(groupserializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    note_serializer.save()
+                    updated_notes.append(note_serializer.data)
+
+                else:
+                    return Response(
+                        note_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            return Response(updated_notes, status=status_code)
+
+        else:
+            photo_set = request.data.get("photo_set", [])
+            updated_photos = []
+
+            for photo_data in photo_set:
+                photo_id = photo_data.get("id")
+                photo = get_object_or_404(PhotoPage, id=photo_id)
+                photo_serializer = PhotoPageSerializer(photo, data=photo_data)
+
+                if photo_serializer.is_valid():
+                    if photo.status == "0":
+                        photo.status = "1"
+                        status_code = status.HTTP_202_ACCEPTED
+
+                    elif photo.status == "1":
+                        photo.status = "0"
+                        status_code = status.HTTP_200_OK
+
+                    photo_serializer.save()
+                    updated_photos.append(photo_serializer.data)
+
+                else:
+                    return Response(
+                        photo_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            return Response(updated_photos, status=status_code)
 
 
 # 스탬프

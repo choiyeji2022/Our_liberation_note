@@ -43,10 +43,8 @@ urlpatterns = [
         views.CommentView.as_view(),
         name="comment",
     ),
-    # 휴지통 조회
+    # 휴지통 조회, 임시 삭제 & 복원
     path("trash", views.Trash.as_view(), name="trash"),
-    # 휴지통 영구 삭제
-    path("trash/<int:pk>", views.Trash.as_view(), name="trash"),
     # 스탬프 저장, 수정
     path("stamp/<int:photo_id>", views.StampView.as_view(), name="stamp"),
     # 스탬프 조회
