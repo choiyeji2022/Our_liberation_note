@@ -324,7 +324,7 @@ class GroupDetailView(APIView):
 
     # 그룹 삭제하기
     def delete(self, request, group_id):
-        # 활성, 비활성 다 불러오기
+        # 활성상태 불러오기
         group = get_object_or_404(
             UserGroup.objects.filter(
                 id=group_id, master_id=request.user.id, status__in=["1"]
@@ -360,9 +360,7 @@ class GroupDetailView(APIView):
 
 
 # 소셜 로그인
-# URI = "https://liberation-note.com"
-URI = "http://127.0.0.1:5500"
-
+URI = "https://liberation-note.com"
 
 # OAuth 인증 url
 class SocialUrlView(APIView):
