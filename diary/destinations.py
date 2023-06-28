@@ -154,4 +154,5 @@ def crawling_data(answer_li):
 
     end = datetime.now()
     print("crawling", end - start)
+    print(data_li)
     return data_li
