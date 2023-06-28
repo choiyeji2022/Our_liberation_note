@@ -28,7 +28,7 @@ from .validators import check_password
 # 이메일 전송
 class SendEmail(APIView):
     def post(self, request):
-        subject = "[우리들의 해방일지] 인증 번호를 확인해주세요."
+        subject = "[우리들의 해방일지] 인증 코드를 확인해주세요!"
         user_email = request.data.get("email")
         random_code = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=6)

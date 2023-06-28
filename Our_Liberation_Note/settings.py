@@ -72,7 +72,6 @@ INSTALLED_APPS = [
     "user",
     "diary",
     "pay",
-    "storages",
 ]
 
 REST_FRAMEWORK = {
@@ -152,7 +151,7 @@ USE_I18N = True
 USE_TZ = False  # False 로 설정해야 DB에 변경 된 TIME_ZONE 이 반영 됨
 
 
-# STATIC_URL = "static/"
+STATIC_URL = "static/"
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

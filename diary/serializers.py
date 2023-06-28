@@ -69,11 +69,20 @@ class ImageField(serializers.Field):
 
 
 class PhotoPageSerializer(serializers.ModelSerializer):
-    image = ImageField(allow_null=True, required=False)
+    # image = ImageField(allow_null=True, required=False)
 
     class Meta:
         model = PhotoPage
         fields = "__all__"
+        extra_kwargs = {
+            "diary": {"required": False},
+        }
+
+
+class PatchPhotoPageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PhotoPage
+        exclude = ['image']
         extra_kwargs = {
             "diary": {"required": False},
         }
@@ -126,6 +135,7 @@ class PlanSerializer(serializers.ModelSerializer):
 class StampPhotoSerializer(serializers.ModelSerializer):
     diary_id = serializers.IntegerField(source="diary.id")
     diary_name = serializers.CharField(source="diary.name")
+    group_name = serializers.CharField(source="diary.group.name")
 
     class Meta:
         model = PhotoPage
@@ -139,6 +149,7 @@ class StampPhotoSerializer(serializers.ModelSerializer):
             "status",
             "diary_id",
             "diary_name",
+            "group_name",
         )
 
 
