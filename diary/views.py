@@ -23,6 +23,7 @@ from .serializers import (
     PhotoPageSerializer,
     PlanSerializer,
     StampSerializer,
+    PatchPhotoPageSerializer,
 )
 
 
@@ -134,18 +135,14 @@ class DetailPhotoPageView(APIView):
         delete_photo = DetailPhotoPageSerializer(photo).data
         delete_photo["status"] = 3
 
-        # image_file_path = photo.image.path
-        # image_file_name = os.path.basename(image_file_path)
+        print(delete_photo)
 
-        # with open(image_file_path, "rb") as f:
-        #     image_data = f.read()
-
-        # delete_photo["image"] = SimpleUploadedFile(image_file_name, image_data)
-
-        serializer = PhotoPageSerializer(photo, data=delete_photo, partial=True)
-        if serializer.is_valid(raise_exception=True):
+        serializer = PatchPhotoPageSerializer(photo, data=delete_photo, partial=True)
+        if serializer.is_valid():
             serializer.save()
-
+        else:
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
