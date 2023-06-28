@@ -69,7 +69,7 @@ class ImageField(serializers.Field):
 
 
 class PhotoPageSerializer(serializers.ModelSerializer):
-    image = ImageField(allow_null=True, required=False)
+    # image = ImageField(allow_null=True, required=False)
 
     class Meta:
         model = PhotoPage

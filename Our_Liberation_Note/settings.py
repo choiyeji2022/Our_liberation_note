@@ -15,34 +15,6 @@ ALLOWED_HOSTS = ["*"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-#  s3 설정
-if DEBUG:
-    # aws settings
-    AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
-    AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
-    AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
-    AWS_S3_SIGNATURE_NAME = ("s3v4",)
-    AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
-    AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = None
-    AWS_S3_VERITY = True
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-    AWS_S3_CUSTOM_DOMAIN = (
-        f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
-    )
-    STATIC_LOCATION = "static"
-    STATIC_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{STATIC_LOCATION}/"
-    PUBLIC_MEDIA_LOCATION = "media"
-    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/"
-else:
-    STATIC_URL = "/staticfiles/"
-    STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-    MEDIA_URL = "/mediafiles/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
-
-    STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
-
-
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -72,7 +44,6 @@ INSTALLED_APPS = [
     "user",
     "diary",
     "pay",
-    "storages",
 ]
 
 REST_FRAMEWORK = {
@@ -114,17 +85,12 @@ WSGI_APPLICATION = "Our_Liberation_Note.wsgi.application"
 GUNICORN_TIMEOUT = 300
 
 
-# DATABASES = mysettings.DATABASES
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASES = mysettings.DATABASES
+
 
 # 이미지 삽입
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-# MEDIA_URL = "/media/"
+MEDIA_URL = "/media/"
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -152,7 +118,7 @@ USE_I18N = True
 USE_TZ = False  # False 로 설정해야 DB에 변경 된 TIME_ZONE 이 반영 됨
 
 
-# STATIC_URL = "static/"
+STATIC_URL = "static/"
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

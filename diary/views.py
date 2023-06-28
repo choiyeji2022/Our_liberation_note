@@ -134,13 +134,13 @@ class DetailPhotoPageView(APIView):
         delete_photo = DetailPhotoPageSerializer(photo).data
         delete_photo["status"] = 3
 
-        image_file_path = photo.image.path
-        image_file_name = os.path.basename(image_file_path)
+        # image_file_path = photo.image.path
+        # image_file_name = os.path.basename(image_file_path)
 
-        with open(image_file_path, "rb") as f:
-            image_data = f.read()
+        # with open(image_file_path, "rb") as f:
+        #     image_data = f.read()
 
-        delete_photo["image"] = SimpleUploadedFile(image_file_name, image_data)
+        # delete_photo["image"] = SimpleUploadedFile(image_file_name, image_data)
 
         serializer = PhotoPageSerializer(photo, data=delete_photo, partial=True)
         if serializer.is_valid(raise_exception=True):
@@ -257,90 +257,64 @@ class Trash(APIView):
         }
         return Response(data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        if "group_set" in request.data:
-            group_set = request.data.get("group_set", [])
-            updated_groups = []
+    def post(self, request, pk):
+        if "location" in request.data:
+            photo = get_object_or_404(PhotoPage, id=pk)
+            photoserializer = PhotoPageSerializer(photo, data=request.data)
 
-            for group_data in group_set:
-                group_id = group_data.get("id")
-                group = get_object_or_404(UserGroup, id=group_id)
-                group_serializer = GroupSerializer(group, data=group_data)
-
-                if group_serializer.is_valid():
-                    if group.status == "0":
-                        group.status = "1"
-                        status_code = status.HTTP_202_ACCEPTED
-
-                    elif group.status == "1":
-                        group.status = "0"
-                        status_code = status.HTTP_200_OK
-
-                    group_serializer.save()
-                    updated_groups.append(group_serializer.data)
-
+            if photoserializer.is_valid():
+                if photo.status == "0":
+                    photo.status = "1"
+                    photoserializer.save()
+                    return Response(
+                        photoserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
+                elif photo.status == "1":
+                    photo.status = "0"
+                    photoserializer.save()
+                    return Response(photoserializer.data, status=status.HTTP_200_OK)
                 else:
                     return Response(
-                        group_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                        photoserializer.errors, status=status.HTTP_400_BAD_REQUEST
                     )
+        elif "group" in request.data:
+            note = get_object_or_404(Note, id=pk)
+            noteserializer = NoteSerializer(note, data=request.data)
 
-            return Response(updated_groups, status=status_code)
-
-        elif "note_set" in request.data:
-            note_set = request.data.get("note_set", [])
-            updated_notes = []
-
-            for note_data in note_set:
-                note_id = note_data.get("id")
-                note = get_object_or_404(Note, id=note_id)
-                note_serializer = NoteSerializer(note, data=note_data)
-
-                if note_serializer.is_valid():
-                    if note.status == "0":
-                        note.status = "1"
-                        status_code = status.HTTP_202_ACCEPTED
-
-                    elif note.status == "1":
-                        note.status = "0"
-                        status_code = status.HTTP_200_OK
-
-                    note_serializer.save()
-                    updated_notes.append(note_serializer.data)
-
+            if noteserializer.is_valid():
+                if note.status == "0":
+                    note.status = "1"
+                    noteserializer.save()
+                    return Response(
+                        noteserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
+                elif note.status == "1":
+                    note.status = "0"
+                    noteserializer.save()
+                    return Response(noteserializer.data, status=status.HTTP_200_OK)
                 else:
                     return Response(
-                        note_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                        noteserializer.errors, status=status.HTTP_400_BAD_REQUEST
                     )
-
-            return Response(updated_notes, status=status_code)
-
         else:
-            photo_set = request.data.get("photo_set", [])
-            updated_photos = []
+            group = get_object_or_404(UserGroup, id=pk)
+            groupserializer = GroupSerializer(group, data=request.data)
 
-            for photo_data in photo_set:
-                photo_id = photo_data.get("id")
-                photo = get_object_or_404(PhotoPage, id=photo_id)
-                photo_serializer = PhotoPageSerializer(photo, data=photo_data)
-
-                if photo_serializer.is_valid():
-                    if photo.status == "0":
-                        photo.status = "1"
-                        status_code = status.HTTP_202_ACCEPTED
-
-                    elif photo.status == "1":
-                        photo.status = "0"
-                        status_code = status.HTTP_200_OK
-
-                    photo_serializer.save()
-                    updated_photos.append(photo_serializer.data)
-
+            if groupserializer.is_valid():
+                if group.status == "0":
+                    group.status = "1"
+                    groupserializer.save()
+                    return Response(
+                        groupserializer.data, status=status.HTTP_202_ACCEPTED
+                    )
+                elif group.status == "1":
+                    group.status = "0"
+                    groupserializer.save()
+                    return Response(groupserializer.data, status=status.HTTP_200_OK)
                 else:
                     return Response(
-                        photo_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                        groupserializer.errors, status=status.HTTP_400_BAD_REQUEST
                     )
-
-            return Response(updated_photos, status=status_code)
 
 
 # 스탬프
