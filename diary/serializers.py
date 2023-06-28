@@ -82,7 +82,7 @@ class PhotoPageSerializer(serializers.ModelSerializer):
 class PatchPhotoPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhotoPage
-        exclude = ['image']
+        exclude = ["image"]
         extra_kwargs = {
             "diary": {"required": False},
         }
