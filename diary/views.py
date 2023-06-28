@@ -250,7 +250,7 @@ class Trash(APIView):
     def post(self, request, pk):
         if "location" in request.data:
             photo = get_object_or_404(PhotoPage, id=pk)
-            photoserializer = PhotoPageSerializer(photo, data=request.data)
+            photoserializer = PatchPhotoPageSerializer(photo, data=request.data)
 
             if photoserializer.is_valid():
                 if photo.status == "0":
