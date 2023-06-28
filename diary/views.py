@@ -134,13 +134,13 @@ class DetailPhotoPageView(APIView):
         delete_photo = DetailPhotoPageSerializer(photo).data
         delete_photo["status"] = 3
 
-        image_file_path = photo.image.path
-        image_file_name = os.path.basename(image_file_path)
+        # image_file_path = photo.image.path
+        # image_file_name = os.path.basename(image_file_path)
 
-        with open(image_file_path, "rb") as f:
-            image_data = f.read()
+        # with open(image_file_path, "rb") as f:
+        #     image_data = f.read()
 
-        delete_photo["image"] = SimpleUploadedFile(image_file_name, image_data)
+        # delete_photo["image"] = SimpleUploadedFile(image_file_name, image_data)
 
         serializer = PhotoPageSerializer(photo, data=delete_photo, partial=True)
         if serializer.is_valid(raise_exception=True):
