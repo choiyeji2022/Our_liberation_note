@@ -18,9 +18,14 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from diary.models import Comment, Note, PhotoPage, PlanPage, Stamp
 from diary.serializers import MarkerSerializer
 from user.models import CheckEmail, User, UserGroup
-from user.serializers import (GroupCreateSerializer, GroupSerializer,
-                              LoginSerializer, SignUpSerializer,
-                              UserUpdateSerializer, UserViewSerializer)
+from user.serializers import (
+    GroupCreateSerializer,
+    GroupSerializer,
+    LoginSerializer,
+    SignUpSerializer,
+    UserUpdateSerializer,
+    UserViewSerializer,
+)
 
 from .validators import check_password
 
@@ -361,6 +366,7 @@ class GroupDetailView(APIView):
 
 # 소셜 로그인
 URI = "https://liberation-note.com"
+
 
 # OAuth 인증 url
 class SocialUrlView(APIView):
