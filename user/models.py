@@ -83,7 +83,7 @@ class UserGroup(models.Model):
     master = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name="그룹장", related_name="master_group"
     )
-    name = models.CharField("그룹 이름", max_length=15)
+    name = models.CharField("그룹 이름", max_length=20)
     created_at = models.DateTimeField("생성일", auto_now_add=True)
     updated_at = models.DateTimeField("업데이트", auto_now=True)
     status = models.CharField("상태", choices=status_choice, max_length=1, default="0")
