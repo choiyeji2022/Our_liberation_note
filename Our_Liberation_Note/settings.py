@@ -123,6 +123,7 @@ DATABASES = mysettings.DATABASES
 
 # 이미지 삽입
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
 # MEDIA_URL = "/media/"
 
 
