@@ -376,8 +376,7 @@ class GroupDetailView(APIView):
 
 
 # 소셜 로그인
-# URI = "https://liberation-note.com"
-URI = "http://127.0.0.1:8000"
+URI = "https://liberation-note.com"
 
 
 # OAuth 인증 url
