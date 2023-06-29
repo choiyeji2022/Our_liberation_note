@@ -16,7 +16,7 @@ status_choice = (
 
 
 class CheckEmail(models.Model):
-    email = models.EmailField("인증용 이메일", max_length=100, unique=True)
+    email = models.EmailField("인증용 이메일", max_length=100)
     code = models.CharField("확인용 코드", max_length=6, unique=True)
     try_num = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -83,7 +83,7 @@ class UserGroup(models.Model):
     master = models.ForeignKey(
         User, on_delete=models.CASCADE, verbose_name="그룹장", related_name="master_group"
     )
-    name = models.CharField("그룹 이름", max_length=15)
+    name = models.CharField("그룹 이름", max_length=255)
     created_at = models.DateTimeField("생성일", auto_now_add=True)
     updated_at = models.DateTimeField("업데이트", auto_now=True)
     status = models.CharField("상태", choices=status_choice, max_length=1, default="0")

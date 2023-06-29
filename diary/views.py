@@ -95,7 +95,7 @@ class DetailNoteView(APIView):
 
     def patch(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
-        serializer = NoteSerializer(note, data=request.data)
+        serializer = NoteSerializer(note, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

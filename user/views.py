@@ -28,8 +28,8 @@ from .validators import check_password
 # 이메일 전송
 class SendEmail(APIView):
     def post(self, request):
-        subject = "인증 번호를 확인해주세요."
-        email = request.data.get("email")
+        subject = "[우리들의 해방일지] 인증 코드를 확인해주세요!"
+        user_email = request.data.get("email")
         random_code = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=6)
         )  # 6자리 랜덤 문자열 생성
@@ -37,12 +37,12 @@ class SendEmail(APIView):
         email = EmailMessage(
             subject,
             body,
-            to=[email],
+            to=[user_email],
         )
         email.send()
 
         # 인증 코드 DB에 저장
-        code = CheckEmail.objects.create(code=random_code, email=email)
+        code = CheckEmail.objects.create(code=random_code, email=user_email)
 
         return Response(
             {"message": "이메일을 전송했습니다. 메일함을 확인하세요.", "code": code.id},
@@ -67,19 +67,24 @@ class SignupView(APIView):
         except ObjectDoesNotExist:
             pass
 
-        # 유효 기간 확인
-        try:
-            code_obj = CheckEmail.objects.get(code=code)
-            if code_obj.expires_at < datetime.now():
-                # 인증 코드 유효 기간이 지난 경우
-                code_obj.delete()
-                return Response(
-                    {"message": "인증 코드 유효 기간이 지났습니다."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        except CheckEmail.DoesNotExist:
+        # 가장 최근인 인증코드 인스턴스
+        code_obj = (
+            CheckEmail.objects.filter(email=email).order_by("-created_at").first()
+        )
+        print(code_obj)
+
+        # 인증코드가 없는 경우
+        if code_obj is None:
             return Response(
-                {"message": "이메일 확인 코드가 유효하지 않습니다."},
+                {"message": "해당 메일로 보낸 인증 코드가 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # 인증 코드 유효 기간이 지난 경우
+        if code_obj.expires_at < datetime.now():
+            code_obj.delete()
+            return Response(
+                {"message": "인증 코드 유효 기간이 지났습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -198,27 +203,29 @@ class ChangePassword(APIView):
                 {"message": "비밀번호 찾기를 위한 이메일이 일치하지 않습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        # 가장 최근인 인증코드 인스턴스
+        code_obj = (
+            CheckEmail.objects.filter(email=email).order_by("-created_at").first()
+        )
+
+        # 인증코드가 없는 경우
+        if code_obj is None:
+            return Response(
+                {"message": "해당 메일로 보낸 인증 코드가 없습니다."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # 유효 기간 확인
-        try:
-            code_obj = CheckEmail.objects.get(code=code)
-            if code_obj.expires_at < datetime.now():
-                # 인증 코드 유효 기간이 지난 경우
-                code_obj.delete()
-                return Response(
-                    {"message": "인증 코드 유효 기간이 지났습니다."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        except CheckEmail.DoesNotExist:
+        if code_obj.expires_at < datetime.now():
+            # 인증 코드 유효 기간이 지난 경우
+            code_obj.delete()
             return Response(
-                {"message": "이메일 확인 코드가 유효하지 않습니다."},
+                {"message": "인증 코드 유효 기간이 지났습니다."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         # 인증 코드 일치하는지 확인
-        try:
-            code_obj = CheckEmail.objects.get(code=code)
-        except CheckEmail.DoesNotExist:
+        if code_obj.code != code:
             return Response(
                 {"message": "이메일 확인 코드가 유효하지 않습니다."}, status=status.HTTP_400_BAD_REQUEST
             )
@@ -367,7 +374,6 @@ class GroupDetailView(APIView):
 
 # 소셜 로그인
 URI = "https://liberation-note.com"
-# URI = "http://127.0.0.1:5500"
 
 
 # OAuth 인증 url
