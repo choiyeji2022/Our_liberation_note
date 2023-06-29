@@ -54,23 +54,7 @@ class DetailNoteSerializer(serializers.ModelSerializer):
         ]
 
 
-class ImageField(serializers.Field):
-    def to_internal_value(self, data):
-        if data is None:
-            return None
-
-        # Assuming data is the file data from the request
-        return SimpleUploadedFile(data.name, data.read())
-
-    def to_representation(self, value):
-        if value:
-            return value.url
-        return None
-
-
 class PhotoPageSerializer(serializers.ModelSerializer):
-    # image = ImageField(allow_null=True, required=False)
-
     class Meta:
         model = PhotoPage
         fields = "__all__"
@@ -82,7 +66,7 @@ class PhotoPageSerializer(serializers.ModelSerializer):
 class PatchPhotoPageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PhotoPage
-        exclude = ['image']
+        exclude = ["image"]
         extra_kwargs = {
             "diary": {"required": False},
         }

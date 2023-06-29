@@ -282,6 +282,48 @@ class GroupView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    # 그룹 삭제하기
+    def delete(self, request):
+        group_ids = request.data.get("group_ids")
+
+        for id in group_ids:
+            # 비활성 불러오기
+            group = get_object_or_404(
+                UserGroup.objects.filter(
+                    id=id["id"], master_id=request.user.id, status__in=["1"]
+                )
+            )
+            # 본인이 생성한 그룹이 맞다면
+            if request.user == group.master:
+                group.status = "3"
+                group.save()
+
+                # 그룹에 속한 노트, 계획, 사진첩, 댓글, 스탬프 상태 변경
+                notes = Note.objects.filter(group=group)
+                notes.update(status="3")
+
+                plan_pages = PlanPage.objects.filter(diary__in=notes)
+                plan_pages.update(status="3")
+
+                photo_pages = PhotoPage.objects.filter(diary__in=notes)
+                photo_pages.update(status="3")
+
+                comments = Comment.objects.filter(photo__in=photo_pages)
+                comments.update(status="3")
+
+                stamps = Stamp.objects.filter(photo__in=photo_pages)
+                stamps.update(status="3")
+
+                status_code = status.HTTP_204_NO_CONTENT
+                message = "그룹이 삭제되었습니다."
+
+            # 본인이 생성한 그룹이 아니라면
+            else:
+                status_code = status.HTTP_403_FORBIDDEN
+                message = "권한이 없습니다."
+
+        return Response({"message": message}, status=status_code)
+
 
 class GroupDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -323,42 +365,6 @@ class GroupDetailView(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # 본인이 생성한 그룹이 아니라면
-        else:
-            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-
-    # 그룹 삭제하기
-    def delete(self, request, group_id):
-        # 활성, 비활성 다 불러오기
-        group = get_object_or_404(
-            UserGroup.objects.filter(
-                id=group_id, master_id=request.user.id, status__in=["1"]
-            )
-        )
-        # 본인이 생성한 그룹이 맞다면
-        if request.user == group.master:
-            group.status = "3"
-            group.save()
-
-            # 그룹에 속한 노트, 계획, 사진첩, 댓글, 스탬프 상태 변경
-            notes = Note.objects.filter(group=group)
-            notes.update(status="3")
-
-            plan_pages = PlanPage.objects.filter(diary__in=notes)
-            plan_pages.update(status="3")
-
-            photo_pages = PhotoPage.objects.filter(diary__in=notes)
-            photo_pages.update(status="3")
-
-            comments = Comment.objects.filter(photo__in=photo_pages)
-            comments.update(status="3")
-
-            stamps = Stamp.objects.filter(photo__in=photo_pages)
-            stamps.update(status="3")
-
-            return Response(
-                {"message": "그룹이 삭제되었습니다."}, status=status.HTTP_204_NO_CONTENT
-            )
         # 본인이 생성한 그룹이 아니라면
         else:
             return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
