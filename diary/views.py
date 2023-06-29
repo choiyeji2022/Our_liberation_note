@@ -54,6 +54,40 @@ class NoteView(APIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request):
+        note_ids = request.data.get("note_ids")
+
+        for id in note_ids:
+            note = get_object_or_404(Note, id=id["id"], status="1")
+            delete_note = NoteSerializer(note).data
+            delete_note["status"] = 3
+            serializer = NoteSerializer(note, data=delete_note, partial=True)
+
+            # 그룹에 속한 노트, 계획, 사진첩, 댓글, 스탬프 상태 변경
+            plan_pages = PlanPage.objects.filter(diary=note)
+            plan_pages.update(status="3")
+
+            photo_pages = PhotoPage.objects.filter(diary=note)
+            photo_pages.update(status="3")
+
+            comments = Comment.objects.filter(photo__in=photo_pages)
+            comments.update(status="3")
+
+            stamps = Stamp.objects.filter(photo__in=photo_pages)
+            stamps.update(status="3")
+
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+
+                status_code = status.HTTP_204_NO_CONTENT
+                message = "노트가 삭제되었습니다."
+
+            else:
+                status_code = status.HTTP_403_FORBIDDEN
+                message = "권한이 없습니다."
+
+        return Response({"message": message}, status=status_code)
+
 
 class DetailNoteView(APIView):
     def get(self, request, note_id):
@@ -74,15 +108,6 @@ class DetailNoteView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, note_id):
-        note = get_object_or_404(Note, id=note_id)
-        delete_note = NoteSerializer(note).data
-        delete_note["status"] = 3
-        serializer = NoteSerializer(note, data=delete_note, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 # 사진 페이지
