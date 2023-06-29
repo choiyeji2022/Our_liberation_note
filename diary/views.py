@@ -14,17 +14,10 @@ from user.models import UserGroup
 from user.serializers import GroupSerializer
 
 from .models import Comment, Note, PhotoPage, PlanPage, Stamp
-from .serializers import (
-    CommentSerializer,
-    DetailNoteSerializer,
-    DetailPhotoPageSerializer,
-    MarkerSerializer,
-    NoteSerializer,
-    PhotoPageSerializer,
-    PlanSerializer,
-    StampSerializer,
-    PatchPhotoPageSerializer,
-)
+from .serializers import (CommentSerializer, DetailNoteSerializer,
+                          DetailPhotoPageSerializer, MarkerSerializer,
+                          NoteSerializer, PatchPhotoPageSerializer,
+                          PhotoPageSerializer, PlanSerializer, StampSerializer)
 
 
 # 노트 조회 및 생성
@@ -399,7 +392,7 @@ class StampView(APIView):
                 stamp.status = "1"
                 serializer.save(photo_id=photo_id, user_id=request.user.id)
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            elif stamp.status == "1":
+            elif stamp.status in ["1", "3"]:
                 stamp.status = "0"
                 serializer.save(photo_id=photo_id, user_id=request.user.id)
                 return Response(serializer.data, status=status.HTTP_200_OK)
