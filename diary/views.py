@@ -287,87 +287,63 @@ class Trash(APIView):
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        if "group_set" in request.data:
-            group_set = request.data.get("group_set", [])
+        if "group_ids" in request.data:
+            group_ids = request.data.get("group_ids", [])
             updated_groups = []
 
-            for group_data in group_set:
-                group_id = group_data.get("id")
-                group = get_object_or_404(UserGroup, id=group_id)
-                group_serializer = GroupSerializer(group, data=group_data)
+            for id in group_ids:
+                group = get_object_or_404(UserGroup, id=id["id"])
 
-                if group_serializer.is_valid():
-                    if group.status == "0":
-                        group.status = "1"
-                        status_code = status.HTTP_202_ACCEPTED
+                if group.status == "0":
+                    group.status = "1"
+                    status_code = status.HTTP_202_ACCEPTED
 
-                    elif group.status == "1":
-                        group.status = "0"
-                        status_code = status.HTTP_200_OK
+                elif group.status == "1":
+                    group.status = "0"
+                    status_code = status.HTTP_200_OK
 
-                    group_serializer.save()
-                    updated_groups.append(group_serializer.data)
-
-                else:
-                    return Response(
-                        group_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-                    )
+                group.save()
+                updated_groups.append(GroupSerializer(group).data)
 
             return Response(updated_groups, status=status_code)
 
-        elif "note_set" in request.data:
-            note_set = request.data.get("note_set", [])
+        elif "note_ids" in request.data:
+            note_ids = request.data.get("note_ids", [])
             updated_notes = []
 
-            for note_data in note_set:
-                note_id = note_data.get("id")
-                note = get_object_or_404(Note, id=note_id)
-                note_serializer = NoteSerializer(note, data=note_data)
+            for id in note_ids:
+                note = get_object_or_404(Note, id=id["id"])
 
-                if note_serializer.is_valid():
-                    if note.status == "0":
-                        note.status = "1"
-                        status_code = status.HTTP_202_ACCEPTED
+                if note.status == "0":
+                    note.status = "1"
+                    status_code = status.HTTP_202_ACCEPTED
 
-                    elif note.status == "1":
-                        note.status = "0"
-                        status_code = status.HTTP_200_OK
+                elif note.status == "1":
+                    note.status = "0"
+                    status_code = status.HTTP_200_OK
 
-                    note_serializer.save()
-                    updated_notes.append(note_serializer.data)
-
-                else:
-                    return Response(
-                        note_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-                    )
+                note.save()
+                updated_notes.append(NoteSerializer(note).data)
 
             return Response(updated_notes, status=status_code)
 
         else:
-            photo_set = request.data.get("photo_set", [])
+            photo_ids = request.data.get("photo_ids", [])
             updated_photos = []
 
-            for photo_data in photo_set:
-                photo_id = photo_data.get("id")
-                photo = get_object_or_404(PhotoPage, id=photo_id)
-                photo_serializer = PatchPhotoPageSerializer(photo, data=photo_data)
+            for id in photo_ids:
+                photo = get_object_or_404(PhotoPage, id=id["id"])
 
-                if photo_serializer.is_valid():
-                    if photo.status == "0":
-                        photo.status = "1"
-                        status_code = status.HTTP_202_ACCEPTED
+                if photo.status == "0":
+                    photo.status = "1"
+                    status_code = status.HTTP_202_ACCEPTED
 
-                    elif photo.status == "1":
-                        photo.status = "0"
-                        status_code = status.HTTP_200_OK
+                elif photo.status == "1":
+                    photo.status = "0"
+                    status_code = status.HTTP_200_OK
 
-                    photo_serializer.save()
-                    updated_photos.append(photo_serializer.data)
-
-                else:
-                    return Response(
-                        photo_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-                    )
+                photo.save()
+                updated_photos.append(PatchPhotoPageSerializer(photo).data)
 
             return Response(updated_photos, status=status_code)
 
