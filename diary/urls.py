@@ -5,7 +5,7 @@ from diary import views
 from Our_Liberation_Note import settings
 
 urlpatterns = [
-    # 노트 생성
+    # 노트 생성, 삭제
     path("", views.NoteView.as_view(), name="note_post"),
     # 노트 그룹별 전체 조회
     path("<int:group_id>", views.NoteView.as_view(), name="note_detail"),
@@ -23,9 +23,11 @@ urlpatterns = [
     ),
     # 사진첩 저장
     path("photo/<int:note_id>", views.PhotoPageView.as_view(), name="photo_page_post"),
+    # 사진첩 삭제
+    path("photo", views.DetailPhotoPageView.as_view(), name="photo_page_delete"),
     # 계획 전체 조회, 생성
     path("plan/<int:note_id>", views.PlanPageView.as_view(), name="plan_page"),
-    # 사진첩 상세 조회, 수정. 삭제, 댓글 저장
+    # 사진첩 상세 조회, 수정, 댓글 저장
     path(
         "photo-detail/<int:photo_id>",
         views.DetailPhotoPageView.as_view(),

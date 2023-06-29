@@ -63,7 +63,7 @@ class NoteView(APIView):
             delete_note["status"] = 3
             serializer = NoteSerializer(note, data=delete_note, partial=True)
 
-            # 그룹에 속한 노트, 계획, 사진첩, 댓글, 스탬프 상태 변경
+            # 노트에 속한 계획, 사진첩, 댓글, 스탬프 상태 변경
             plan_pages = PlanPage.objects.filter(diary=note)
             plan_pages.update(status="3")
 
@@ -155,17 +155,34 @@ class DetailPhotoPageView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, photo_id):
-        photo = get_object_or_404(PhotoPage, id=photo_id, status__in=[0, 1])
-        delete_photo = DetailPhotoPageSerializer(photo).data
-        delete_photo["status"] = 3
-        serializer = PatchPhotoPageSerializer(photo, data=delete_photo, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            print(serializer.errors)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request):
+        photo_ids = request.data.get("photo_ids")
+
+        for id in photo_ids:
+            photo = get_object_or_404(PhotoPage, id=id["id"], status__in=[1])
+            delete_photo = DetailPhotoPageSerializer(photo).data
+            delete_photo["status"] = 3
+            serializer = PatchPhotoPageSerializer(
+                photo, data=delete_photo, partial=True
+            )
+
+            # 사진첩에 속한 댓글, 스탬프 상태 변경
+            comments = Comment.objects.filter(photo=photo)
+            comments.update(status="3")
+
+            stamps = Stamp.objects.filter(photo=photo)
+            stamps.update(status="3")
+
+            if serializer.is_valid():
+                serializer.save()
+
+                status_code = status.HTTP_204_NO_CONTENT
+                message = "사진이 삭제되었습니다."
+            else:
+                status_code = status.HTTP_403_FORBIDDEN
+                message = "권한이 없습니다."
+
+        return Response({"message": message}, status=status_code)
 
 
 # 댓글
