@@ -114,6 +114,15 @@ class SignupView(APIView):
         if serializer.is_valid():
             serializer.save()
             code_obj.delete()  # 이메일 확인 코드 삭제
+
+            # 그룹 이름
+            group_name = email.split("@")[0]
+
+            # 회원가입시 개인 그룹 생성
+            new_user = User.objects.get(email=email)
+            new_group = UserGroup(name=group_name, master=new_user)
+            new_group.save()
+            new_group.members.add(new_user)
             return Response({"message": "가입완료!"}, status=status.HTTP_201_CREATED)
         else:
             return Response(
@@ -367,7 +376,8 @@ class GroupDetailView(APIView):
 
 
 # 소셜 로그인
-URI = "https://liberation-note.com"
+# URI = "https://liberation-note.com"
+URI = "http://127.0.0.1:8000"
 
 
 # OAuth 인증 url
@@ -461,6 +471,15 @@ class KakaoLoginView(APIView):
             user = User.objects.create_user(email=email)
             user.set_unusable_password()  # 비밀번호 생성 X
             user.save()
+
+            # 그룹 이름
+            group_name = email.split("@")[0]
+
+            # 회원가입 시 개인 그룹 생성
+            new_group = UserGroup(name=group_name, master=user)
+            new_group.save()
+            new_group.members.add(user)
+
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
             return Response(
@@ -528,6 +547,15 @@ class NaverLoginView(APIView):
             user = User.objects.create_user(email=email)
             user.set_unusable_password()  # 비밀번호 생성 X
             user.save()
+
+            # 그룹 이름
+            group_name = email.split("@")[0]
+
+            # 회원가입 시 개인 그룹 생성
+            new_group = UserGroup(name=group_name, master=user)
+            new_group.save()
+            new_group.members.add(user)
+
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
             return Response(
@@ -588,6 +616,15 @@ class GoogleLoginView(APIView):
             user = User.objects.create_user(email=email)
             user.set_unusable_password()  # 비밀번호 생성 X
             user.save()
+
+            # 그룹 이름
+            group_name = email.split("@")[0]
+
+            # 회원가입 시 개인 그룹 생성
+            new_group = UserGroup(name=group_name, master=user)
+            new_group.save()
+            new_group.members.add(user)
+
             refresh = RefreshToken.for_user(user)
             refresh["email"] = user.email
             return Response(
