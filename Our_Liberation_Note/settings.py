@@ -16,12 +16,8 @@ ALLOWED_HOSTS = ["3.34.136.157", "ec2-3-34-136-157.ap-northeast-2.compute.amazon
 
 CORS_ALLOW_ALL_ORIGINS = False  # 모든 도메인에서 오는 요청을 허용하지 않음
 CORS_ALLOWED_ORIGINS = [
-    "http://3.34.136.157",
-    "http://54.180.24.79",
-    "http://ec2-3-34-136-157.ap-northeast-2.compute.amazonaws.com",
-    "http://ec2-54-180-24-79.ap-northeast-2.compute.amazonaws.com",
     "https://liberation-note.com",
-    "https://api.liberation-note.com",
+    "http://liberation-note.com",
 ]
 
 
