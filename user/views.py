@@ -22,7 +22,7 @@ from user.serializers import (GroupCreateSerializer, GroupSerializer,
                               LoginSerializer, SignUpSerializer,
                               UserUpdateSerializer, UserViewSerializer)
 
-from .validators import check_password
+from .validators import check_password, validate_email
 
 
 # 이메일 전송
@@ -30,6 +30,10 @@ class SendEmail(APIView):
     def post(self, request):
         subject = "[우리들의 해방일지] 인증 코드를 확인해주세요!"
         user_email = request.data.get("email")
+        
+        if not validate_email(user_email):
+            return Response({"message": "잘못된 이메일 주소입니다!"}, status=status.HTTP_400_BAD_REQUEST)
+        
         random_code = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=6)
         )  # 6자리 랜덤 문자열 생성
