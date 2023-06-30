@@ -24,10 +24,17 @@ def check_words(word):
         r"([발빨]이|[바빠]리)|盧|무현|찌끄[레래]기|(하악){2,}|하[앍앜]|[낭당랑앙항남담람암함][ ]?[가-힣]+[띠찌]|느[금급]마|文在|在寅|(?<=[^\n])[家哥]|속냐|[tT]l[qQ]kf|Wls"
     )
 
-    # '??지랄'-> 이런 형식은 통과! 수정 예정
 
     for word in word_set:
         if re.match(words_regex, word):
             return True
 
+    return False
+
+
+def validate_email(email):
+    email_regex = r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$'
+    if re.match(email_regex, email):
+        return True
+    
     return False
