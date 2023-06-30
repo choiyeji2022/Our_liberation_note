@@ -31,3 +31,11 @@ def check_words(word):
             return True
 
     return False
+
+
+def validate_email(email):
+    email_regex = r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$'
+    if re.match(email_regex, email):
+        return True
+    
+    return False
