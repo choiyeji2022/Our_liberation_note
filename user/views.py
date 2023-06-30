@@ -426,7 +426,7 @@ class KakaoLoginView(APIView):
     def post(self, request):
         code = request.data.get("code")  # 카카오에서 인증 후 얻은 code
 
-        # 네이버 API로 액세스 토큰 요청
+        # 카카오 API로 액세스 토큰 요청
         access_token = requests.post(
             "https://kauth.kakao.com/" + "oauth/token",
             headers={"Content-Type": "application/x-www-form-urlencoded"},
