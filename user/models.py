@@ -14,6 +14,12 @@ status_choice = (
     ("3", "삭제"),
 )
 
+class CheckEmailQuerySet(models.QuerySet):
+    def expired(self):
+        return self.filter(expires_at__lt=timezone.now())
+    
+    def delete_expired(self):
+        self.expired().delete()
 
 class CheckEmail(models.Model):
     email = models.EmailField("인증용 이메일", max_length=100)
@@ -22,6 +28,8 @@ class CheckEmail(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
 
+    objects = CheckEmailQuerySet.as_manager()
+    
     def __str__(self):
         return self.email
 
