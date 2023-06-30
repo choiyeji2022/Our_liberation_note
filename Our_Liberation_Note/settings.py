@@ -10,7 +10,9 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["3.34.136.157", "ec2-3-34-136-157.ap-northeast-2.compute.amazonaws.com", "54.180.24.79", "ec2-54-180-24-79.ap-northeast-2.compute.amazonaws.com",
+                 "https://liberation-note.com", "https://api.liberation-note.com"]
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
