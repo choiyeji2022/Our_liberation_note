@@ -114,16 +114,10 @@ GUNICORN_TIMEOUT = 300
 
 
 DATABASES = mysettings.DATABASES
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
 
 # 이미지 삽입
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760
 # MEDIA_URL = "/media/"
 
 
