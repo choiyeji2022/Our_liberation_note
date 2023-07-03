@@ -18,6 +18,7 @@ CORS_ALLOW_ALL_ORIGINS = False  # 모든 도메인에서 오는 요청을 허용
 CORS_ALLOWED_ORIGINS = [
     "https://liberation-note.com",
     "http://liberation-note.com",
+    "http://127.0.0.1:5500",
 ]
 
 
