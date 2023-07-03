@@ -75,7 +75,6 @@ class SignupView(APIView):
         code_obj = (
             CheckEmail.objects.filter(email=email).order_by("-created_at").first()
         )
-        print(code_obj)
 
         # 인증코드가 없는 경우
         if code_obj is None:

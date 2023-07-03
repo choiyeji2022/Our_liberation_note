@@ -30,6 +30,6 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 app.conf.beat_schedule = {
     'delete_expired_emails': {
         'task': 'user.tasks.delete_expired_emails',
-        'schedule': crontab(minute='*/15'),  # 15분마다 실행
+        'schedule': crontab(minute='*/15'), # 15분마다 실행
     },
 }
