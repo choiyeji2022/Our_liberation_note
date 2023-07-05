@@ -2,11 +2,23 @@ import os
 from datetime import timedelta
 from pathlib import Path
 import mysettings
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+# print(BASE_DIR)
+# SECRET_KEY = os.environ.get("SECRET_KEY")
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-print(SECRET_KEY)
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = str(BASE_DIR)
+print("1",BASE_DIR)
+# BASE_DIR = Path(__file__).resolve().parent
+env = environ.Env(DEBUG=(bool, True))
+
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+SECRET_KEY = env("SECRET_KEY")
+
+
 
 DEBUG = True
 

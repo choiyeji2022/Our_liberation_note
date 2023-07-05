@@ -2,12 +2,12 @@
 import os
 from celery import Celery
 # from django.conf import settings
-from Our_Liberation_Note import settings
+# from Our_Liberation_Note import settings
 
 from celery.schedules import crontab
 from pathlib import Path
 from datetime import timedelta
-
+# print(settings.__file__)
 
 # 설정되어있는 경우 환경변수 'DJANGO_SETTINGS_MODULE'를 가리키게 한다.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Our_Liberation_Note.settings")
@@ -20,7 +20,7 @@ app = Celery("Our_Liberation_Note")
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # 개별 앱중에서 작업자를 작동시킨다.
-app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+app.autodiscover_tasks()
 
 app.conf.broker_connection_retry_on_startup = True
 
@@ -31,7 +31,6 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 app.conf.beat_schedule = {
     'delete_expired_emails': {
         'task': 'user.tasks.delete_expired_emails',
-        # 'schedule': crontab(minute='*/15'), # 15분마다 실행
-        'schedule': timedelta(seconds=1), # 임시로 설정해둔 시간 삭제할 예정
+        'schedule': crontab(minute='*/15'), # 15분마다 실행
     },
 }
