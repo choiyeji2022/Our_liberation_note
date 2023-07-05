@@ -1,14 +1,14 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-
 import mysettings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
+print(SECRET_KEY)
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["3.34.136.157", "ec2-3-34-136-157.ap-northeast-2.compute.amazonaws.com", "54.180.24.79",
                  "ec2-54-180-24-79.ap-northeast-2.compute.amazonaws.com",
@@ -23,7 +23,7 @@ CORS_ALLOWED_ORIGINS = [
 
 
 #  s3 설정
-if not DEBUG:
+if DEBUG:
     # aws settings
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
@@ -74,6 +74,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
+    'django_celery_beat',
+    'django_celery_results',
     "user",
     "diary",
     "pay",
@@ -157,7 +159,7 @@ JWT_AUTH_COOKIE = "jwt_token"
 JTW_AUTH_REFRESH_COOKIE = "jwt_refresh_token"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=24),  # 배포 때는 바꾸기
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
@@ -201,3 +203,11 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")  # 발신할 메일�
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS")  # TLS 보안 방법
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필드가 회원가입 시 필수 필드로 지정
+
+# django celery beat
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul'

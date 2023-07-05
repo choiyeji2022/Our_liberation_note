@@ -3,6 +3,8 @@ import sys
 
 import dotenv
 
+# django-dotenv를 사용하는 경우, 프로젝트 시작 부분에 환경 변수를 로드할 수 있도록 설정
+dotenv.read_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 
 def main():
     """Run administrative tasks."""
