@@ -27,17 +27,18 @@
     그 부분을 보안하기 위해 웹사이트만의 장점을 살릴 수 있는
     MBTI 테스트와 AI 요소를 추가해 지금의 웹사이트가 탄생하게 되었습니다!
   - 사용자의 입장에서 바라보며 이목을 끌 수 있을만한 요소들을 팀원들과 다같이 고민하고 흥미로운 기능들을 넣기 위해 많은 노력을 했습니다!
-  - 프라이빗함이 핵심 키워드이기 떄문에 저희 웹사이트의 기능을 온전히 즐기고 싶으시다면 그룹 생성을 먼저 해주셔야 합니다!
+  - 프라이빗함이 핵심 키워드이기 떄문에 저희 웹사이트의 기능을 온전히 즐기기 위해선 그룹 생성이 필수이기 때문에 가입과 동시에 그룹이 생성이 됩니다!
   - 그룹과 노트 생성 후 노트 상세 페이지로 이동하면 달력과 함께 여러가지 기능(일정추가, 사진첩 생성, AI랑 놀기, 계획표 전송, 해방 필름 등)을 만나 볼 수 있습니다!
+  - 항목들을 삭제 시 휴지통으로 이동되며 휴지통 창에서 복원 또는 완전 삭제 선택이 가능합니다!
 
 
 <br>
 
 
 ## ℹ️ 웹사이트 정보
-<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/cc5a98e0-8001-4a71-8f82-ed49fc90041e" alt="info1">
-<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/acf6468b-61f5-4166-b4fe-1572d8f2d26a" alt="info2">
-<img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/2a6f8f3b-d2fe-4ecf-b8a1-315bb22766fc" alt="info3">
+![info1](https://github.com/Msgun7/Our_liberation_note/assets/125116878/efbd95e1-56f5-450d-a552-181e9885cdb4)
+![info2](https://github.com/Msgun7/Our_liberation_note/assets/125116878/8da5b50b-e79c-44a6-8b14-ebb780fee1bd)
+
 
 <br>
 <br>
@@ -178,10 +179,20 @@
 
 
 ## 🌏 Deployment Tools
+[![AWS](https://img.shields.io/badge/AWS-%23FF9900?style=for-the-badge&logo=Amazon-AWS&logoColor=white)](https://aws.amazon.com/)
+[![EC2](https://img.shields.io/badge/EC2-%23F8991C?style=for-the-badge&logo=Amazon-EC2&logoColor=white)](https://aws.amazon.com/ec2/)
+[![Route 53](https://img.shields.io/badge/Route_53-%233495DB?style=for-the-badge&logo=Amazon-Route-53&logoColor=white)](https://aws.amazon.com/route53/)
+[![Load Balancer](https://img.shields.io/badge/Load_Balancer-%23967FF7?style=for-the-badge&logo=ElasticLoadBalancing&logoColor=white)](https://aws.amazon.com/elasticloadbalancing/)
 ![Jenkins](https://img.shields.io/badge/Jenkins-007ACC?style=for-the-badge&logo=Jenkins&logoColor=white)
-![GitHub Actions](https://img.shields.io/badge/GitHubActions-2088FF?style=for-the-badge&logo=GitHubActions&logoColor=white)
 [![Gunicorn](https://img.shields.io/badge/Gunicorn-FF0000?style=for-the-badge&logo=Gunicorn&logoColor=white)](https://gunicorn.org/)
+<br>
 [![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=Nginx&logoColor=white)](https://nginx.org/)
+![GitHub Actions](https://img.shields.io/badge/GitHubActions-2088FF?style=for-the-badge&logo=GitHubActions&logoColor=white)
+[![S3](https://img.shields.io/badge/S3-%23169BF7?style=for-the-badge&logo=Amazon-S3&logoColor=white)](https://aws.amazon.com/s3/)
+[![CloudFront](https://img.shields.io/badge/CloudFront-%23F5851C?style=for-the-badge&logo=Amazon-CloudFront&logoColor=white)](https://aws.amazon.com/cloudfront/)
+
+
+
 
 
 <br>
@@ -243,13 +254,18 @@
   - 사용 이유
     - 통합성 : 깃허브 플랫폼에 내장되어 있기 때문에 별도의 통합 작업 없이 즉시 사용 가능하기 때문입니다.
     - 간단한 배포 : main.yml 파일을 작성하고, 관련 키를 등록해 주면 되기 때문에 jenkins보다 쉽고 빠르게 배포 가능합니다.
+   
+<p align="center">
+  <img src="https://github.com/Msgun7/Our_liberation_note/assets/125116878/e68b975e-97f2-4b41-be2b-e3e8f4ac8775" alt="GitHub-Actions">
+</p>
+
 
    
 <br>
 
 
 ## 🛢 Database ERD
-![image](https://github.com/Msgun7/Our_liberation_note/assets/125116878/9863e4c3-48b5-453f-8c63-4c4ad042265b)
+![ERD](https://github.com/Msgun7/Our_liberation_note/assets/125116878/4c5c6714-4caa-4e56-ae1d-ea7ec68f80a6)
 
 
 <br>

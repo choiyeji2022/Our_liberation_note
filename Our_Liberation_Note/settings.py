@@ -20,15 +20,22 @@ SECRET_KEY = env("SECRET_KEY")
 
 
 
-DEBUG = True
+DEBUG = False
 
+ALLOWED_HOSTS = ["3.34.136.157", "ec2-3-34-136-157.ap-northeast-2.compute.amazonaws.com", "54.180.24.79",
+                 "ec2-54-180-24-79.ap-northeast-2.compute.amazonaws.com",
+                 "liberation-note.com", "api.liberation-note.com", ]
 
-ALLOWED_HOSTS = ["*"]
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = False  # 모든 도메인에서 오는 요청을 허용하지 않음
+CORS_ALLOWED_ORIGINS = [
+    "https://liberation-note.com",
+    "http://liberation-note.com",
+    "http://127.0.0.1:5500",
+]
+
 
 #  s3 설정
-if DEBUG:
+if not DEBUG:
     # aws settings
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
@@ -54,7 +61,6 @@ else:
 
     STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
-
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -67,7 +73,6 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
-
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -126,7 +131,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "Our_Liberation_Note.wsgi.application"
 GUNICORN_TIMEOUT = 300
 
-
 DATABASES = mysettings.DATABASES
 
 # 이미지 삽입
@@ -150,7 +154,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Asia/Seoul"
@@ -159,9 +162,7 @@ USE_I18N = True
 
 USE_TZ = False  # False 로 설정해야 DB에 변경 된 TIME_ZONE 이 반영 됨
 
-
 STATIC_URL = "static/"
-
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -204,7 +205,6 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = "user.User"
-
 
 # Email
 EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
