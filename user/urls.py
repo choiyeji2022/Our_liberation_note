@@ -6,7 +6,6 @@ urlpatterns = [
     # 로그인
     path("signup/", views.SignupView.as_view(), name="signup"),
     path("login/", views.LoginView.as_view(), name="login"),
-    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # 회원 정보
     path("", views.UserView.as_view(), name="user_view"),
     # 이메일 인증

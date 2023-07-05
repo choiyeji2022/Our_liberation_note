@@ -2,7 +2,7 @@ from celery import shared_task
 from .models import CheckEmail
 import datetime
 
-# Periodic task that deletes expired emails
+
 @shared_task
 def delete_expired_emails():
     # 만료된 이메일을 조회하기
