@@ -13,7 +13,8 @@ from datetime import timedelta
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Our_Liberation_Note.settings")
 
 # SECRET_KEY = os.environ.get('SECRET_KEY')
-CELERY_RESULT_BACKEND = ‘redis://redis:6379/0’
+CELERY_BROKER=redis://redis:6379/0
+CELERY_BACKEND=redis://redis:6379/0
 app = Celery("Our_Liberation_Note")
 
 # Django 설정 파일에 있는 설정을 사용하도록 한다.
