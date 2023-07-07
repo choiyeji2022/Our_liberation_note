@@ -7,7 +7,6 @@ from pathlib import Path
 # 설정되어있는 경우 환경변수 'DJANGO_SETTINGS_MODULE'를 가리키게 한다.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Our_Liberation_Note.settings")
 
-# SECRET_KEY = os.environ.get('SECRET_KEY')
 CELERY_BROKER='redis://redis:6379/0'
 CELERY_BACKEND='redis://redis:6379/0'
 app = Celery("Our_Liberation_Note")
