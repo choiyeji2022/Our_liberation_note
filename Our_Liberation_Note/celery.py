@@ -1,19 +1,14 @@
-# from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
-# from django.conf import settings
-# from Our_Liberation_Note import settings
-
 from celery.schedules import crontab
 from pathlib import Path
-from datetime import timedelta
-# print(settings.__file__)
+
 
 # 설정되어있는 경우 환경변수 'DJANGO_SETTINGS_MODULE'를 가리키게 한다.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "Our_Liberation_Note.settings")
 
-# SECRET_KEY = os.environ.get('SECRET_KEY')
-
+CELERY_BROKER='redis://redis:6379/0'
+CELERY_BACKEND='redis://redis:6379/0'
 app = Celery("Our_Liberation_Note")
 
 # Django 설정 파일에 있는 설정을 사용하도록 한다.
