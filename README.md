@@ -30,6 +30,8 @@
   - 프라이빗함이 핵심 키워드이기 떄문에 저희 웹사이트의 기능을 온전히 즐기기 위해선 그룹 생성이 필수이기 때문에 가입과 동시에 그룹이 생성이 됩니다!
   - 그룹과 노트 생성 후 노트 상세 페이지로 이동하면 달력과 함께 여러가지 기능(일정추가, 사진첩 생성, AI랑 놀기, 계획표 전송, 해방 필름 등)을 만나 볼 수 있습니다!
   - 항목들을 삭제 시 휴지통으로 이동되며 휴지통 창에서 복원 또는 완전 삭제 선택이 가능합니다!
+  - AI 기능은 결제를 통해서 사용할 수 있으며 그룹에서 한 사람만 결제해도 그룹 전체의 인원이 AI 기능을 사용할 수 있습니다! (테스트 결제라 실결제는 이뤄지지 않습니다!)
+  - AI은 작성한 일정을 가져와 선택하여 각 목적지들을 비교해서 거리를 기준으로 최적의 경로를 제공하고, openai를 통해 목적지들 주변의 명소들을 추천 받습니다! 그 후 웹크롤링을 통해 관련 블로그링크를 제공합니다.
 
 
 <br>
@@ -169,11 +171,11 @@
 
 ![MySQL](https://img.shields.io/badge/mysql-%2300f.svg?style=for-the-badge&logo=mysql&logoColor=white)
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
-![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
 [![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=Django&logoColor=white)](https://www.djangoproject.com/)
 [![Django REST Framework](https://img.shields.io/badge/Django%20REST%20Framework-009688?style=for-the-badge&logo=Django&logoColor=white)](https://www.django-rest-framework.org/)
+![Redis](https://img.shields.io/badge/Redis-%23DD0031.svg?style=for-the-badge&logo=Redis&logoColor=white)
+![Celery](https://img.shields.io/badge/Celery-37814A?style=for-the-badge&logo=celery&logoColor=white)
+
 
 <br>
 
@@ -187,11 +189,6 @@
 [![Gunicorn](https://img.shields.io/badge/Gunicorn-FF0000?style=for-the-badge&logo=Gunicorn&logoColor=white)](https://gunicorn.org/)
 <br>
 [![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=Nginx&logoColor=white)](https://nginx.org/)
-![GitHub Actions](https://img.shields.io/badge/GitHubActions-2088FF?style=for-the-badge&logo=GitHubActions&logoColor=white)
-[![S3](https://img.shields.io/badge/S3-%23169BF7?style=for-the-badge&logo=Amazon-S3&logoColor=white)](https://aws.amazon.com/s3/)
-[![CloudFront](https://img.shields.io/badge/CloudFront-%23F5851C?style=for-the-badge&logo=Amazon-CloudFront&logoColor=white)](https://aws.amazon.com/cloudfront/)
-
-
 
 
 
@@ -260,6 +257,18 @@
 </p>
 
 
+- 🍀 Django Celery Beat
+  - [관련링크](https://dingrr.com/blog/post/django-redis-celery-%EC%A1%B0%ED%95%A9%EC%9C%BC%EB%A1%9C-%EB%B9%84%EB%8F%99%EA%B8%B0-%EC%9E%91%EC%97%85)
+  - 사용 이유
+    - 불필요한 인스턴스(유효기간이 지난 이메일 인증 코드)를 자동삭제 삭제하는 기능을 구현하기 위해 사용하였으며, 이 기능은 django-schedule로도 충분히 구현이 되었겠지만 복잡한 백그라운드 작업이 추가되거나 유지보수를 위해서 django-celery를 이용하는 것이 더 나을 것이란 판단﻿을 내렸습니다.
+   
+
+- 🍀 Redis
+  - [관련링크](https://velog.io/@odh0112/Django-Celery%EB%A1%9C-%EB%B9%84%EB%8F%99%EA%B8%B0-%EC%B4%A5%EC%B4%A5)
+  - 사용 이유
+    - celery와 메시지 브로커를 사용하면 비동기 작업을 처리할 수 있어 서버가 삭제 작업을 기다리지 않고 동시에 다른 요청을 처리할 수 있어 사용자에게 더 나은 응답 시간을 제공할 수 있기 때문입니다.
+    - 대용량 메시지 전송이 필요한 경우에는 rabbitMQ가 필요했겠지만, 불필요한 인스턴스를 자동 삭제하는 기능은 redis로도 충분히 커버가 되기 때문에 비교적 속도가 빠르고 배포가 쉬운 redis를 사용하였습니다.
+        
    
 <br>
 
