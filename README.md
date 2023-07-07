@@ -187,7 +187,6 @@
 [![Load Balancer](https://img.shields.io/badge/Load_Balancer-%23967FF7?style=for-the-badge&logo=ElasticLoadBalancing&logoColor=white)](https://aws.amazon.com/elasticloadbalancing/)
 ![Jenkins](https://img.shields.io/badge/Jenkins-007ACC?style=for-the-badge&logo=Jenkins&logoColor=white)
 [![Gunicorn](https://img.shields.io/badge/Gunicorn-FF0000?style=for-the-badge&logo=Gunicorn&logoColor=white)](https://gunicorn.org/)
-<br>
 [![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=Nginx&logoColor=white)](https://nginx.org/)
 
 
