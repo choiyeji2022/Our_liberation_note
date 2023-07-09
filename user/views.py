@@ -30,10 +30,12 @@ class SendEmail(APIView):
     def post(self, request):
         subject = "[우리들의 해방일지] 인증 코드를 확인해주세요!"
         user_email = request.data.get("email")
-        
+
         if not validate_email(user_email):
-            return Response({"message": "잘못된 이메일 주소입니다!"}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(
+                {"message": "잘못된 이메일 주소입니다!"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         random_code = "".join(
             random.choices(string.ascii_uppercase + string.digits, k=6)
         )  # 6자리 랜덤 문자열 생성
@@ -465,7 +467,7 @@ class KakaoLoginView(APIView):
         try:
             # 사용자가 이미 존재하는 경우 (회원가입이 되어 있는 경우)
             user = User.objects.get(email=email)
-            
+
             # 탈퇴 계정인지 확인
             if user.is_active:
                 refresh = RefreshToken.for_user(user)
@@ -478,7 +480,10 @@ class KakaoLoginView(APIView):
                     status=status.HTTP_200_OK,
                 )
             else:
-                return Response({'message':"탈퇴한 사용자는 로그인할 수 없습니다!"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "탈퇴한 사용자는 로그인할 수 없습니다!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except:
             # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)
@@ -546,7 +551,7 @@ class NaverLoginView(APIView):
         try:
             # 사용자가 이미 존재하는 경우 (회원가입이 되어 있는 경우)
             user = User.objects.get(email=email)
-            
+
             # 탈퇴 계정인지 확인
             if user.is_active:
                 refresh = RefreshToken.for_user(user)
@@ -559,7 +564,10 @@ class NaverLoginView(APIView):
                     status=status.HTTP_200_OK,
                 )
             else:
-                return Response({'message':"탈퇴한 사용자는 로그인할 수 없습니다!"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "탈퇴한 사용자는 로그인할 수 없습니다!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except:
             # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)
@@ -620,7 +628,7 @@ class GoogleLoginView(APIView):
         try:
             # 사용자가 이미 존재하는 경우 (회원가입이 되어 있는 경우)
             user = User.objects.get(email=email)
-            
+
             # 탈퇴 계정인지 확인
             if user.is_active:
                 refresh = RefreshToken.for_user(user)
@@ -633,7 +641,10 @@ class GoogleLoginView(APIView):
                     status=status.HTTP_200_OK,
                 )
             else:
-                return Response({'message':"탈퇴한 사용자는 로그인할 수 없습니다!"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "탈퇴한 사용자는 로그인할 수 없습니다!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         except:
             # 사용자가 존재하지 않는 경우 회원 가입 진행
             user = User.objects.create_user(email=email)

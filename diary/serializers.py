@@ -28,17 +28,17 @@ class DetailNoteSerializer(serializers.ModelSerializer):
     group_set = serializers.SerializerMethodField()
 
     def get_photo_set(self, obj):
-        photo = PhotoPage.objects.filter(diary_id=obj.id)
+        photo = PhotoPage.objects.filter(diary_id=obj.id, status=0)
         serializer = DetailPhotoPageSerializer(photo, many=True)
         return serializer.data
 
     def get_plan_set(self, obj):
-        plan = PlanPage.objects.filter(diary_id=obj.id)
+        plan = PlanPage.objects.filter(diary_id=obj.id, status=0)
         serializer = PlanSerializer(plan, many=True)
         return serializer.data
 
     def get_group_set(self, obj):
-        group = UserGroup.objects.get(id=obj.group_id)
+        group = UserGroup.objects.get(id=obj.group_id, status=0)
         serializer = GroupSerializer(group)
         return serializer.data
 
@@ -76,7 +76,7 @@ class DetailPhotoPageSerializer(serializers.ModelSerializer):
     comment_set = serializers.SerializerMethodField()
 
     def get_comment_set(self, obj):
-        comments = Comment.objects.filter(photo_id=obj.id, status__in=[0, 1])
+        comments = Comment.objects.filter(photo_id=obj.id, status=0)
         serializer = CommentSerializer(comments, many=True)
         return serializer.data
 

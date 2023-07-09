@@ -6,6 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.mail import send_mail
 from rest_framework import permissions, status
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -20,9 +21,46 @@ from .serializers import (CommentSerializer, DetailNoteSerializer,
                           PhotoPageSerializer, PlanSerializer, StampSerializer)
 
 
+class IsNoteGroupMember(BasePermission):
+    def has_permission(self, request, view):
+        if not view.kwargs:  # URL 매개변수가 없을 경우
+            return True
+
+        note_id = None
+        if "note_id" in view.kwargs:
+            note_id = view.kwargs["note_id"]
+        elif "plan_id" in view.kwargs:
+            plan_id = view.kwargs["plan_id"]
+            plan = get_object_or_404(PlanPage, id=plan_id)
+            note_id = plan.diary.id
+        elif "photo_id" in view.kwargs:
+            photo_id = view.kwargs["photo_id"]
+            photo = get_object_or_404(PhotoPage, id=photo_id)
+            note_id = photo.diary.id
+        elif "comment_id" in view.kwargs:
+            comment_id = view.kwargs["comment_id"]
+            comment = get_object_or_404(Comment, id=comment_id)
+            note_id = comment.photo.diary.id
+        elif "group_id" in view.kwargs:
+            group_id = view.kwargs["group_id"]
+            group = get_object_or_404(UserGroup, id=group_id).members.all()
+            return request.user in group
+        elif "photo_ids" in view.kwargs:
+            return True
+        elif "note_ids" in view.kwargs:
+            return True
+
+        if note_id is not None:
+            note = get_object_or_404(Note, id=note_id)
+            group_members = note.group.members.all()
+            return request.user in group_members
+
+        return False
+
+
 # 노트 조회 및 생성
 class NoteView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsNoteGroupMember]
 
     def get(self, request, group_id):
         notes = Note.objects.filter(group_id=group_id, status="0").order_by(
@@ -33,7 +71,11 @@ class NoteView(APIView):
 
     def post(self, request, group_id=None):
         serializer = NoteSerializer(data=request.data)
-        print(request.user)
+        group = get_object_or_404(UserGroup, id=request.data["group"])
+
+        if request.user not in group.members.all():
+            return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+
         if serializer.is_valid():
             # 같은 그룹 같은 노트 작성 불가
             if Note.objects.filter(
@@ -52,6 +94,12 @@ class NoteView(APIView):
 
         for id in note_ids:
             note = get_object_or_404(Note, id=id["id"], status="1")
+
+            if request.user not in note.group.members.all():
+                return Response(
+                    {"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN
+                )
+
             delete_note = NoteSerializer(note).data
             delete_note["status"] = 3
             serializer = NoteSerializer(note, data=delete_note, partial=True)
@@ -83,6 +131,8 @@ class NoteView(APIView):
 
 
 class DetailNoteView(APIView):
+    permission_classes = [IsNoteGroupMember]
+
     def get(self, request, note_id):
         note = get_object_or_404(Note, id=note_id, status="0")
         serializer = DetailNoteSerializer(note)
@@ -105,6 +155,8 @@ class DetailNoteView(APIView):
 
 # 사진 페이지
 class PhotoPageView(APIView):
+    permission_classes = [IsNoteGroupMember]
+
     def get(self, request, note_id, offset=0):
         limit = 6
         photos = PhotoPage.objects.filter(diary_id=note_id, status="0")[
@@ -124,6 +176,8 @@ class PhotoPageView(APIView):
 
 # 사진 상세 페이지
 class DetailPhotoPageView(APIView):
+    permission_classes = [IsNoteGroupMember]
+
     def get(self, request, photo_id):
         photo = get_object_or_404(PhotoPage, id=photo_id, status="0")
         serializer = DetailPhotoPageSerializer(photo)
@@ -153,6 +207,12 @@ class DetailPhotoPageView(APIView):
 
         for id in photo_ids:
             photo = get_object_or_404(PhotoPage, id=id["id"], status__in=[1])
+
+            if request.user not in photo.diary.group.members.all():
+                return Response(
+                    {"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN
+                )
+
             delete_photo = DetailPhotoPageSerializer(photo).data
             delete_photo["status"] = 3
             serializer = PatchPhotoPageSerializer(
@@ -180,7 +240,7 @@ class DetailPhotoPageView(APIView):
 
 # 댓글
 class CommentView(APIView):
-    def get(self, request, photo_id, comment_id):
+    def get(self, request, comment_id):
         comment = get_object_or_404(
             Comment, user=request.user, id=comment_id, status__in=[0, 1]
         )
@@ -211,6 +271,8 @@ class CommentView(APIView):
 
 
 class PlanPageView(APIView):
+    permission_classes = [IsNoteGroupMember]
+
     def get(self, request, note_id):
         plan = PlanPage.objects.filter(diary_id=note_id, status="0")
         serializer = PlanSerializer(plan, many=True)
@@ -238,6 +300,8 @@ class PlanPageView(APIView):
 
 # 계획표 페이지
 class DetailPlanPageView(APIView):
+    permission_classes = [IsNoteGroupMember]
+
     def get(self, request, plan_id):
         plan = get_object_or_404(PlanPage, id=plan_id, status="0")
         serializer = PlanSerializer(plan)
@@ -390,11 +454,13 @@ class MarkerStampsView(APIView):
 
 class SearchDestination(APIView):
     def post(self, request):
-        test = de.search(request.data["destinations"])
-        return Response(test, status=status.HTTP_200_OK)
+        destination_data = de.search(request.data["destinations"])
+        return Response(destination_data, status=status.HTTP_200_OK)
 
 
 class EmailView(APIView):
+    permission_classes = [IsNoteGroupMember]
+
     def post(self, request, note_id):
         note = get_object_or_404(Note, id=note_id)
         serializer = DetailNoteSerializer(note)

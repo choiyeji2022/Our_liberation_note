@@ -1,8 +1,10 @@
 import os
 from datetime import timedelta
 from pathlib import Path
-import mysettings
+
 import environ
+
+import mysettings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -13,15 +15,27 @@ environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 
 
-DEBUG = True
+DEBUG = False
 
 
-ALLOWED_HOSTS = ["*"]
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+ALLOWED_HOSTS = [
+    "3.34.136.157",
+    "ec2-3-34-136-157.ap-northeast-2.compute.amazonaws.com",
+    "13.125.228.167",
+    "ec2-54-180-24-79.ap-northeast-2.compute.amazonaws.com",
+    "liberation-note.com",
+    "api.liberation-note.com",
+]
+
+CORS_ALLOW_ALL_ORIGINS = False  # 모든 도메인에서 오는 요청을 허용하지 않음
+CORS_ALLOWED_ORIGINS = [
+    "https://liberation-note.com",
+    "http://liberation-note.com",
+    "http://127.0.0.1:5500",
+]
 
 #  s3 설정
-if DEBUG:
+if not DEBUG:
     # aws settings
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
@@ -74,8 +88,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
-    'django_celery_beat',
-    'django_celery_results',
+    "django_celery_beat",
+    "django_celery_results",
     "user",
     "diary",
     "pay",
@@ -163,7 +177,7 @@ JWT_AUTH_COOKIE = "jwt_token"
 JTW_AUTH_REFRESH_COOKIE = "jwt_refresh_token"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=3),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
@@ -212,7 +226,7 @@ ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필드가 회원가입 시 필수 필
 # django celery beat
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379")
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Seoul'
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "Asia/Seoul"
