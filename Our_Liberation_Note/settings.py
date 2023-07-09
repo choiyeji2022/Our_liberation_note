@@ -2,25 +2,23 @@ import os
 from datetime import timedelta
 from pathlib import Path
 import mysettings
+import environ
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
-print(SECRET_KEY)
+env = environ.Env(DEBUG=(bool, True))
+
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
+
+SECRET_KEY = env("SECRET_KEY")
+
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["3.34.136.157", "ec2-3-34-136-157.ap-northeast-2.compute.amazonaws.com", "54.180.24.79",
-                 "ec2-54-180-24-79.ap-northeast-2.compute.amazonaws.com",
-                 "liberation-note.com", "api.liberation-note.com", ]
 
-CORS_ALLOW_ALL_ORIGINS = False  # 모든 도메인에서 오는 요청을 허용하지 않음
-CORS_ALLOWED_ORIGINS = [
-    "https://liberation-note.com",
-    "http://liberation-note.com",
-    "http://127.0.0.1:5500",
-]
-
+ALLOWED_HOSTS = ["*"]
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
 #  s3 설정
 if DEBUG:
@@ -49,6 +47,7 @@ else:
 
     STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
+
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -61,6 +60,7 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
+
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -119,6 +119,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "Our_Liberation_Note.wsgi.application"
 GUNICORN_TIMEOUT = 300
 
+
 DATABASES = mysettings.DATABASES
 
 # 이미지 삽입
@@ -142,6 +143,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Asia/Seoul"
@@ -150,7 +152,9 @@ USE_I18N = True
 
 USE_TZ = False  # False 로 설정해야 DB에 변경 된 TIME_ZONE 이 반영 됨
 
+
 STATIC_URL = "static/"
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -194,6 +198,7 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = "user.User"
 
+
 # Email
 EMAIL_BACKEND = os.environ.get("EMAIL_BACKEND")
 EMAIL_HOST = os.environ.get("EMAIL_HOST")  # 메일 호스트 서버
@@ -205,8 +210,8 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 ACCOUNT_EMAIL_REQUIRED = True  # 이메일 필드가 회원가입 시 필수 필드로 지정
 
 # django celery beat
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
-CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL", "redis://redis:6379")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND", "redis://redis:6379")
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

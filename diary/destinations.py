@@ -150,7 +150,7 @@ def crawling_data(answer_li):
             href = link.get("href")
             data_li.append(href)
         else:
-            print("No related link found")
+            data_li.append("X")
 
     end = datetime.now()
     print("crawling", end - start)
