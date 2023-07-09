@@ -49,6 +49,9 @@ class IsNoteGroupMember(BasePermission):
             return True
         elif "note_ids" in view.kwargs:
             return True
+        
+        if note_id == 3:  # 공개용 데이터라 보여져도 됨
+            return True
 
         if note_id is not None:
             note = get_object_or_404(Note, id=note_id)
