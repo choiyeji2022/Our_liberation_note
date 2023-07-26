@@ -2,17 +2,11 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-import environ
-
 import mysettings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-env = environ.Env(DEBUG=(bool, True))
-
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
-
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
 DEBUG = False
@@ -81,8 +75,6 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
-    "django_celery_beat",
-    "django_celery_results",
     "user",
     "diary",
     "pay",
